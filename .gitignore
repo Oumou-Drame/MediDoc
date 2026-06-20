@@ -1,0 +1,7 @@
+node_modules/
+.env
+whatsapp_auth/
+uploads/
+protected/
+data/
+*.db

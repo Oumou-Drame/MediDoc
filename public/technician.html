@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediDoc - Espace Technicien</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>🏥 MediDoc</h2>
+        <div class="role" id="user-role">Technicien</div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="active" onclick="showSection('upload')">📤 Upload PDF</a>
+        <a href="#" onclick="showSection('history')">📋 Historique</a>
+        <a href="#" onclick="showSection('settings')">⚙️ Mon compte</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="#" onclick="logout()">🚪 Déconnexion</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Upload Section -->
+      <section id="upload-section">
+        <div class="page-header">
+          <h1>📤 Envoyer des résultats médicaux</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Nouvel envoi</h2>
+          </div>
+
+          <div id="alert-box"></div>
+          <div id="success-box"></div>
+
+          <form id="uploadForm">
+            <!-- File Upload -->
+            <div class="form-group">
+              <label>📄 Fichier PDF des résultats</label>
+              <div class="upload-area" id="dropZone" onclick="document.getElementById('pdfFile').click()">
+                <div class="icon">📎</div>
+                <p id="upload-text">Cliquez ou glissez un fichier PDF ici</p>
+                <p style="font-size: 12px; color: var(--gray-400);">Maximum: 50 Mo</p>
+              </div>
+              <input type="file" id="pdfFile" accept=".pdf" style="display: none;" required>
+            </div>
+
+            <!-- Patient Info -->
+            <div class="form-group">
+              <label for="patient_name">👤 Nom complet du patient *</label>
+              <input type="text" id="patient_name" placeholder="Ex: Fatou Diallo" required>
+            </div>
+
+            <!-- Sending Mode -->
+            <div class="form-group">
+              <label for="send_mode">📡 Mode d'envoi *</label>
+              <select id="send_mode" required onchange="updateSendMode()">
+                <option value="">-- Choisir un mode d'envoi --</option>
+                <option value="email_whatsapp">📱 WhatsApp + 📧 Email</option>
+                <option value="email_sms">📧 Email + 📱 SMS</option>
+              </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label for="patient_phone">📱 Téléphone du patient *</label>
+                <input type="tel" id="patient_phone" placeholder="Ex: +221771234567" required>
+              </div>
+              <div class="form-group">
+                <label for="patient_email">📧 Email du patient *</label>
+                <input type="email" id="patient_email" placeholder="Ex: patient@email.com" required>
+              </div>
+            </div>
+
+            <div id="modeInfo" style="background: #d1fae5; border: 1px solid #a7f3d0; border-radius: var(--radius); padding: 12px; margin: 16px 0; font-size: 13px; display: none;">
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block" id="submitBtn">
+              🚀 Protéger et envoyer
+            </button>
+          </form>
+        </div>
+
+        <!-- Last Upload Result -->
+        <div class="card" id="lastResult" style="display: none;">
+          <div class="card-header">
+            <h2>✅ Dernier envoi réussi</h2>
+          </div>
+          <div id="lastResultContent"></div>
+        </div>
+      </section>
+
+      <!-- History Section -->
+      <section id="history-section" style="display: none;">
+        <div class="page-header">
+          <h1>📋 Historique des envois</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Envois récents</h2>
+            <select id="statusFilter" onchange="loadHistory()" style="padding: 8px 12px; border: 1px solid var(--gray-300); border-radius: var(--radius);">
+              <option value="">Tous les statuts</option>
+              <option value="pending">En attente</option>
+              <option value="sent">Envoyé</option>
+              <option value="accessed">Consulté</option>
+              <option value="expired">Expiré</option>
+              <option value="locked">Bloqué</option>
+            </select>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Téléphone</th>
+                  <th>Code</th>
+                  <th>Statut</th>
+                  <th>Tentatives</th>
+                  <th>Date</th>
+                  <th>Expiration</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable">
+                <tr><td colspan="7" class="loading"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings Section -->
+      <section id="settings-section" style="display: none;">
+        <div class="page-header">
+          <h1>⚙️ Mon compte</h1>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Informations du compte</h2>
+          </div>
+          <div id="userInfo"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Changer le mot de passe</h2>
+          </div>
+          <form id="passwordForm">
+            <div class="form-group">
+              <label for="currentPassword">Mot de passe actuel</label>
+              <input type="password" id="currentPassword" required>
+            </div>
+            <div class="form-group">
+              <label for="newPassword">Nouveau mot de passe</label>
+              <input type="password" id="newPassword" minlength="6" required>
+            </div>
+            <button type="submit" class="btn btn-primary">💾 Modifier</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    // Check auth
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (!data.user) {
+          window.location.href = '/';
+          return;
+        }
+        currentUser = data.user;
+        document.getElementById('user-role').textContent = 
+          `${data.user.full_name} (${data.user.role === 'admin' ? 'Administrateur' : 'Technicien'})`;
+        loadUserInfo();
+        loadHistory();
+      } catch (e) {
+        window.location.href = '/';
+      }
+    }
+
+    function showSection(section) {
+      document.querySelectorAll('main section').forEach(s => s.style.display = 'none');
+      document.getElementById(section + '-section').style.display = 'block';
+      document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+      event.target.classList.add('active');
+      if (section === 'history') loadHistory();
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    }
+
+    function loadUserInfo() {
+      document.getElementById('userInfo').innerHTML = `
+        <p><strong>Nom:</strong> ${currentUser.full_name}</p>
+        <p><strong>Utilisateur:</strong> ${currentUser.username}</p>
+        <p><strong>Email:</strong> ${currentUser.email}</p>
+        <p><strong>Rôle:</strong> ${currentUser.role === 'admin' ? 'Administrateur' : 'Technicien'}</p>
+        <p><strong>Téléphone:</strong> ${currentUser.phone || 'Non renseigné'}</p>
+      `;
+    }
+
+    // Upload form
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('pdfFile');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length && files[0].type === 'application/pdf') {
+        fileInput.files = files;
+        document.getElementById('upload-text').textContent = `📄 ${files[0].name}`;
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        document.getElementById('upload-text').textContent = `📄 ${e.target.files[0].name}`;
+      }
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alertBox = document.getElementById('alert-box');
+      const successBox = document.getElementById('success-box');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      alertBox.innerHTML = '';
+      successBox.innerHTML = '';
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Envoi en cours...';
+
+      const sendMode = document.getElementById('send_mode').value;
+      if (!sendMode) {
+        alertBox.innerHTML = '<div class="alert alert-warning">Veuillez sélectionner un mode d\'envoi</div>';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '🚀 Protéger et envoyer';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('pdf', fileInput.files[0]);
+      formData.append('patient_name', document.getElementById('patient_name').value);
+      formData.append('patient_phone', document.getElementById('patient_phone').value);
+      formData.append('patient_email', document.getElementById('patient_email').value);
+      formData.append('channel', sendMode);
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const result = data.data;
+          const channelLabel = result.channel === 'email_whatsapp' ? 'WhatsApp + Email' : 'Email + SMS';
+          
+          let channelStatus = '';
+          if (result.channel === 'email_whatsapp') {
+            channelStatus = `
+              <p><strong>WhatsApp:</strong> ${result.whatsapp_sent ? '✅ Envoyé' : '❌ Non envoyé'}</p>
+              <p><strong>Email:</strong> ${result.email_sent ? '✅ Envoyé' : '❌ Non envoyé'}</p>`;
+          } else {
+            channelStatus = `
+              <p><strong>Email:</strong> ${result.email_sent ? '✅ Envoyé' : '❌ Non envoyé'}</p>
+              <p><strong>SMS:</strong> ${result.sms_sent ? '✅ Envoyé' : '❌ Non envoyé'}</p>`;
+          }
+
+          successBox.innerHTML = `<div class="alert alert-success">
+            ✅ PDF envoyé avec succès via ${channelLabel} !<br>
+            <strong>Code patient:</strong> <span style="font-size: 24px; font-weight: 700; color: var(--primary);">${result.access_code}</span><br>
+            <strong>Lien:</strong> <a href="${result.access_url}" target="_blank">${result.access_url}</a><br>
+            <strong>Expire le:</strong> ${new Date(result.expires_at).toLocaleString('fr-FR')}<br>
+            <small style="color: var(--gray-500);">⚠️ Maximum 3 tentatives d'accès</small>
+          </div>`;
+
+          document.getElementById('lastResult').style.display = 'block';
+          document.getElementById('lastResultContent').innerHTML = `
+            <p><strong>Patient:</strong> ${result.patient_name}</p>
+            <p><strong>Téléphone:</strong> ${result.patient_phone}</p>
+            <p><strong>Email:</strong> ${result.patient_email || 'Non renseigné'}</p>
+            <p><strong>Mode d'envoi:</strong> ${channelLabel}</p>
+            <p><strong>Code d'accès:</strong> <span style="font-size: 20px; font-weight: 700;">${result.access_code}</span></p>
+            <p><strong>Lien d'accès:</strong> <a href="${result.access_url}" target="_blank">${result.access_url}</a></p>
+            ${channelStatus}
+            <p><strong>Expire le:</strong> ${new Date(result.expires_at).toLocaleString('fr-FR')}</p>
+          `;
+
+          e.target.reset();
+          document.getElementById('upload-text').textContent = 'Cliquez ou glissez un fichier PDF ici';
+        } else {
+          alertBox.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+        }
+      } catch (err) {
+        alertBox.innerHTML = `<div class="alert alert-error">Erreur de connexion au serveur</div>`;
+      } finally {
+        submitBtn.disabled = false;
+        const currentMode = document.getElementById('send_mode').value;
+        if (currentMode === 'email_whatsapp') {
+          submitBtn.textContent = '🚀 Protéger et envoyer via WhatsApp + Email';
+        } else if (currentMode === 'email_sms') {
+          submitBtn.textContent = '🚀 Protéger et envoyer via Email + SMS';
+        } else {
+          submitBtn.textContent = '🚀 Protéger et envoyer';
+        }
+      }
+    });
+
+    async function loadHistory() {
+      const status = document.getElementById('statusFilter').value;
+      const url = `/api/history${status ? '?status=' + status : ''}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success) {
+          const tbody = document.getElementById('historyTable');
+          if (data.data.results.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-500);">Aucun envoi trouvé</td></tr>';
+            return;
+          }
+          tbody.innerHTML = data.data.results.map(r => `
+            <tr>
+              <td>${r.patient_name}</td>
+              <td>${r.patient_phone}</td>
+              <td><strong>${r.access_code}</strong></td>
+              <td><span class="badge badge-${r.status}">${r.status === 'locked' ? '🔒 Bloqué' : r.status}</span></td>
+              <td>${r.attempt_count || 0}/3</td>
+              <td>${new Date(r.created_at).toLocaleDateString('fr-FR')}</td>
+              <td>${new Date(r.expires_at).toLocaleDateString('fr-FR')}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.error('History error:', e);
+      }
+    }
+
+    // Password form
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentPassword: document.getElementById('currentPassword').value,
+            newPassword: document.getElementById('newPassword').value
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Mot de passe modifié avec succès');
+          e.target.reset();
+        } else {
+          alert(data.error);
+        }
+      } catch (e) {
+        alert('Erreur serveur');
+      }
+    });
+
+    // Update send mode info
+    function updateSendMode() {
+      const mode = document.getElementById('send_mode').value;
+      const modeInfo = document.getElementById('modeInfo');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      if (mode === 'email_whatsapp') {
+        modeInfo.style.display = 'block';
+        modeInfo.style.background = '#d1fae5';
+        modeInfo.style.borderColor = '#a7f3d0';
+        modeInfo.innerHTML = '<strong>📱 WhatsApp + 📧 Email:</strong> Le lien sera envoyé par <strong>WhatsApp</strong> et le code d\'accès par <strong>Email</strong>.';
+        submitBtn.textContent = '🚀 Protéger et envoyer via WhatsApp + Email';
+      } else if (mode === 'email_sms') {
+        modeInfo.style.display = 'block';
+        modeInfo.style.background = '#dbeafe';
+        modeInfo.style.borderColor = '#93c5fd';
+        modeInfo.innerHTML = '<strong>📧 Email + 📱 SMS:</strong> Le lien sera envoyé par <strong>Email</strong> et le code d\'accès par <strong>SMS</strong>.';
+        submitBtn.textContent = '🚀 Protéger et envoyer via Email + SMS';
+      } else {
+        modeInfo.style.display = 'none';
+        submitBtn.textContent = '🚀 Protéger et envoyer';
+      }
+      
+      // ⚠️ Le lien expire après <strong>48 heures</strong>. Le document est bloqué après <strong>3 tentatives</strong>.
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>
