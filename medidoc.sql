@@ -1,7 +1,7 @@
 -- =====================================================
 -- MediDoc - Export SQL PostgreSQL
 -- Plateforme de Protection et d'envoi sécurisé de résultats médicaux
--- =====================================================
+-- ========================================================
 
 -- Création des tables
 CREATE TABLE IF NOT EXISTS users (
