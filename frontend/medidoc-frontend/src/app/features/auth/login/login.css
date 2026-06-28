@@ -1,0 +1,130 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8f5ee;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(30, 140, 90, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(30, 140, 90, 0.05), transparent 40%);
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 44px 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .05), 0 20px 40px -16px rgba(26, 46, 37, .12);
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  width: 52px;
+  height: 52px;
+  background: #e1f5ee;
+  color: #1e8c5a;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.login-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a2e25;
+  margin-bottom: 4px;
+}
+
+.login-subtitle {
+  font-size: 0.82rem;
+  color: #7a9488;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #dde8e3;
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 48px;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.flex-row:focus-within {
+  border-color: #1e8c5a;
+  box-shadow: 0 0 0 3px rgba(30, 140, 90, 0.12);
+}
+
+.lf--label {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lf--input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  color: #1a2e25;
+  background: transparent;
+}
+
+.lf--input::placeholder {
+  color: #aab8b2;
+}
+
+.lf--submit {
+  margin-top: 6px;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #1e8c5a;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+
+.lf--submit:hover {
+  background: #186e47;
+}
+
+.lf--submit:active {
+  transform: translateY(1px);
+}
+
+.lf--forgot {
+  display: block;
+  text-align: center;
+  margin-top: 22px;
+  font-size: 0.8rem;
+  color: #7a9488;
+  text-decoration: none;
+}
+
+.lf--forgot:hover {
+  color: #1e8c5a;
+  text-decoration: underline;
+}

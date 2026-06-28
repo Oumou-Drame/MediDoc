@@ -1,10 +1,11 @@
+import authRoutes from './routes/auth.js';
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 const { initDatabase } = require('./database');
-const whatsapp = require('./utils/whatsapp');
+const whatsapp = require('./backend/utils/whatsapp.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,7 +34,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/protected', express.static(path.join(__dirname, 'protected')));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authRoutes);
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/patient', require('./routes/patient'));
 app.use('/api/admin', require('./routes/admin'));

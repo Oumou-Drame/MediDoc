@@ -1,0 +1,31 @@
+.param-section {
+    margin: 24px 0;
+}
+
+.param-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+    color: #1a2e25;
+}
+
+.param-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.875rem;
+}
+
+.param-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.succes {
+    color: #1e8c5a;
+    font-size: 0.85rem;
+    font-weight: 600;
+}

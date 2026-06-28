@@ -1,0 +1,70 @@
+<div class="card">
+    <div class="comptes-header" *ngIf="!afficherFormulaire">
+        <div class="card-title">Comptes techniciens</div>
+        <button class="btn-primary" (click)="ouvrirAjout()">+ Ajouter un technicien</button>
+    </div>
+    <input type="text" class="search-input" placeholder="Rechercher par nom ou email..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
+
+    <table class="comptes-table" *ngIf="!afficherFormulaire">
+        <thead>
+            <tr>
+                <th>Nom complet</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let tech of techniciensFiltres">
+                <td>{{ tech.full_name }}</td>
+                <td>{{ tech.username }}</td>
+                <td>{{ tech.email }}</td>
+                <td>{{ tech.phone || '—' }}</td>
+                <td>
+                    <span class="badge" [class.actif]="tech.is_active" [class.suspendu]="!tech.is_active">
+                        {{ tech.is_active ? 'Actif' : 'Suspendu' }}
+                    </span>
+                </td>
+                <td class="actions">
+                    <button class="btn-link" (click)="ouvrirEdition(tech)">Modifier</button>
+                    <button class="btn-link" (click)="toggleStatut(tech)">
+                        {{ tech.is_active ? 'Suspendre' : 'Activer' }}
+                    </button>
+                    <button class="btn-link danger" (click)="supprimer(tech)">Supprimer</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form class="comptes-form" *ngIf="afficherFormulaire" (ngSubmit)="valider()">
+        <h3>{{ modeEdition ? 'Modifier le technicien' : 'Nouveau technicien' }}</h3>
+
+        <div class="form-row">
+            <label>Nom d'utilisateur</label>
+            <input name="username" [(ngModel)]="formData.username" required>
+        </div>
+        <div class="form-row">
+            <label>Nom complet</label>
+            <input name="full_name" [(ngModel)]="formData.full_name" required>
+        </div>
+        <div class="form-row">
+            <label>Email</label>
+            <input name="email" type="email" [(ngModel)]="formData.email" required>
+        </div>
+        <div class="form-row">
+            <label>Téléphone</label>
+            <input name="phone" [(ngModel)]="formData.phone">
+        </div>
+        <div class="form-row" *ngIf="!modeEdition">
+            <label>Mot de passe</label>
+            <input name="password" type="password" [(ngModel)]="formData.password" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="annuler()">Annuler</button>
+            <button type="submit" class="btn-primary">{{ modeEdition ? 'Enregistrer' : 'Créer' }}</button>
+        </div>
+    </form>
+</div>

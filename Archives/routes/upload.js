@@ -5,8 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const { requireAuth, requireTechnician, queryOne, query } = require('../middleware/auth');
-const { protectPdf } = require('../utils/pdf');
-const { sendWhatsApp, sendWhatsAppDocument, sendSMS, sendEmail } = require('../utils/sms');
+const { protectPdf } = require('../backend/utils/pdf');
+const { sendWhatsApp, sendWhatsAppDocument, sendSMS, sendEmail } = require('../backend/utils/sms');
 
 // Configure multer for file upload
 const storage = multer.diskStorage({

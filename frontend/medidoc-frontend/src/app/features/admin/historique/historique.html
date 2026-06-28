@@ -1,0 +1,50 @@
+<div class="card">
+    <div class="historique-header">
+        <div class="card-title">Historique global</div>
+    </div>
+
+    <div class="filtres">
+        <input type="text" class="search-input" placeholder="Rechercher un patient..." [(ngModel)]="recherche"
+            (ngModelChange)="onRechercheChange()">
+        <select class="status-select" [(ngModel)]="statutFiltre" (ngModelChange)="onStatutChange()">
+            <option *ngFor="let s of statuts" [value]="s.valeur">{{ s.libelle }}</option>
+        </select>
+    </div>
+
+    <table class="historique-table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Téléphone</th>
+                <th>Technicien</th>
+                <th>Canal</th>
+                <th>Statut</th>
+                <th>Envoyé le</th>
+                <th>Expire le</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let r of resultats">
+                <td>{{ r.patient_name }}</td>
+                <td>{{ r.patient_phone }}</td>
+                <td>{{ r.technician_name }}</td>
+                <td>{{ r.channel }}</td>
+                <td><span class="badge" [ngClass]="'badge-' + r.status">{{ libelleStatut(r.status) }}</span></td>
+                <td>{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+                <td>{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td><a [routerLink]="['/admin/historique', r.id]">Voir</a></td>
+            </tr>
+            <tr *ngIf="resultats.length === 0">
+                <td colspan="7" class="empty">Aucun résultat trouvé</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="pagination">
+        <button class="btn-secondary" (click)="pagePrecedente()" [disabled]="pageActuelle === 1">Précédent</button>
+        <span>Page {{ pagination.page }} / {{ pagination.pages || 1 }} — {{ pagination.total }} résultats</span>
+        <button class="btn-secondary" (click)="pageSuivante()"
+            [disabled]="pageActuelle >= pagination.pages">Suivant</button>
+    </div>
+</div>

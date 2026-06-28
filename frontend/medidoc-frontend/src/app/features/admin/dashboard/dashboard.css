@@ -1,0 +1,271 @@
+  .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+  }
+
+  .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+  }
+
+  .stat-label {
+      font-size: 0.8rem;
+      color: #7a9488;
+      font-weight: 500;
+      margin-bottom: 10px;
+  }
+
+  .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a2e25;
+  }
+
+  .stat-value.green {
+      color: #1e8c5a;
+  }
+
+  .stat-value.purple {
+      color: #6b4fc8;
+  }
+
+  .stat-value.red {
+      color: #c84f4f;
+  }
+
+  .stat-detail {
+      font-size: 0.72rem;
+      color: #9aab9f;
+      margin-top: 6px;
+  }
+
+  .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 20px;
+      align-items: start;
+  }
+
+  .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+  }
+
+  .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a2e25;
+      margin-bottom: 22px;
+  }
+
+  .tech-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .tech-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 8px;
+      border-radius: 10px;
+      transition: background .15s;
+  }
+
+  .tech-row:hover {
+      background: #f4faf7;
+  }
+
+  .tech-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #dde8e3;
+      color: #4a6358;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+  }
+
+  .tech-info {
+      flex: 1;
+  }
+
+  .tech-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1a2e25;
+  }
+
+  .tech-email {
+      font-size: 0.75rem;
+      color: #7a9488;
+      margin-top: 1px;
+  }
+
+  .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+  }
+
+  .status-dot.online {
+      background: #1e8c5a;
+  }
+
+  .status-dot.offline {
+      background: #b0c4bc;
+  }
+
+  .channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+  }
+
+  .channel-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1a2e25;
+      margin-bottom: 8px;
+  }
+
+  .channel-pct {
+      color: #4a6358;
+  }
+
+  .bar-track {
+      height: 8px;
+      background: #e8f5ee;
+      border-radius: 99px;
+      overflow: hidden;
+  }
+
+  .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+  }
+
+  .bar-fill.whatsapp {
+      background: #1e8c5a;
+  }
+
+  .bar-fill.sms {
+      background: #6b4fc8;
+  }
+
+  .bar-fill.email {
+      background: #e07b54;
+  }
+
+  .voir-plus {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1e8c5a;
+      text-decoration: none;
+  }
+
+  .voir-plus:hover {
+      text-decoration: underline;
+  }
+
+  .bottom-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+  }
+
+  .activite-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+  }
+
+  .activite-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.85rem;
+  }
+
+  .activite-texte {
+      color: #1a2e25;
+  }
+
+  .activite-date {
+      color: #9aab9f;
+      font-size: 0.75rem;
+      white-space: nowrap;
+  }
+
+  .tendance-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      height: 140px;
+      padding-top: 10px;
+  }
+
+  .tendance-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+  }
+
+  .tendance-bar {
+      width: 100%;
+      max-width: 32px;
+      background: #1e8c5a;
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+  }
+
+  .tendance-valeur {
+      font-size: 0.7rem;
+      color: #4a6358;
+      margin-top: 4px;
+      font-weight: 600;
+  }
+
+  .tendance-jour {
+      font-size: 0.68rem;
+      color: #9aab9f;
+      margin-top: 2px;
+  }
+
+  @media (max-width: 900px) {
+      .bottom-grid-2 {
+          grid-template-columns: 1fr;
+      }
+  }
+
+  @media (max-width: 900px) {
+      .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+      }
+
+      .bottom-grid {
+          grid-template-columns: 1fr;
+      }
+  }

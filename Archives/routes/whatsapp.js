@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const whatsapp = require('../utils/whatsapp');
-const { sendWhatsApp, sendWhatsAppDocument } = require('../utils/sms');
+const whatsapp = require('../backend/utils/whatsapp');
+const { sendWhatsApp, sendWhatsAppDocument } = require('../backend/utils/sms');
 
 // ============================================
 // CONNECTION & STATUS

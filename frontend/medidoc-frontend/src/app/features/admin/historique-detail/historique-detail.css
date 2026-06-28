@@ -1,0 +1,103 @@
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+}
+
+.btn-secondary {
+    background: #f4faf7;
+    color: #4a6358;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #1e8c5a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background: #fff4e0;
+    color: #b8860b;
+}
+
+.badge-sent {
+    background: #e8f0fe;
+    color: #3b6fd6;
+}
+
+.badge-delivered {
+    background: #e1f5ee;
+    color: #1e8c5a;
+}
+
+.badge-accessed {
+    background: #ece6fb;
+    color: #6b4fc8;
+}
+
+.badge-expired {
+    background: #faece7;
+    color: #c84f4f;
+}
+
+.badge-locked {
+    background: #f3f3f3;
+    color: #555;
+}
+
+
+
+.detail-titre {
+    margin: 16px 0 8px;
+    font-size: 1.2rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.detail-grid>div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 0.72rem;
+    color: #7a9488;
+    font-weight: 600;
+}
+
+.detail-verrou {
+    margin-top: 24px;
+    background: #faece7;
+    color: #c84f4f;
+    padding: 16px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.875rem;
+}

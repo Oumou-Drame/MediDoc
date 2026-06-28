@@ -1,0 +1,288 @@
+/* You can add global styles to this file, and also import other style files */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #e8f5ee;
+    color: #1a2e25;
+    min-height: 100vh;
+}
+
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a2e25;
+    margin-bottom: 22px;
+}
+
+.btn-primary {
+    background: #1e8c5a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background: #f4faf7;
+    color: #4a6358;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background: #fff4e0;
+    color: #b8860b;
+}
+
+.badge-sent {
+    background: #e8f0fe;
+    color: #3b6fd6;
+}
+
+.badge-delivered {
+    background: #e1f5ee;
+    color: #1e8c5a;
+}
+
+.badge-accessed {
+    background: #ece6fb;
+    color: #6b4fc8;
+}
+
+.badge-expired {
+    background: #faece7;
+    color: #c84f4f;
+}
+
+.badge-locked {
+    background: #f3f3f3;
+    color: #555;
+}
+
+.form-row {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 320px;
+}
+
+.form-row label {
+    font-size: 0.8rem;
+    color: #4a6358;
+    font-weight: 600;
+}
+
+.form-row input {
+    padding: 10px 12px;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.technicien-page {
+    min-height: 100vh;
+    background: #e8f5ee;
+}
+
+.technicien-topbar {
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 68px;
+    border-bottom: 1px solid #e2ece7;
+    gap: 24px;
+}
+
+.technicien-titre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a2e25;
+    white-space: nowrap;
+}
+
+.technicien-nav {
+    display: flex;
+    gap: 28px;
+    flex: 1;
+}
+
+.technicien-nav a {
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a6358;
+}
+
+.technicien-nav a.active,
+.technicien-nav a:hover {
+    color: #1e8c5a;
+}
+
+.technicien-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 36px 24px;
+}
+
+.fichier-nom {
+    font-size: 0.8rem;
+    color: #4a6358;
+    margin-top: 6px;
+    display: block;
+}
+
+.canaux-choix {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.canal-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1px solid #dde8e3;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+}
+
+.canal-option:focus-within,
+.canal-option:has(input:checked) {
+    border-color: #1e8c5a;
+    background: #f4faf7;
+}
+
+.canal-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1a2e25;
+}
+
+.canal-desc {
+    font-size: 0.75rem;
+    color: #7a9488;
+    margin-top: 2px;
+}
+
+.erreur-msg {
+    color: #c84f4f;
+    font-size: 0.85rem;
+    margin: 10px 0;
+}
+
+.recap-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 18px 0;
+}
+
+.recap-grid>div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.code-fort {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e8c5a;
+    letter-spacing: 2px;
+}
+
+.recap-statuts {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filtres {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.status-select {
+    padding: 10px 14px;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: #fff;
+}
+
+.historique-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.historique-table th {
+    text-align: left;
+    font-size: 0.75rem;
+    color: #7a9488;
+    font-weight: 600;
+    padding: 10px 8px;
+    border-bottom: 1px solid #e2ece7;
+}
+
+.historique-table td {
+    padding: 14px 8px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f0f5f2;
+}
+
+.empty {
+    text-align: center;
+    color: #7a9488;
+    padding: 30px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    font-size: 0.875rem;
+    color: #4a6358;
+}

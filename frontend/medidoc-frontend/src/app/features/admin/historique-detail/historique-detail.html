@@ -1,0 +1,30 @@
+<div class="card" *ngIf="chargement">Chargement...</div>
+<div class="card" *ngIf="erreur">{{ erreur }}</div>
+
+<div class="card" *ngIf="resultat">
+    <button class="btn-secondary" (click)="retour()">← Retour à l'historique</button>
+
+    <h2 class="detail-titre">{{ resultat.patient_name }}</h2>
+    <span class="badge" [ngClass]="'badge-' + resultat.status">{{ resultat.status }}</span>
+
+    <div class="detail-grid">
+        <div><span class="detail-label">Téléphone</span><span>{{ resultat.patient_phone }}</span></div>
+        <div><span class="detail-label">Email</span><span>{{ resultat.patient_email || '—' }}</span></div>
+        <div><span class="detail-label">Technicien</span><span>{{ resultat.technician_name }}</span></div>
+        <div><span class="detail-label">Canal</span><span>{{ resultat.channel }}</span></div>
+        <div><span class="detail-label">Fichier</span><span>{{ resultat.original_filename }}</span></div>
+        <div><span class="detail-label">Envoyé le</span><span>{{ resultat.sent_at ? (resultat.sent_at | date:'dd/MM/yyyy
+                HH:mm') : '—' }}</span></div>
+        <div><span class="detail-label">Consulté le</span><span>{{ resultat.accessed_at ? (resultat.accessed_at |
+                date:'dd/MM/yyyy HH:mm') : 'Jamais' }}</span></div>
+        <div><span class="detail-label">Expire le</span><span>{{ resultat.expires_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div><span class="detail-label">Nombre de consultations</span><span>{{ resultat.access_count }}</span></div>
+        <div><span class="detail-label">Tentatives échouées</span><span>{{ resultat.attempt_count }}</span></div>
+    </div>
+
+    <div class="detail-verrou" *ngIf="resultat.is_locked">
+        Ce compte est verrouillé après trop de tentatives échouées.
+        <button class="btn-primary" (click)="debloquer()">Débloquer ce compte</button>
+    </div>
+</div>

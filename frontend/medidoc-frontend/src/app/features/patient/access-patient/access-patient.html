@@ -1,0 +1,46 @@
+<div class="patient-page">
+
+    <div class="patient-card" *ngIf="chargement">Chargement...</div>
+
+    <div class="patient-card" *ngIf="!chargement && erreurChargement">
+        <div class="patient-icone">⚠️</div>
+        <h2>Lien invalide</h2>
+        <p>{{ erreurChargement }}</p>
+    </div>
+
+    <div class="patient-card" *ngIf="!chargement && info && info.is_expired">
+        <div class="patient-icone">⏰</div>
+        <h2>Lien expiré</h2>
+        <p>Ce lien a expiré. Veuillez contacter votre technicien pour un nouvel envoi.</p>
+    </div>
+
+    <div class="patient-card" *ngIf="!chargement && info && !info.is_expired && info.is_locked">
+        <div class="patient-icone">🔒</div>
+        <h2>Document bloqué</h2>
+        <p>Trop de tentatives échouées. Veuillez contacter votre technicien.</p>
+    </div>
+
+    <div class="patient-card" *ngIf="!chargement && info && !info.is_expired && !info.is_locked && !resultat">
+        <div class="patient-logo">🏥</div>
+        <h2>Bonjour {{ info.patient_name }}</h2>
+        <p class="patient-sous-titre">Saisissez le code à 6 chiffres reçu pour accéder à vos résultats</p>
+
+        <input type="text" maxlength="6" placeholder="------" class="code-input" [(ngModel)]="code">
+
+        <div class="erreur-msg" *ngIf="erreurCode">{{ erreurCode }}</div>
+
+        <button class="btn-primary" (click)="valider()" [disabled]="verificationEnCours">
+            {{ verificationEnCours ? 'Vérification...' : 'Valider le code' }}
+        </button>
+    </div>
+
+    <div class="patient-card" *ngIf="resultat">
+        <div class="patient-icone">✅</div>
+        <h2>Code validé</h2>
+        <p>Vos résultats sont prêts.</p>
+        <a class="btn-primary btn-download" [href]="urlTelechargement" target="_blank">
+            Télécharger mes résultats (PDF)
+        </a>
+    </div>
+
+</div>

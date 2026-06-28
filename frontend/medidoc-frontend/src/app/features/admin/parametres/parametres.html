@@ -1,0 +1,31 @@
+<div class="card" *ngIf="chargement">Chargement...</div>
+
+<div class="card" *ngIf="!chargement">
+    <div class="card-title">Paramètres</div>
+
+    <div class="param-section">
+        <h3>Canaux d'envoi activés</h3>
+        <label class="param-toggle"><input type="checkbox" [(ngModel)]="whatsappActif"> WhatsApp</label>
+        <label class="param-toggle"><input type="checkbox" [(ngModel)]="smsActif"> SMS</label>
+        <label class="param-toggle"><input type="checkbox" [(ngModel)]="emailActif"> Email</label>
+    </div>
+
+    <div class="param-section">
+        <h3>Expiration et taille</h3>
+        <div class="form-row">
+            <label>Durée d'expiration des codes (heures)</label>
+            <input type="number" [(ngModel)]="dureeExpiration" min="1">
+        </div>
+        <div class="form-row">
+            <label>Taille maximale des fichiers (Mo)</label>
+            <input type="number" [(ngModel)]="tailleMaxFichier" min="1">
+        </div>
+    </div>
+
+    <div class="param-actions">
+        <span class="succes" *ngIf="messageSucces">{{ messageSucces }}</span>
+        <button class="btn-primary" (click)="enregistrer()" [disabled]="enregistrement">
+            {{ enregistrement ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+    </div>
+</div>

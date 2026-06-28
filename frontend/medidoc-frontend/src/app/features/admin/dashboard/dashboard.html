@@ -1,0 +1,77 @@
+<div class="stats-grid" *ngIf="stats">
+    <div class="stat-card">
+        <div class="stat-label">Techniciens actifs</div>
+        <div class="stat-value">{{ stats.techniciens_actifs }}</div>
+        <div class="stat-detail">{{ stats.techniciens_total }} au total · {{ stats.techniciens_total -
+            stats.techniciens_actifs }} suspendus</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Envois ce mois</div>
+        <div class="stat-value green">{{ stats.envois_ce_mois }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Taux de consultation</div>
+        <div class="stat-value purple">{{ stats.taux_consultation }}%</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Code expirés</div>
+        <div class="stat-value red">{{ stats.codes_expires }}</div>
+    </div>
+</div>
+
+<div class="bottom-grid" *ngIf="stats">
+    <div class="card">
+        <div class="card-title">Comptes techniciens</div>
+        <div class="tech-list">
+            <div class="tech-row" *ngFor="let tech of techniciensAffiches">
+                <div class="tech-avatar">{{ initiales(tech.nom) }}</div>
+                <div class="tech-info">
+                    <div class="tech-name">{{ tech.nom }}</div>
+                    <div class="tech-email">{{ tech.email }}</div>
+                </div>
+                <div class="status-dot" [class.online]="tech.en_ligne" [class.offline]="!tech.en_ligne"></div>
+            </div>
+        </div>
+        <a *ngIf="stats.techniciens.length > 5" routerLink="/admin/comptes" class="voir-plus">
+            Voir tous les techniciens ({{ stats.techniciens.length }})
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Canaux les plus utilisés</div>
+        <div class="channel-list">
+            <div *ngFor="let canal of stats.canaux">
+                <div class="channel-header">
+                    <span>{{ canal.nom }}</span>
+                    <span class="channel-pct">{{ canal.pourcentage }}%</span>
+                </div>
+                <div class="bar-track">
+                    <div class="bar-fill" [class]="canal.classe" [style.width.%]="canal.pourcentage"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="bottom-grid-2" *ngIf="stats">
+    <div class="card">
+        <div class="card-title">Activité récente</div>
+        <div class="activite-list">
+            <div class="activite-row" *ngFor="let a of stats.activite_recente">
+                <div class="activite-texte"><strong>{{ a.auteur }}</strong> — {{ a.details || a.action }}</div>
+                <div class="activite-date">{{ a.date | date:'dd/MM HH:mm' }}</div>
+            </div>
+            <div class="activite-row" *ngIf="stats.activite_recente.length === 0">Aucune activité récente</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Envois — 7 derniers jours</div>
+        <div class="tendance-chart">
+            <div class="tendance-bar-wrap" *ngFor="let jour of stats.tendance_7_jours">
+                <div class="tendance-bar" [style.height.%]="hauteurBarre(jour.count)"></div>
+                <div class="tendance-valeur">{{ jour.count }}</div>
+                <div class="tendance-jour">{{ jour.date | date:'dd/MM' }}</div>
+            </div>
+        </div>
+    </div>
+</div>
