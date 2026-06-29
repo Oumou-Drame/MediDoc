@@ -1,105 +1,256 @@
-.app-shell {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+/* ============================================
+   MediDoc — Nouveau Résultat (Technicien)
+   ============================================ */
+
+.technicien-page {
+  min-height: 100vh;
+  background: var(--bg-body);
 }
 
-.page-bg {
-    flex: 1;
-    background: var(--mint-bg);
-    padding: 32px;
+.technicien-topbar {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 68px;
+  border-bottom: 1px solid var(--border-light);
+  gap: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
+.technicien-titre {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.technicien-titre::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: var(--primary-gradient);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.technicien-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  background: var(--bg-mint-card);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.technicien-nav a {
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+
+.technicien-nav a.active,
+.technicien-nav a:hover {
+  color: var(--primary);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.technicien-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 36px 24px;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Two-column layout for the send form */
 .two-col {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    background: #fff;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    max-width: 1000px;
-    margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .col-panel {
-    padding: 32px 36px;
+  padding: 32px 36px;
 }
 
-/* DROPZONE */
+.col-panel:first-child {
+  border-right: 1px solid var(--border-light);
+}
+
+/* Dropzone */
 .dropzone {
-    border: 1.8px dashed #9FC9BF;
-    border-radius: 14px;
-    background: var(--mint-card);
-    padding: 28px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: .2s;
+  border: 2px dashed var(--border-hover);
+  border-radius: var(--radius-md);
+  background: var(--bg-mint-card);
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
 }
 
 .dropzone:hover,
 .dropzone.dragover {
-    border-color: var(--teal);
-    background: #EAF5F1;
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 
 .dropzone.has-file {
-    border-style: solid;
-    border-color: var(--teal);
+  border-style: solid;
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 
 .file-preview {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* ========================= */
-/* CANAUX EN BOUTONS         */
-/* ========================= */
-
-.canaux {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 20px;
+/* Channel selection */
+.canaux-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.btn-canal {
+.canal-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.canal-option:hover {
+  border-color: var(--primary);
+  background: var(--bg-mint-card);
+}
+
+.canal-option:focus-within,
+.canal-option:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.canal-option input {
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+.canal-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.canal-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* Recap card */
+.recap {
+  animation: scaleIn 0.3s ease forwards;
+}
+
+.recap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin: 18px 0;
+}
+
+.recap-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detail-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.code-fort {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 3px;
+  font-family: 'Courier New', monospace;
+}
+
+.recap-statuts {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+/* Error */
+.erreur-msg {
+  color: var(--accent-red);
+  font-size: 0.85rem;
+  background: var(--accent-red-light);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin: 10px 0;
+}
+
+/* File info */
+.fichier-nom {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  display: block;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .technicien-topbar {
+    padding: 0 16px;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .technicien-nav {
+    order: 3;
     width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: 2px solid var(--line);
-    background: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
+  }
 
-.btn-canal:hover {
-    border-color: var(--teal);
-    background: #eef8f5;
-}
+  .two-col {
+    grid-template-columns: 1fr;
+  }
 
-.btn-canal.selected {
-    background: var(--teal);
-    color: #fff;
-    border-color: var(--teal);
-}
-
-/* BOUTON ENVOYER */
-.btn-submit {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: var(--teal);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.btn-submit:disabled {
-    opacity: .5;
-    cursor: not-allowed;
+  .col-panel:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
 }

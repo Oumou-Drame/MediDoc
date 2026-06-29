@@ -10,7 +10,7 @@ import { ParametresApp } from '../../features/admin/models/settings';
 })
 export class AdminService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/admin';
+  private apiUrl = 'http://localhost:3000/api/admin';
 
   getDashboard(): Observable<DashboardResponse> {
     return this.http.get<DashboardResponse>(`${this.apiUrl}/dashboard`, { withCredentials: true });

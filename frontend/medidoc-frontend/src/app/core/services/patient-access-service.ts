@@ -8,7 +8,7 @@ import { PatientInfo, VerifyResponse } from '../../features/patient/models/patie
 })
 export class PatientAccessService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/patient';
+  private apiUrl = 'http://localhost:3000/api/patient';
 
   getInfo(token: string): Observable<{ success: boolean; data: PatientInfo }> {
     return this.http.get<any>(`${this.apiUrl}/info/${token}`);

@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class UploadService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/upload';
+  private apiUrl = 'http://localhost:3000/api/upload';
 
   getFormData(): Observable<{ channels: CanalOption[] }> {
     return this.http.get<{ channels: CanalOption[] }>(`${this.apiUrl}/form-data`, { withCredentials: true });

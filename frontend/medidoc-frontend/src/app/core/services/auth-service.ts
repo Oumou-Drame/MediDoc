@@ -9,7 +9,7 @@ import { Observable,map,catchError, of } from 'rxjs';
 })
 export class AuthService {
    private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/auth';
+  private apiUrl = 'http://localhost:3000/api/auth';
 
   login(loginRequest: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(

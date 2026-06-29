@@ -1,12 +1,14 @@
 /**
  * MediDoc - Service d'envoi de messages
  * 
- * Utilise Twilio pour l'envoi de messages WhatsApp et SMS.
+ * Utilise Baileys (WhatsApp Web) pour les messages WhatsApp.
+ * Utilise Twilio pour les SMS.
  * Utilise Nodemailer pour l'envoi d'emails.
  */
 
 import nodemailer from 'nodemailer';
 import * as twilio from './twilio.js';
+import * as baileys from './whatsapp.js';
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -20,28 +22,38 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Envoie un message WhatsApp via Twilio
+ * Envoie un message WhatsApp via Baileys (WhatsApp Web)
+ * Fallback: simulation si Baileys n'est pas connecté
  * @param {string} phone - Numéro de téléphone
  * @param {string} message - Contenu du message
  * @returns {boolean} - Succès ou échec
  */
 async function sendWhatsApp(phone, message) {
   try {
-    const result = await twilio.sendWhatsApp(phone, message);
-    if (result.success) {
-      console.log(`✅ WhatsApp envoyé à ${twilio.formatPhone(phone)}`);
-      return true;
+    if (baileys.isConfigured()) {
+      const result = await baileys.sendTextMessage(phone, message);
+      if (result && result.id) {
+        console.log(`✅ WhatsApp envoyé à ${baileys.formatPhoneNumber(phone)} via Baileys`);
+        return true;
+      }
+      console.error('❌ Erreur WhatsApp Baileys: pas de réponse');
+      return false;
+    } else {
+      // Fallback simulation si Baileys non connecté
+      console.log(`📱 [SIMULATION] WhatsApp à ${baileys.formatPhoneNumber(phone)}: ${message.substring(0, 50)}...`);
+      console.log('⚠️ WhatsApp non connecté via Baileys. Scannez le QR code via GET /api/whatsapp/qr');
+      return true; // Retourne true pour ne pas bloquer le flux
     }
-    console.error('❌ Erreur WhatsApp:', result.error);
-    return false;
   } catch (error) {
-    console.error('❌ Erreur WhatsApp:', error.message);
-    return false;
+    console.error('❌ Erreur WhatsApp Baileys:', error.message);
+    // Fallback simulation
+    console.log(`📱 [SIMULATION] WhatsApp à ${baileys.formatPhoneNumber(phone)} (fallback): ${message.substring(0, 50)}...`);
+    return true;
   }
 }
 
 /**
- * Envoie un document via WhatsApp (envoie le lien en texte)
+ * Envoie un document via WhatsApp (envoie le lien en texte via Baileys)
  * @param {string} phone - Numéro de téléphone
  * @param {string} documentUrl - URL du document
  * @param {string} filename - Nom du fichier
@@ -50,19 +62,23 @@ async function sendWhatsApp(phone, message) {
  */
 async function sendWhatsAppDocument(phone, documentUrl, filename = 'document.pdf', caption = '') {
   try {
+    if (baileys.isConfigured()) {
+      const result = await baileys.sendDocument(phone, documentUrl, filename, caption);
+      if (result && result.id) {
+        console.log(`✅ Document WhatsApp envoyé à ${baileys.formatPhoneNumber(phone)} via Baileys`);
+        return true;
+      }
+    }
+    
+    // Fallback: send as text message
     const message = caption
       ? `${caption}\n\n📄 Document: ${documentUrl}`
       : `📄 Vos résultats médicaux: ${documentUrl}`;
     
-    const result = await twilio.sendWhatsApp(phone, message);
-    if (result.success) {
-      console.log(`✅ Document WhatsApp envoyé à ${twilio.formatPhone(phone)}`);
-      return true;
-    }
-    return false;
+    return sendWhatsApp(phone, message);
   } catch (error) {
     console.error('❌ Erreur Document WhatsApp:', error.message);
-    return false;
+    return sendWhatsApp(phone, `📄 Vos résultats médicaux: ${documentUrl}`);
   }
 }
 

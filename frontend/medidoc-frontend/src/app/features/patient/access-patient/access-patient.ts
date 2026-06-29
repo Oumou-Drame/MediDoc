@@ -53,6 +53,6 @@ export class AccessPatient implements OnInit {
 
   get urlTelechargement(): string {
     if (!this.resultat) return '';
-    return `http://localhost:5000${this.resultat.download_url}`;
+    return `http://localhost:3000${this.resultat.download_url}`;
   }
 }

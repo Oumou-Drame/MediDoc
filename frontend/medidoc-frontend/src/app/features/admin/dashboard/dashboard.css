@@ -1,271 +1,296 @@
+/* ============================================
+   MediDoc — Admin Dashboard
+   ============================================ */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.stat-card:nth-child(1)::before { background: var(--primary); }
+.stat-card:nth-child(2)::before { background: var(--secondary); }
+.stat-card:nth-child(3)::before { background: var(--accent-orange); }
+.stat-card:nth-child(4)::before { background: var(--accent-red); }
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-value.green { color: var(--primary); }
+.stat-value.purple { color: var(--secondary); }
+.stat-value.red { color: var(--accent-red); }
+
+.stat-detail {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  margin-top: 8px;
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 20px;
+  align-items: start;
+}
+
+.bottom-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: start;
+}
+
+/* Technician list */
+.tech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tech-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 8px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.tech-row:hover {
+  background: var(--bg-mint-card);
+}
+
+.tech-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.tech-info {
+  flex: 1;
+}
+
+.tech-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tech-email {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 139, 94, 0.15);
+}
+
+.status-dot.offline {
+  background: var(--border-hover);
+}
+
+.voir-plus {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.voir-plus:hover {
+  background: var(--primary-light);
+  text-decoration: none;
+}
+
+/* Channel usage bars */
+.channel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.channel-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.channel-pct {
+  color: var(--text-secondary);
+}
+
+.bar-track {
+  height: 8px;
+  background: var(--bg-mint);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+
+.bar-fill.whatsapp { background: var(--primary); }
+.bar-fill.sms { background: var(--secondary); }
+.bar-fill.email { background: var(--accent-orange); }
+
+/* Activity feed */
+.activite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.activite-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.activite-row:last-child {
+  border-bottom: none;
+}
+
+.activite-texte {
+  color: var(--text-primary);
+}
+
+.activite-date {
+  color: var(--text-light);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* Trend chart */
+.tendance-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 150px;
+  padding-top: 10px;
+}
+
+.tendance-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.tendance-bar {
+  width: 100%;
+  max-width: 36px;
+  background: var(--primary-gradient);
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 0.4s ease;
+}
+
+.tendance-valeur {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.tendance-jour {
+  font-size: 0.68rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
   .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      margin-bottom: 28px;
-  }
-
-  .stat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px 28px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
-  }
-
-  .stat-label {
-      font-size: 0.8rem;
-      color: #7a9488;
-      font-weight: 500;
-      margin-bottom: 10px;
-  }
-
-  .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1a2e25;
-  }
-
-  .stat-value.green {
-      color: #1e8c5a;
-  }
-
-  .stat-value.purple {
-      color: #6b4fc8;
-  }
-
-  .stat-value.red {
-      color: #c84f4f;
-  }
-
-  .stat-detail {
-      font-size: 0.72rem;
-      color: #9aab9f;
-      margin-top: 6px;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 20px;
-      align-items: start;
+    grid-template-columns: 1fr;
   }
+}
 
-  .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
-  }
-
-  .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #1a2e25;
-      margin-bottom: 22px;
-  }
-
-  .tech-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-  }
-
-  .tech-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 8px;
-      border-radius: 10px;
-      transition: background .15s;
-  }
-
-  .tech-row:hover {
-      background: #f4faf7;
-  }
-
-  .tech-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background: #dde8e3;
-      color: #4a6358;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      flex-shrink: 0;
-  }
-
-  .tech-info {
-      flex: 1;
-  }
-
-  .tech-name {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #1a2e25;
-  }
-
-  .tech-email {
-      font-size: 0.75rem;
-      color: #7a9488;
-      margin-top: 1px;
-  }
-
-  .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-  }
-
-  .status-dot.online {
-      background: #1e8c5a;
-  }
-
-  .status-dot.offline {
-      background: #b0c4bc;
-  }
-
-  .channel-list {
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-  }
-
-  .channel-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #1a2e25;
-      margin-bottom: 8px;
-  }
-
-  .channel-pct {
-      color: #4a6358;
-  }
-
-  .bar-track {
-      height: 8px;
-      background: #e8f5ee;
-      border-radius: 99px;
-      overflow: hidden;
-  }
-
-  .bar-fill {
-      height: 100%;
-      border-radius: 99px;
-  }
-
-  .bar-fill.whatsapp {
-      background: #1e8c5a;
-  }
-
-  .bar-fill.sms {
-      background: #6b4fc8;
-  }
-
-  .bar-fill.email {
-      background: #e07b54;
-  }
-
-  .voir-plus {
-      display: block;
-      text-align: center;
-      margin-top: 16px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #1e8c5a;
-      text-decoration: none;
-  }
-
-  .voir-plus:hover {
-      text-decoration: underline;
-  }
-
+@media (max-width: 900px) {
   .bottom-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 20px;
-      align-items: start;
+    grid-template-columns: 1fr;
   }
+}
 
-  .activite-list {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+@media (max-width: 520px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
-
-  .activite-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.85rem;
-  }
-
-  .activite-texte {
-      color: #1a2e25;
-  }
-
-  .activite-date {
-      color: #9aab9f;
-      font-size: 0.75rem;
-      white-space: nowrap;
-  }
-
-  .tendance-chart {
-      display: flex;
-      align-items: flex-end;
-      gap: 14px;
-      height: 140px;
-      padding-top: 10px;
-  }
-
-  .tendance-bar-wrap {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100%;
-      justify-content: flex-end;
-  }
-
-  .tendance-bar {
-      width: 100%;
-      max-width: 32px;
-      background: #1e8c5a;
-      border-radius: 4px 4px 0 0;
-      min-height: 4px;
-  }
-
-  .tendance-valeur {
-      font-size: 0.7rem;
-      color: #4a6358;
-      margin-top: 4px;
-      font-weight: 600;
-  }
-
-  .tendance-jour {
-      font-size: 0.68rem;
-      color: #9aab9f;
-      margin-top: 2px;
-  }
-
-  @media (max-width: 900px) {
-      .bottom-grid-2 {
-          grid-template-columns: 1fr;
-      }
-  }
-
-  @media (max-width: 900px) {
-      .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-      }
-
-      .bottom-grid {
-          grid-template-columns: 1fr;
-      }
-  }
+}

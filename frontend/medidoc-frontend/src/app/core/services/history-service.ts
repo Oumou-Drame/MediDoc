@@ -7,7 +7,7 @@ import { HistoryResponse,ResultatMedical } from '../../features/admin/models/his
 })
 export class HistoryService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/history';
+  private apiUrl = 'http://localhost:3000/api/history';
 
   getHistory(params: { status?: string; search?: string; page?: number; limit?: number }): Observable<HistoryResponse> {
     const qs = new URLSearchParams();
