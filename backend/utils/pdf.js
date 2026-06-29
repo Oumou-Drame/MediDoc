@@ -1,5 +1,5 @@
-const { PDFDocument } = require('pdf-lib');
-const fs = require('fs');
+import { PDFDocument } from 'pdf-lib';
+import fs from 'fs';
 
 /**
  * Protect a PDF file with a password using pdf-lib
@@ -33,10 +33,10 @@ async function protectPdf(inputPath, outputPath, password) {
     // Write the protected PDF
     fs.writeFileSync(outputPath, protectedBytes);
     
-    console.log(`✅ PDF protégé avec succès: ${outputPath}`);
+    console.log(`PDF protégé avec succès: ${outputPath}`);
     return true;
   } catch (error) {
-    console.error('❌ Erreur lors de la protection du PDF:', error);
+    console.error('Erreur lors de la protection du PDF:', error);
     throw error;
   }
 }
@@ -90,12 +90,12 @@ async function createTestPdf(outputPath, content = 'Résultats médicaux - Test 
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(outputPath, pdfBytes);
     
-    console.log(`✅ PDF de test créé: ${outputPath}`);
+    console.log(`PDF de test créé: ${outputPath}`);
     return true;
   } catch (error) {
-    console.error('❌ Erreur lors de la création du PDF de test:', error);
+    console.error('Erreur lors de la création du PDF de test:', error);
     throw error;
   }
 }
 
-module.exports = { protectPdf, createTestPdf };
+export { protectPdf, createTestPdf };

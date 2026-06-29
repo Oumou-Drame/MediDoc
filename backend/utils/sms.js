@@ -1,5 +1,12 @@
-const nodemailer = require('nodemailer');
-const whatsapp = require('./whatsapp');
+/**
+ * MediDoc - Service d'envoi de messages
+ * 
+ * Utilise Twilio pour l'envoi de messages WhatsApp et SMS.
+ * Utilise Nodemailer pour l'envoi d'emails.
+ */
+
+import nodemailer from 'nodemailer';
+import * as twilio from './twilio.js';
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -13,25 +20,20 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Send WhatsApp message via Baileys
- * @param {string} phone - Phone number
- * @param {string} message - Message content
- * @returns {boolean} - Success status
+ * Envoie un message WhatsApp via Twilio
+ * @param {string} phone - Numéro de téléphone
+ * @param {string} message - Contenu du message
+ * @returns {boolean} - Succès ou échec
  */
 async function sendWhatsApp(phone, message) {
   try {
-    // Use Baileys if connected
-    if (whatsapp.isConfigured()) {
-      console.log(`📱 [Baileys] Envoi WhatsApp à ${phone}...`);
-      await whatsapp.sendTextMessage(phone, message);
-      console.log(`✅ WhatsApp envoyé à ${phone} via Baileys`);
+    const result = await twilio.sendWhatsApp(phone, message);
+    if (result.success) {
+      console.log(`✅ WhatsApp envoyé à ${twilio.formatPhone(phone)}`);
       return true;
     }
-
-    // Simulation mode if not connected
-    console.log(`📱 [SIMULATION] WhatsApp à ${phone}: ${message}`);
-    console.log(`💡 Pour envoyer de vrais WhatsApp, scannez le QR code via GET /api/whatsapp/qr`);
-    return true;
+    console.error('❌ Erreur WhatsApp:', result.error);
+    return false;
   } catch (error) {
     console.error('❌ Erreur WhatsApp:', error.message);
     return false;
@@ -39,24 +41,25 @@ async function sendWhatsApp(phone, message) {
 }
 
 /**
- * Send WhatsApp document via Baileys
- * @param {string} phone - Phone number
- * @param {string} documentUrl - Document URL
- * @param {string} filename - Document filename
- * @param {string} caption - Caption
- * @returns {boolean} - Success status
+ * Envoie un document via WhatsApp (envoie le lien en texte)
+ * @param {string} phone - Numéro de téléphone
+ * @param {string} documentUrl - URL du document
+ * @param {string} filename - Nom du fichier
+ * @param {string} caption - Légende
+ * @returns {boolean} - Succès ou échec
  */
 async function sendWhatsAppDocument(phone, documentUrl, filename = 'document.pdf', caption = '') {
   try {
-    if (whatsapp.isConfigured()) {
-      console.log(`📄 [Baileys] Envoi document WhatsApp à ${phone}...`);
-      await whatsapp.sendDocument(phone, documentUrl, filename, caption);
-      console.log(`✅ Document WhatsApp envoyé à ${phone} via Baileys`);
+    const message = caption
+      ? `${caption}\n\n📄 Document: ${documentUrl}`
+      : `📄 Vos résultats médicaux: ${documentUrl}`;
+    
+    const result = await twilio.sendWhatsApp(phone, message);
+    if (result.success) {
+      console.log(`✅ Document WhatsApp envoyé à ${twilio.formatPhone(phone)}`);
       return true;
     }
-    console.log(`📱 [SIMULATION] Document WhatsApp à ${phone}: ${documentUrl}`);
-    console.log(`💡 Pour envoyer de vrais documents, scannez le QR code via GET /api/whatsapp/qr`);
-    return true;
+    return false;
   } catch (error) {
     console.error('❌ Erreur Document WhatsApp:', error.message);
     return false;
@@ -64,90 +67,34 @@ async function sendWhatsAppDocument(phone, documentUrl, filename = 'document.pdf
 }
 
 /**
- * Format phone number for Termii (international, sans +)
- * Ex: +221771234567 → 221771234567
- * @param {string} phone - Phone number
- * @returns {string} - Formatted phone number
- */
-function formatPhoneForTermii(phone) {
-  let formatted = phone.replace(/\s/g, '');
-  if (formatted.startsWith('00221')) {
-    formatted = formatted.substring(2);
-  } else if (formatted.startsWith('+')) {
-    formatted = formatted.substring(1);
-  } else if (!formatted.startsWith('221')) {
-    formatted = '221' + formatted;
-  }
-  return formatted;
-}
-
-/**
- * Send SMS via Termii (https://termii.com)
- * @param {string} phone - Phone number (format: +221XXXXXXXXX or 221XXXXXXXXX)
- * @param {string} message - Message content
- * @returns {boolean} - Success status
- */
-async function sendSMSViaTermii(phone, message) {
-  try {
-    const apiKey = process.env.TERMII_API_KEY;
-    const senderId = process.env.TERMII_SENDER_ID ;
-    const channel = process.env.TERMII_CHANNEL || 'dnd';
-
-    if (!apiKey || apiKey === 'your_termii_api_key') {
-      return false;
-    }
-
-    const response = await fetch('https://v3.api.termii.com/api/sms/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_key: apiKey,
-        to: formatPhoneForTermii(phone),
-        from: senderId,
-        sms: message,
-        type: 'plain',
-        channel
-      })
-    });
-
-    const result = await response.json();
-
-    if (result.message === 'Successfully Sent' || result.code === 'ok') {
-      console.log(`✅ SMS Termii envoyé à ${phone}`);
-      return true;
-    }
-
-    console.error('❌ Erreur Termii:', result.message || result);
-    return false;
-  } catch (error) {
-    console.error('❌ Erreur SMS Termii:', error.message);
-    return false;
-  }
-}
-
-/**
- * Send SMS using Termii, fallback to simulation
- * @param {string} phone - Phone number
- * @param {string} message - Message content
- * @returns {boolean} - Success status
+ * Envoie un SMS via Twilio
+ * @param {string} phone - Numéro de téléphone
+ * @param {string} message - Contenu du message
+ * @returns {boolean} - Succès ou échec
  */
 async function sendSMS(phone, message) {
-  const termiiResult = await sendSMSViaTermii(phone, message);
-  if (termiiResult) return true;
-
-  console.log(`📱 [SIMULATION SMS] À ${phone}: ${message}`);
-  console.log(`💡 Pour envoyer de vrais SMS, configurez Termii dans .env`);
-  return true;
+  try {
+    const result = await twilio.sendSMS(phone, message);
+    if (result.success) {
+      console.log(`✅ SMS envoyé à ${twilio.formatPhone(phone)}`);
+      return true;
+    }
+    console.error('❌ Erreur SMS:', result.error);
+    return false;
+  } catch (error) {
+    console.error('❌ Erreur SMS:', error.message);
+    return false;
+  }
 }
 
 /**
- * Send email via SMTP
- * @param {string} to - Email address
- * @param {string} subject - Email subject
- * @param {string} text - Email text content
- * @param {string} attachmentPath - Path to PDF attachment (optional)
- * @param {string} html - HTML content (optional)
- * @returns {boolean} - Success status
+ * Envoie un email via SMTP
+ * @param {string} to - Adresse email du destinataire
+ * @param {string} subject - Sujet de l'email
+ * @param {string} text - Contenu texte
+ * @param {string} attachmentPath - Chemin du fichier joint (optionnel)
+ * @param {string} html - Contenu HTML (optionnel)
+ * @returns {boolean} - Succès ou échec
  */
 async function sendEmail(to, subject, text, attachmentPath = null, html = null) {
   try {
@@ -163,7 +110,7 @@ async function sendEmail(to, subject, text, attachmentPath = null, html = null) 
     }
 
     if (attachmentPath) {
-      const fs = require('fs');
+      const fs = await import('fs');
       if (fs.existsSync(attachmentPath)) {
         mailOptions.attachments = [{
           filename: 'resultats_medicaux.pdf',
@@ -181,11 +128,9 @@ async function sendEmail(to, subject, text, attachmentPath = null, html = null) 
   }
 }
 
-module.exports = {
+export {
   sendWhatsApp,
   sendWhatsAppDocument,
   sendSMS,
-  sendEmail,
-  sendSMSViaTermii,
-  formatPhoneForTermii
+  sendEmail
 };

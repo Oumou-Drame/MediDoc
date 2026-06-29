@@ -8,8 +8,6 @@ import historyRoutes from './routes/history-route.js';
 import uploadRoutes from './routes/upload-route.js';
 import patientRoutes from './routes/patient-route.js';
 import whatsappRoutes from './routes/whatsapp-route.js';
-import * as whatsapp from './utils/whatsapp.js';
-
 
 const app = express();
 
@@ -43,7 +41,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  whatsapp.initConnection().catch(err => {
-    console.error(' WhatsApp initialization error:', err.message);
-  });
+  console.log('📱 WhatsApp & SMS gérés via Twilio');
 });
