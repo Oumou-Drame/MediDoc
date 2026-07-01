@@ -1,5 +1,5 @@
 /* ============================================
-   MediDoc — Login Page
+   MediDoc — Login Page v2 (Glassmorphism)
    ============================================ */
 
 .login-page {
@@ -9,38 +9,127 @@
   justify-content: center;
   background: var(--bg-body);
   background-image:
-    radial-gradient(circle at 10% 20%, rgba(15, 139, 94, 0.07) 0%, transparent 50%),
-    radial-gradient(circle at 90% 80%, rgba(15, 139, 94, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(107, 79, 200, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 10% 20%, rgba(15, 139, 94, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(15, 139, 94, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(107, 79, 200, 0.04) 0%, transparent 50%);
   padding: 24px;
   font-family: var(--font-family);
   position: relative;
   overflow: hidden;
 }
 
-/* Decorative background elements */
-.login-page::before {
-  content: '';
+/* ===== Floating Particles ===== */
+.particles {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 40%, rgba(15, 139, 94, 0.03) 0%, transparent 60%);
+  inset: 0;
   pointer-events: none;
+  z-index: 0;
 }
 
+.particle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  left: var(--x);
+  top: var(--y);
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float-particle var(--duration) ease-in-out var(--delay) infinite;
+}
+
+@keyframes float-particle {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.15;
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.2);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate(-20px, -40px) scale(0.8);
+    opacity: 0.1;
+  }
+  75% {
+    transform: translate(20px, -10px) scale(1.1);
+    opacity: 0.2;
+  }
+}
+
+/* ===== Decorative Shapes ===== */
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shape-1 {
+  width: 300px;
+  height: 300px;
+  top: -100px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(15, 139, 94, 0.08) 0%, transparent 70%);
+  animation: morph 15s ease-in-out infinite;
+}
+
+.shape-2 {
+  width: 200px;
+  height: 200px;
+  bottom: -50px;
+  left: -60px;
+  background: radial-gradient(circle, rgba(107, 79, 200, 0.06) 0%, transparent 70%);
+  animation: morph 12s ease-in-out infinite reverse;
+}
+
+.shape-3 {
+  width: 150px;
+  height: 150px;
+  top: 50%;
+  left: 5%;
+  background: radial-gradient(circle, rgba(15, 139, 94, 0.05) 0%, transparent 70%);
+  animation: morph 18s ease-in-out infinite;
+}
+
+@keyframes morph {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    border-radius: 50%;
+  }
+  33% {
+    transform: scale(1.1) rotate(120deg);
+    border-radius: 40% 60% 60% 40%;
+  }
+  66% {
+    transform: scale(0.9) rotate(240deg);
+    border-radius: 60% 40% 40% 60%;
+  }
+}
+
+/* ===== Login Card (Glassmorphism) ===== */
 .login-card {
-  background: var(--bg-card);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-xl);
   padding: 48px 40px 40px;
   width: 100%;
   max-width: 400px;
-  box-shadow: var(--shadow-lg), var(--shadow-xl);
-  border: 1px solid var(--border-light);
+  box-shadow: var(--glass-shadow), var(--shadow-xl);
+  border: 1px solid var(--glass-border);
   position: relative;
   z-index: 1;
-  animation: scaleIn 0.4s ease forwards;
+  animation: scaleIn 0.5s var(--transition-bounce);
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
+  pointer-events: none;
 }
 
 .login-brand {
@@ -48,49 +137,60 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 36px;
+  position: relative;
+  z-index: 1;
 }
 
 .login-logo {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   background: var(--primary-gradient);
   color: #fff;
-  border-radius: 16px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(15, 139, 94, 0.3);
-  transition: transform var(--transition-base);
+  margin-bottom: 18px;
+  box-shadow: 0 4px 16px rgba(15, 139, 94, 0.35);
+  transition: all var(--transition-slow);
+  animation: float 3s ease-in-out infinite;
 }
 
 .login-logo:hover {
-  transform: scale(1.05);
+  transform: scale(1.08) rotate(-5deg);
+  box-shadow: 0 6px 24px rgba(15, 139, 94, 0.45);
 }
 
 .login-logo svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .login-title {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 900;
   color: var(--text-primary);
   margin-bottom: 4px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .login-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
   font-weight: 400;
 }
 
+/* ===== Form ===== */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .flex-row {
@@ -101,13 +201,34 @@
   border-radius: var(--radius-md);
   padding: 0 16px;
   height: 50px;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-base);
+  background: rgba(255, 255, 255, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.flex-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-gradient);
+  transform: scaleY(0);
+  transition: transform var(--transition-base);
+}
+
+.flex-row:focus-within,
+.flex-row.focused {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 139, 94, 0.12);
   background: #fff;
 }
 
-.flex-row:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(15, 139, 94, 0.12);
+.flex-row:focus-within::before,
+.flex-row.focused::before {
+  transform: scaleY(1);
 }
 
 .lf--label {
@@ -115,19 +236,28 @@
   align-items: center;
   flex-shrink: 0;
   color: var(--text-muted);
+  transition: color var(--transition-fast);
 }
 
 .lf--label svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
-.lf--label svg path {
-  fill: var(--text-muted);
+.lf--label svg path,
+.lf--label svg rect,
+.lf--label svg circle {
+  stroke: var(--text-muted);
+  transition: stroke var(--transition-fast);
 }
 
-.flex-row:focus-within .lf--label svg path {
-  fill: var(--primary);
+.flex-row:focus-within .lf--label svg path,
+.flex-row:focus-within .lf--label svg rect,
+.flex-row:focus-within .lf--label svg circle,
+.flex-row.focused .lf--label svg path,
+.flex-row.focused .lf--label svg rect,
+.flex-row.focused .lf--label svg circle {
+  stroke: var(--primary);
 }
 
 .lf--input {
@@ -145,6 +275,7 @@
   color: var(--text-light);
 }
 
+/* ===== Submit Button ===== */
 .lf--submit {
   margin-top: 8px;
   height: 50px;
@@ -160,14 +291,28 @@
   box-shadow: 0 2px 8px rgba(15, 139, 94, 0.3);
   font-family: var(--font-family);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
-.lf--submit:hover {
-  box-shadow: 0 4px 16px rgba(15, 139, 94, 0.4);
-  transform: translateY(-1px);
+.lf--submit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.lf--submit:active {
+.lf--submit:hover:not(:disabled) {
+  box-shadow: 0 4px 20px rgba(15, 139, 94, 0.45), var(--shadow-glow);
+  transform: translateY(-2px);
+}
+
+.lf--submit:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: 0 1px 4px rgba(15, 139, 94, 0.3);
 }
@@ -178,52 +323,74 @@
   transform: none;
 }
 
-.lf--forgot {
-  display: block;
-  text-align: center;
-  margin-top: 24px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color var(--transition-fast);
+/* Loading state */
+.lf--submit.loading {
+  position: relative;
 }
 
-.lf--forgot:hover {
-  color: var(--primary);
-  text-decoration: underline;
+.lf--submit.loading .spinner {
+  width: 22px;
+  height: 22px;
+  border-width: 2.5px;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
 }
 
-/* Error message */
+/* ===== Error Message ===== */
 .login-error {
   background: var(--accent-red-light);
   color: var(--accent-red);
-  padding: 10px 14px;
+  padding: 12px 14px;
   border-radius: var(--radius-sm);
   font-size: 0.82rem;
   font-weight: 500;
   text-align: center;
   animation: fadeIn 0.3s ease forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(200, 79, 79, 0.15);
 }
 
-/* Loading state for submit button */
-.lf--submit.loading {
+.login-error svg {
+  flex-shrink: 0;
+}
+
+/* ===== Footer ===== */
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
   position: relative;
-  color: transparent;
+  z-index: 1;
 }
 
-.lf--submit.loading::after {
+.lf--forgot {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lf--forgot:hover {
+  color: var(--primary);
+}
+
+.lf--forgot::after {
   content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  display: block;
+  height: 1px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transition: transform var(--transition-fast);
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.lf--forgot:hover::after {
+  transform: scaleX(1);
 }
 
 /* ===== Responsive ===== */
@@ -234,11 +401,30 @@
   }
 
   .login-title {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .login-logo {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .login-logo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .shape-1 {
+    width: 200px;
+    height: 200px;
+    top: -60px;
+    right: -50px;
+  }
+
+  .shape-2 {
+    width: 150px;
+    height: 150px;
+    bottom: -30px;
+    left: -40px;
   }
 }

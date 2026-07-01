@@ -1,5 +1,5 @@
 /* ============================================
-   MediDoc — Admin Dashboard
+   MediDoc — Admin Dashboard v2
    ============================================ */
 
 .stats-grid {
@@ -16,10 +16,17 @@
   padding: 24px 28px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
-  transition: all var(--transition-base);
+  transition: all var(--transition-slow);
   position: relative;
   overflow: hidden;
+  animation: fadeInUp 0.4s ease forwards;
+  opacity: 0;
 }
+
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
 
 .stat-card::before {
   content: '';
@@ -28,6 +35,11 @@
   left: 0;
   width: 4px;
   height: 100%;
+  transition: width var(--transition-slow);
+}
+
+.stat-card:hover::before {
+  width: 6px;
 }
 
 .stat-card:nth-child(1)::before { background: var(--primary); }
@@ -36,9 +48,27 @@
 .stat-card:nth-child(4)::before { background: var(--accent-red); }
 
 .stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
 }
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  opacity: 0.04;
+  transform: translate(30%, -30%);
+  pointer-events: none;
+}
+
+.stat-card:nth-child(1)::after { background: var(--primary); }
+.stat-card:nth-child(2)::after { background: var(--secondary); }
+.stat-card:nth-child(3)::after { background: var(--accent-orange); }
+.stat-card:nth-child(4)::after { background: var(--accent-red); }
 
 .stat-label {
   font-size: 0.8rem;
@@ -54,6 +84,7 @@
   font-weight: 800;
   color: var(--text-primary);
   line-height: 1;
+  animation: countUp 0.5s ease forwards;
 }
 
 .stat-value.green { color: var(--primary); }
@@ -94,11 +125,13 @@
   gap: 14px;
   padding: 12px 8px;
   border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
+  cursor: pointer;
 }
 
 .tech-row:hover {
   background: var(--bg-mint-card);
+  transform: translateX(4px);
 }
 
 .tech-avatar {
@@ -113,6 +146,12 @@
   font-size: 0.75rem;
   font-weight: 700;
   flex-shrink: 0;
+  transition: all var(--transition-slow);
+}
+
+.tech-row:hover .tech-avatar {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(15, 139, 94, 0.2);
 }
 
 .tech-info {
@@ -136,11 +175,13 @@
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: all var(--transition-fast);
 }
 
 .status-dot.online {
   background: var(--primary);
   box-shadow: 0 0 0 3px rgba(15, 139, 94, 0.15);
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .status-dot.offline {
@@ -163,6 +204,7 @@
 .voir-plus:hover {
   background: var(--primary-light);
   text-decoration: none;
+  transform: translateY(-1px);
 }
 
 /* Channel usage bars */
@@ -195,7 +237,19 @@
 .bar-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  transition: width 0.6s ease;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 .bar-fill.whatsapp { background: var(--primary); }
@@ -216,6 +270,12 @@
   font-size: 0.85rem;
   padding: 8px 0;
   border-bottom: 1px solid #f0f5f2;
+  transition: all var(--transition-fast);
+}
+
+.activite-row:hover {
+  padding-left: 8px;
+  border-bottom-color: var(--border-hover);
 }
 
 .activite-row:last-child {
@@ -256,7 +316,14 @@
   background: var(--primary-gradient);
   border-radius: 4px 4px 0 0;
   min-height: 4px;
-  transition: height 0.4s ease;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: scaleIn 0.4s ease forwards;
+  transform-origin: bottom;
+}
+
+.tendance-bar-wrap:hover .tendance-bar {
+  opacity: 0.8;
+  transform: scaleX(1.1);
 }
 
 .tendance-valeur {

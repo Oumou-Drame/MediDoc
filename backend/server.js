@@ -8,6 +8,7 @@ import historyRoutes from './routes/history-route.js';
 import uploadRoutes from './routes/upload-route.js';
 import patientRoutes from './routes/patient-route.js';
 import whatsappRoutes from './routes/whatsapp-route.js';
+import smsRoutes from './routes/sms-route.js';
 import { initConnection } from './utils/whatsapp.js';
 
 const app = express();
@@ -35,14 +36,15 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/patient', patientRoutes);
    
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/sms', smsRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log('📱 WhatsApp géré via Baileys (WhatsApp Web)');
-  console.log('� SMS géré via Twilio');
-  console.log('📱 Email géré via SMTP');
+  console.log('📱 SMS géré via Africa\'s Talking');
+  console.log('� Email géré via SMTP');
   
   // Initialiser la connexion WhatsApp Baileys au démarrage
   initConnection().catch(err => {

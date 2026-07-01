@@ -18,8 +18,11 @@ export class Comptes implements OnInit {
   afficherFormulaire = false;
   modeEdition = false;
   idEnCours: number | null = null;
+  matriculeGenere = '';
 
-  formData = { username: '', email: '', password: '', full_name: '', phone: '' };
+  formData = { email: '', full_name: '', phone: '', role: 'technicien', date_naissance: '' };
+  enregistrement = false;
+  afficherSceau = false;
 
   ngOnInit(): void {
     this.chargerTechniciens();
@@ -28,26 +31,28 @@ export class Comptes implements OnInit {
   chargerTechniciens() {
     this.adminService.getUsers().subscribe({
       next: (res) => { this.techniciens = res.data; },
-      error: (err) => console.error('Erreur chargement techniciens:', err)
+      error: (err) => console.error('Erreur chargement:', err)
     });
   }
 
   ouvrirAjout() {
     this.modeEdition = false;
     this.idEnCours = null;
-    this.formData = { username: '', email: '', password: '', full_name: '', phone: '' };
+    this.matriculeGenere = '';
+    this.formData = { email: '', full_name: '', phone: '', role: 'technicien', date_naissance: '' };
     this.afficherFormulaire = true;
   }
 
   ouvrirEdition(tech: Technicien) {
     this.modeEdition = true;
     this.idEnCours = tech.id;
+    this.matriculeGenere = tech.matricule || '';
     this.formData = {
-      username: tech.username,
       email: tech.email,
-      password: '',
       full_name: tech.full_name,
-      phone: tech.phone || ''
+      phone: tech.phone || '',
+      role: tech.role,
+      date_naissance: tech.date_naissance ? tech.date_naissance.substring(0, 10) : ''
     };
     this.afficherFormulaire = true;
   }
@@ -58,18 +63,45 @@ export class Comptes implements OnInit {
 
   valider() {
     if (this.modeEdition && this.idEnCours) {
+      this.enregistrement = true;
       this.adminService.updateUser(this.idEnCours, {
         full_name: this.formData.full_name,
         email: this.formData.email,
-        phone: this.formData.phone
+        phone: this.formData.phone,
+        role: this.formData.role,
+        date_naissance: this.formData.date_naissance || undefined
       }).subscribe({
-        next: () => { this.afficherFormulaire = false; this.chargerTechniciens(); },
-        error: (err) => alert(err.error?.error || 'Erreur lors de la modification')
+        next: () => { 
+          this.afficherFormulaire = false; 
+          this.enregistrement = false;
+          this.chargerTechniciens(); 
+        },
+        error: (err) => {
+          this.enregistrement = false;
+          alert(err.error?.error || 'Erreur lors de la modification');
+        }
       });
     } else {
-      this.adminService.createUser(this.formData).subscribe({
-        next: () => { this.afficherFormulaire = false; this.chargerTechniciens(); },
-        error: (err) => alert(err.error?.error || 'Erreur lors de la création')
+      this.enregistrement = true;
+      this.adminService.createUser({
+        email: this.formData.email,
+        full_name: this.formData.full_name,
+        phone: this.formData.phone,
+        role: this.formData.role,
+        date_naissance: this.formData.date_naissance || undefined
+      }).subscribe({
+        next: (res) => {
+          this.enregistrement = false;
+          this.matriculeGenere = res.data?.matricule || '';
+          this.chargerTechniciens();
+          if (res.data?.matricule) {
+            this.afficherSceau = true;
+          }
+        },
+        error: (err) => {
+          this.enregistrement = false;
+          alert(err.error?.error || 'Erreur lors de la création');
+        }
       });
     }
   }
@@ -80,6 +112,7 @@ export class Comptes implements OnInit {
       error: (err) => alert(err.error?.error || 'Erreur')
     });
   }
+  
   supprimer(tech: Technicien) {
     if (!confirm(`Supprimer le compte de ${tech.full_name} ?`)) return;
     this.adminService.deleteUser(tech.id).subscribe({
@@ -87,6 +120,7 @@ export class Comptes implements OnInit {
       error: (err) => alert(err.error?.error || 'Erreur')
     });
   }
+
   rechercheLocale = '';
 
   get techniciensFiltres(): Technicien[] {
@@ -94,7 +128,32 @@ export class Comptes implements OnInit {
     const terme = this.rechercheLocale.toLowerCase();
     return this.techniciens.filter(t =>
       t.full_name.toLowerCase().includes(terme) ||
-      t.email.toLowerCase().includes(terme)
+      t.email.toLowerCase().includes(terme) ||
+      (t.matricule && t.matricule.toLowerCase().includes(terme))
     );
+  }
+
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      'technicien': 'Technicien',
+      'responsable_labo': 'Responsable de laboratoire'
+    };
+    return labels[role] || role;
+  }
+
+  fermerSceau() {
+    this.afficherSceau = false;
+    this.afficherFormulaire = false;
+    this.matriculeGenere = '';
+  }
+
+  copierMatricule() {
+    if (this.matriculeGenere) {
+      navigator.clipboard.writeText(this.matriculeGenere).then(() => {
+        // Could add a toast notification here
+      }).catch(err => {
+        console.error('Erreur lors de la copie:', err);
+      });
+    }
   }
 }

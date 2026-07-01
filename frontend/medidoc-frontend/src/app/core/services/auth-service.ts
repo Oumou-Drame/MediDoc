@@ -11,11 +11,13 @@ export class AuthService {
    private http: HttpClient = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/api/auth';
 
+  private _currentUser: any = null;
+
   login(loginRequest: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(
       `${this.apiUrl}/login`,
       loginRequest,
-      { withCredentials: true }   //  obligatoire pour envoyer/recevoir le cookie
+      { withCredentials: true }
     );
   }
 
@@ -30,8 +32,26 @@ export class AuthService {
   // Vérifie la connexion en interrogeant le serveur (le cookie est HttpOnly, invisible en JS)
   isLogin(): Observable<boolean> {
     return this.getMe().pipe(
-      map(() => true),
+      map((user) => {
+        this._currentUser = user;
+        return true;
+      }),
       catchError(() => of(false))
     );
+  }
+
+  // Récupère l'utilisateur courant (après getMe/isLogin)
+  get currentUser(): any {
+    return this._currentUser;
+  }
+
+  // Modifier le profil
+  updateProfile(data: { full_name?: string; phone?: string; date_naissance?: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/profile`, data, { withCredentials: true });
+  }
+
+  // Changer le mot de passe
+  changePassword(data: { current_password: string; new_password: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/password`, data, { withCredentials: true });
   }
 }

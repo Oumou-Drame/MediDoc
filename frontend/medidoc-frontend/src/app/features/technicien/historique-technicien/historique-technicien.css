@@ -1,0 +1,186 @@
+/* ============================================
+   MediDoc — Historique Technicien — Design Dark Premium
+   ============================================ */
+
+.technicien-content {
+  animation: pageContentIn 0.4s ease forwards;
+}
+
+@keyframes pageContentIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-header {
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.page-subtitle {
+  font-size: 0.9rem;
+  color: var(--color-texte-secondaire);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-subtitle::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  border-radius: 2px;
+}
+
+/* Filters UI */
+.filtres {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: 0 14px;
+  transition: all var(--transition-base);
+}
+
+.input-group:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.input-icon {
+  color: var(--color-texte-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-group input {
+  background: transparent;
+  border: none;
+  padding: 12px 10px;
+  color: #fff;
+  outline: none;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.status-select {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  color: #fff;
+  padding: 12px 36px 12px 16px;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  appearance: none;
+  font-size: 0.875rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.status-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  background-color: rgba(15, 23, 42, 0.85);
+}
+
+.status-select option {
+  background: #0f172a;
+  color: #fff;
+}
+
+/* Table styling custom */
+.table-container {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+}
+
+.historique-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.historique-table th {
+  padding: 16px 20px;
+  background: rgba(30, 41, 59, 0.4);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-texte-secondaire);
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.historique-table td {
+  padding: 16px 20px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--color-texte);
+}
+
+.table-row-premium {
+  transition: all var(--transition-fast);
+}
+
+.table-row-premium:hover {
+  background: rgba(6, 182, 212, 0.03);
+}
+
+.table-row-premium:last-child td {
+  border-bottom: none;
+}
+
+/* Badges styling matching global styles */
+.badge-technicien {
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+/* Empty State */
+.empty-state {
+  padding: 48px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .filtres {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

@@ -1,16 +1,17 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { protect, requireAdmin } from '../middleware/auth-middleware.js';
+import { protect, requireResponsableLabo } from '../middleware/auth-middleware.js';
 import { queryOne, queryAll, query } from '../config/db.js';
 
 const router = express.Router();
 
-// GET /api/admin/users — Liste des techniciens
-router.get('/users', protect, requireAdmin, async (req, res) => {
+// GET /api/admin/users — Liste des techniciens et responsables
+router.get('/users', protect, requireResponsableLabo, async (req, res) => {
     try {
         const users = await queryAll(
-            'SELECT id, username, email, full_name, role, phone, is_active, created_at FROM users WHERE role = $1 ORDER BY created_at DESC',
-            ['technician']
+            `SELECT id, email, full_name, role, phone, matricule, date_naissance, is_active, created_at 
+             FROM users WHERE role IN ('technicien', 'responsable_labo') 
+             ORDER BY created_at DESC`
         );
         res.json({ success: true, data: users });
     } catch (err) {
@@ -19,36 +20,64 @@ router.get('/users', protect, requireAdmin, async (req, res) => {
     }
 });
 
-// POST /api/admin/users — Créer un technicien
-router.post('/users', protect, requireAdmin, async (req, res) => {
-    const { username, email, password, full_name, phone } = req.body;
+// POST /api/admin/users — Créer un technicien ou responsable de laboratoire
+router.post('/users', protect, requireResponsableLabo, async (req, res) => {
+    const { email, full_name, phone, role, date_naissance, nom, prenom } = req.body;
 
-    if (!username || !email || !password || !full_name) {
-        return res.status(400).json({ error: 'Tous les champs obligatoires doivent être remplis' });
+    if (!email || !full_name) {
+        return res.status(400).json({ error: 'Email et nom complet requis' });
+    }
+
+    const userRole = role || 'technicien';
+    if (!['technicien', 'responsable_labo'].includes(userRole)) {
+        return res.status(400).json({ error: 'Rôle invalide. Choisissez technicien ou responsable_labo' });
     }
 
     try {
-        const existing = await queryOne(
-            'SELECT id FROM users WHERE username = $1 OR email = $2',
-            [username, email]
-        );
+        const existing = await queryOne('SELECT id FROM users WHERE email = $1', [email]);
         if (existing) {
-            return res.status(400).json({ error: "Nom d'utilisateur ou email déjà utilisé" });
+            return res.status(400).json({ error: 'Cet email est déjà utilisé par un autre compte' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await query(
-            `INSERT INTO users (username, email, password, full_name, role, phone, is_active, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, 'technician', $5, 1, NOW(), NOW())`,
-            [username, email, hashedPassword, full_name, phone || null]
+        // Validation d'âge (minimum 18 ans)
+        if (date_naissance) {
+            const birthDate = new Date(date_naissance);
+            const minAge = new Date();
+            minAge.setFullYear(minAge.getFullYear() - 18);
+            if (birthDate > minAge) {
+                return res.status(400).json({ error: 'Le compte doit être créé pour une personne majeure (18 ans minimum)' });
+            }
+        }
+
+        // Générer le matricule au format MED-YYYY-XXXX
+        const year = new Date().getFullYear();
+        const count = await queryOne("SELECT COUNT(*) as count FROM users WHERE matricule LIKE $1", [`MED-${year}-%`]);
+        const num = String(parseInt(count.count) + 1).padStart(4, '0');
+        const matricule = `MED-${year}-${num}`;
+
+        // Générer un mot de passe temporaire
+        const tempPassword = Math.random().toString(36).slice(-8).toUpperCase() + Math.random().toString(36).slice(-4);
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+        const result = await query(
+            `INSERT INTO users (email, password, full_name, role, phone, date_naissance, matricule, is_active, created_at, updated_at, must_change_password)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 1, NOW(), NOW(), true) RETURNING id, matricule`,
+            [email, hashedPassword, full_name, userRole, phone || null, date_naissance || null, matricule]
         );
 
         await query(
             'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
-            [req.user.id, 'create_user', `Création technicien: ${username}`, req.ip]
+            [req.user.id, 'create_user', `Création ${userRole}: ${email} (${matricule})`, req.ip]
         );
 
-        res.json({ success: true, message: 'Technicien créé avec succès' });
+        // TODO: Envoyer email avec mot de passe temporaire
+        // Pour l'instant, on retourne le mot de passe dans la réponse (à remplacer par envoi d'email)
+        
+        res.json({ 
+            success: true, 
+            message: `Compte créé — matricule ${matricule}`,
+            data: { id: result.rows[0].id, matricule, temp_password: tempPassword }
+        });
     } catch (err) {
         console.error('Create user error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
@@ -56,7 +85,7 @@ router.post('/users', protect, requireAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/users/:id/toggle — Activer/désactiver un compte
-router.put('/users/:id/toggle', protect, requireAdmin, async (req, res) => {
+router.put('/users/:id/toggle', protect, requireResponsableLabo, async (req, res) => {
     try {
         const user = await queryOne('SELECT * FROM users WHERE id = $1', [req.params.id]);
         if (!user) {
@@ -72,16 +101,18 @@ router.put('/users/:id/toggle', protect, requireAdmin, async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
+
 // PUT /api/admin/users/:id — Modifier un technicien existant
-router.put('/users/:id', protect, requireAdmin, async (req, res) => {
-    const { full_name, email, phone } = req.body;
+router.put('/users/:id', protect, requireResponsableLabo, async (req, res) => {
+    const { full_name, email, phone, role, date_naissance } = req.body;
 
     if (!full_name || !email) {
         return res.status(400).json({ error: 'Nom complet et email sont obligatoires' });
     }
 
     try {
-        const user = await queryOne('SELECT id FROM users WHERE id = $1 AND role = $2', [req.params.id, 'technician']);
+        const user = await queryOne('SELECT id FROM users WHERE id = $1 AND role IN ($2, $3)', 
+            [req.params.id, 'technicien', 'responsable_labo']);
         if (!user) {
             return res.status(404).json({ error: 'Utilisateur non trouvé' });
         }
@@ -91,21 +122,25 @@ router.put('/users/:id', protect, requireAdmin, async (req, res) => {
             return res.status(400).json({ error: 'Cet email est déjà utilisé par un autre compte' });
         }
 
+        const newRole = role && ['technicien', 'responsable_labo'].includes(role) ? role : user.role;
+
         await query(
-            'UPDATE users SET full_name = $1, email = $2, phone = $3, updated_at = NOW() WHERE id = $4',
-            [full_name, email, phone || null, req.params.id]
+            `UPDATE users SET full_name = $1, email = $2, phone = $3, role = $4, date_naissance = COALESCE($5, date_naissance), updated_at = NOW() WHERE id = $6`,
+            [full_name, email, phone || null, newRole, date_naissance, req.params.id]
         );
 
-        res.json({ success: true, message: 'Technicien modifié avec succès' });
+        res.json({ success: true, message: 'Utilisateur modifié avec succès' });
     } catch (err) {
         console.error('Update user error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
+
 // DELETE /api/admin/users/:id — Supprimer un technicien
-router.delete('/users/:id', protect, requireAdmin, async (req, res) => {
+router.delete('/users/:id', protect, requireResponsableLabo, async (req, res) => {
     try {
-        await query('DELETE FROM users WHERE id = $1 AND role = $2', [req.params.id, 'technician']);
+        await query('DELETE FROM users WHERE id = $1 AND role IN ($2, $3)', 
+            [req.params.id, 'technicien', 'responsable_labo']);
         res.json({ success: true, message: 'Utilisateur supprimé' });
     } catch (err) {
         console.error('Delete user error:', err);
@@ -114,14 +149,14 @@ router.delete('/users/:id', protect, requireAdmin, async (req, res) => {
 });
 
 // GET /api/admin/stats — Statistiques pour le dashboard
-router.get('/stats', protect, requireAdmin, async (req, res) => {
+router.get('/stats', protect, requireResponsableLabo, async (req, res) => {
     try {
         const totalResults = await queryOne('SELECT COUNT(*) as count FROM medical_results', []);
         const sentResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status IN ('sent', 'accessed')", []);
         const pendingResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'pending'", []);
         const accessedResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'accessed'", []);
         const expiredResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'expired'", []);
-        const totalTechnicians = await queryOne("SELECT COUNT(*) as count FROM users WHERE role = 'technician'", []);
+        const totalTechnicians = await queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo')", []);
         const emailSms = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_sms'", []);
         const emailWhatsapp = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_whatsapp'", []);
 
@@ -172,7 +207,7 @@ router.get('/stats', protect, requireAdmin, async (req, res) => {
 });
 
 // GET /api/admin/settings — Lire les paramètres
-router.get('/settings', protect, requireAdmin, async (req, res) => {
+router.get('/settings', protect, requireResponsableLabo, async (req, res) => {
     try {
         const settings = await queryAll('SELECT * FROM settings', []);
         const settingsObj = {};
@@ -185,7 +220,7 @@ router.get('/settings', protect, requireAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/settings — Modifier les paramètres
-router.put('/settings', protect, requireAdmin, async (req, res) => {
+router.put('/settings', protect, requireResponsableLabo, async (req, res) => {
     try {
         const updates = req.body;
         for (const [key, value] of Object.entries(updates)) {
@@ -202,8 +237,9 @@ router.put('/settings', protect, requireAdmin, async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
-// GET /api/admin/dashboard — Données exactes pour la page dashboard
-router.get('/dashboard', protect, requireAdmin, async (req, res) => {
+
+// GET /api/admin/dashboard — Données pour la page dashboard
+router.get('/dashboard', protect, requireResponsableLabo, async (req, res) => {
     try {
         const [
             techniciensTotal, techniciensActifs, totalResultats, envoisCeMois,
@@ -213,8 +249,8 @@ router.get('/dashboard', protect, requireAdmin, async (req, res) => {
             recentActivity,
             dailyRows
         ] = await Promise.all([
-            queryOne("SELECT COUNT(*) as count FROM users WHERE role = 'technician'", []),
-            queryOne("SELECT COUNT(*) as count FROM users WHERE role = 'technician' AND is_active = 1", []),
+            queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo')", []),
+            queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo') AND is_active = 1", []),
             queryOne("SELECT COUNT(*) as count FROM medical_results", []),
             queryOne("SELECT COUNT(*) as count FROM medical_results WHERE created_at >= date_trunc('month', CURRENT_DATE)", []),
             queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'accessed'", []),
@@ -222,7 +258,7 @@ router.get('/dashboard', protect, requireAdmin, async (req, res) => {
             queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('whatsapp','email_whatsapp','sms_whatsapp','all')", []),
             queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('sms','email_sms','sms_whatsapp','all')", []),
             queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('email','email_sms','email_whatsapp','all')", []),
-            queryAll("SELECT id, full_name, email, is_active FROM users WHERE role = 'technician' ORDER BY created_at DESC", []),
+            queryAll("SELECT id, full_name, email, is_active FROM users WHERE role IN ('technicien', 'responsable_labo') ORDER BY created_at DESC", []),
             queryAll('SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 8', []),
             queryAll(
                 `SELECT to_char(created_at, 'YYYY-MM-DD') as date, COUNT(*) as count
@@ -236,7 +272,6 @@ router.get('/dashboard', protect, requireAdmin, async (req, res) => {
         const total = parseInt(totalResultats.count) || 0;
         const pct = (count) => total > 0 ? Math.round((parseInt(count) / total) * 100) : 0;
 
-        // Complète les 7 derniers jours, même ceux sans aucun envoi (sinon le graphique aurait des trous)
         const tendance = [];
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
@@ -279,4 +314,5 @@ router.get('/dashboard', protect, requireAdmin, async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
+
 export default router;

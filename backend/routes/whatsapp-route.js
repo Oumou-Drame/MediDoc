@@ -1,12 +1,12 @@
 import express from 'express';
-import { protect, requireAdmin } from '../middleware/auth-middleware.js';
+import { protect, requireResponsableLabo } from '../middleware/auth-middleware.js';
 import * as baileys from '../utils/whatsapp.js';
 import { sendWhatsApp } from '../utils/sms.js';
 
 const router = express.Router();
 
 // GET /api/whatsapp/status — Statut de la connexion Baileys
-router.get('/status', protect, requireAdmin, async (req, res) => {
+router.get('/status', protect, requireResponsableLabo, async (req, res) => {
     const status = baileys.getConnectionStatus();
     const phone = status.info?.id?.replace(/:.*@/, '@')?.split('@')[0] || 'Non connecté';
     res.json({
@@ -24,7 +24,7 @@ router.get('/status', protect, requireAdmin, async (req, res) => {
 });
 
 // GET /api/whatsapp/test — Test de connexion Baileys
-router.get('/test', protect, requireAdmin, async (req, res) => {
+router.get('/test', protect, requireResponsableLabo, async (req, res) => {
     try {
         const result = await baileys.testConnection();
         res.json(result);
@@ -34,7 +34,7 @@ router.get('/test', protect, requireAdmin, async (req, res) => {
 });
 
 // GET /api/whatsapp/qr — Obtenir le QR code pour la connexion WhatsApp
-router.get('/qr', protect, requireAdmin, async (req, res) => {
+router.get('/qr', protect, requireResponsableLabo, async (req, res) => {
     try {
         const result = await baileys.getQR();
         res.json(result);
@@ -44,7 +44,7 @@ router.get('/qr', protect, requireAdmin, async (req, res) => {
 });
 
 // POST /api/whatsapp/send — Envoyer un message WhatsApp via Baileys
-router.post('/send', protect, requireAdmin, async (req, res) => {
+router.post('/send', protect, requireResponsableLabo, async (req, res) => {
     try {
         const { phone, message } = req.body;
         if (!phone || !message) {
@@ -77,7 +77,7 @@ router.post('/send', protect, requireAdmin, async (req, res) => {
 });
 
 // POST /api/whatsapp/reconnect — Reconnecter WhatsApp
-router.post('/reconnect', protect, requireAdmin, async (req, res) => {
+router.post('/reconnect', protect, requireResponsableLabo, async (req, res) => {
     try {
         const result = await baileys.reconnect();
         res.json(result);
@@ -87,7 +87,7 @@ router.post('/reconnect', protect, requireAdmin, async (req, res) => {
 });
 
 // POST /api/whatsapp/disconnect — Déconnecter WhatsApp
-router.post('/disconnect', protect, requireAdmin, async (req, res) => {
+router.post('/disconnect', protect, requireResponsableLabo, async (req, res) => {
     try {
         const result = await baileys.disconnect();
         res.json(result);

@@ -23,8 +23,8 @@ export class AdminService {
     return this.http.post<any>(`${this.apiUrl}/users`, payload, { withCredentials: true });
   }
 
-  updateUser(id: number, payload: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/users/${id}`, payload, { withCredentials: true });
+  updateUser(id: number, payload: Partial<any>): Observable<{ success: boolean; data?: any }> {
+    return this.http.put<{ success: boolean; data?: any }>(`${this.apiUrl}/users/${id}`, payload, { withCredentials: true });
   }
 
   toggleUser(id: number): Observable<any> {

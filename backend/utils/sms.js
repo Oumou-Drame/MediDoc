@@ -2,13 +2,17 @@
  * MediDoc - Service d'envoi de messages
  * 
  * Utilise Baileys (WhatsApp Web) pour les messages WhatsApp.
- * Utilise Twilio pour les SMS.
+ * Utilise Africa's Talking pour les SMS.
  * Utilise Nodemailer pour l'envoi d'emails.
+ * 
+ * Configuration SMS :
+ * - AT_API_KEY, AT_USERNAME, AT_SENDER_ID dans .env (Africa's Talking)
+ * - Fallback: simulation console si non configuré
  */
 
 import nodemailer from 'nodemailer';
-import * as twilio from './twilio.js';
 import * as baileys from './whatsapp.js';
+import * as africastalking from './africastalking.js';
 
 // Create email transporter
 const transporter = nodemailer.createTransport({
@@ -83,16 +87,16 @@ async function sendWhatsAppDocument(phone, documentUrl, filename = 'document.pdf
 }
 
 /**
- * Envoie un SMS via Twilio
+ * Envoie un SMS via Africa's Talking
  * @param {string} phone - Numéro de téléphone
  * @param {string} message - Contenu du message
  * @returns {boolean} - Succès ou échec
  */
 async function sendSMS(phone, message) {
   try {
-    const result = await twilio.sendSMS(phone, message);
+    const result = await africastalking.sendSMS(phone, message);
     if (result.success) {
-      console.log(`✅ SMS envoyé à ${twilio.formatPhone(phone)}`);
+      console.log(`✅ SMS envoyé à ${africastalking.formatPhone(phone)} via Africa's Talking`);
       return true;
     }
     console.error('❌ Erreur SMS:', result.error);

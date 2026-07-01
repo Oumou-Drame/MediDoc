@@ -1,114 +1,101 @@
-<div class="technicien-page">
-  <div class="technicien-topbar">
-    <div class="technicien-titre">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-      MediDoc
-    </div>
-    <div class="technicien-nav">
-      <a routerLink="/technicien" routerLinkActive="active">Nouvel envoi</a>
-      <a routerLink="/technicien/historique" routerLinkActive="active">Mes envois</a>
-    </div>
-    <button class="btn btn-secondary btn-sm" (click)="seDeconnecter()">Déconnexion</button>
+<div class="technicien-content animate-fade-in-up">
+  <div class="page-header">
+    <h1 class="page-title text-cyan-400">Nouvel envoi</h1>
+    <p class="page-subtitle">Envoyez les résultats d'analyses d'un patient par SMS, WhatsApp ou Email</p>
   </div>
 
-  <div class="technicien-content">
-
-    <!-- Send Form -->
-    <div class="card" *ngIf="!resultat">
-      <div class="card-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 2L11 13" />
-          <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-        </svg>
-        Envoyer les résultats d'un patient
-      </div>
-
-      <div class="form-row">
-        <label>Nom complet du patient</label>
-        <input type="text" [(ngModel)]="patientName" placeholder="Ex: Mark Diop">
-      </div>
-
-      <div class="form-row">
-        <label>Numéro de téléphone</label>
-        <input type="text" [(ngModel)]="patientPhone" placeholder="Ex: +221771234567">
-        <span class="field-hint">Format international recommandé</span>
-      </div>
-
-      <div class="form-row">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="patientEmail" placeholder="Ex: patient@email.com">
-      </div>
-
-      <div class="form-row">
-        <label>Document PDF des résultats</label>
-        <input type="file" accept="application/pdf" (change)="onFichierSelectionne($event)">
-        <span class="fichier-nom" *ngIf="nomFichier">📄 {{ nomFichier }}</span>
-      </div>
-
-      <div class="form-row">
-        <label>Mode d'envoi</label>
-        <div class="canaux-choix">
-          <label class="canal-option" *ngFor="let c of canaux">
-            <input type="radio" name="channel" [value]="c.value" [(ngModel)]="channelChoisi">
-            <div>
-              <div class="canal-label">{{ c.label }}</div>
-              <div class="canal-desc">{{ c.description }}</div>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="erreur-msg" *ngIf="erreur">{{ erreur }}</div>
-
-      <button class="btn btn-primary btn-lg" (click)="envoyer()" [disabled]="envoiEnCours" style="width:100%;margin-top:8px;">
-        <svg *ngIf="envoiEnCours" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.6s linear infinite">
-          <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32" />
-        </svg>
-        {{ envoiEnCours ? 'Envoi en cours...' : 'Envoyer les résultats' }}
-      </button>
+  <!-- Formulaire d'envoi -->
+  <div class="card" *ngIf="!resultat">
+    <div class="card-title text-white">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="animate-pulse">
+        <path d="M22 2L11 13" />
+        <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+      </svg>
+      Envoyer les résultats d'un patient
     </div>
 
-    <!-- Success Recap -->
-    <div class="card recap" *ngIf="resultat">
-      <div class="card-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-        Envoi réussi
-      </div>
-
-      <div class="recap-grid">
-        <div><span class="detail-label">Patient</span><span>{{ resultat.patient_name }}</span></div>
-        <div><span class="detail-label">Téléphone</span><span>{{ resultat.patient_phone }}</span></div>
-        <div><span class="detail-label">Email</span><span>{{ resultat.patient_email }}</span></div>
-        <div><span class="detail-label">Mode d'envoi</span><span>{{ resultat.channel }}</span></div>
-        <div><span class="detail-label">Code d'accès</span><span class="code-fort">{{ resultat.access_code }}</span></div>
-        <div><span class="detail-label">Expire le</span><span>{{ resultat.expires_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
-      </div>
-
-      <div class="recap-statuts">
-        <span class="badge" [class.badge-sent]="resultat.whatsapp_sent" [class.badge-locked]="!resultat.whatsapp_sent">
-          WhatsApp {{ resultat.whatsapp_sent ? '✓ Envoyé' : 'Non envoyé' }}
-        </span>
-        <span class="badge" [class.badge-sent]="resultat.sms_sent" [class.badge-locked]="!resultat.sms_sent">
-          SMS {{ resultat.sms_sent ? '✓ Envoyé' : 'Non envoyé' }}
-        </span>
-        <span class="badge" [class.badge-sent]="resultat.email_sent" [class.badge-locked]="!resultat.email_sent">
-          Email {{ resultat.email_sent ? '✓ Envoyé' : 'Non envoyé' }}
-        </span>
-      </div>
-
-      <button class="btn btn-primary" (click)="nouvelEnvoi()" style="width:100%;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-        Nouvel envoi
-      </button>
+    <div class="form-row">
+      <label>Nom complet du patient <span class="text-cyan-400">*</span></label>
+      <input type="text" [(ngModel)]="patientName" placeholder="Ex: Aminata Diallo">
     </div>
 
+    <div class="form-row">
+      <label>Numéro de téléphone <span class="text-cyan-400">*</span></label>
+      <input type="text" [(ngModel)]="patientPhone" placeholder="Ex: +221771234567">
+      <span class="field-hint">Format international requis pour WhatsApp/SMS (+221...)</span>
+    </div>
+
+    <div class="form-row">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="patientEmail" placeholder="Ex: patient@email.com">
+    </div>
+
+    <div class="form-row">
+      <label>Document PDF des résultats <span class="text-cyan-400">*</span></label>
+      <input type="file" accept="application/pdf" (change)="onFichierSelectionne($event)">
+      <span class="fichier-nom" *ngIf="nomFichier">📄 {{ nomFichier }}</span>
+    </div>
+
+    <div class="form-row">
+      <label>Canal d'envoi <span class="text-cyan-400">*</span></label>
+      <div class="canaux-choix">
+        <label class="canal-option" *ngFor="let c of canaux" [class.selected]="channelChoisi === c.value">
+          <input type="radio" name="channel" [value]="c.value" [(ngModel)]="channelChoisi">
+          <div class="canal-meta">
+            <div class="canal-label text-white">{{ c.label }}</div>
+            <div class="canal-desc">{{ c.description }}</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="erreur-msg" *ngIf="erreur">{{ erreur }}</div>
+
+    <button class="btn btn-primary btn-lg" (click)="envoyer()" [disabled]="envoiEnCours" style="width:100%;margin-top:16px;">
+      <svg *ngIf="envoiEnCours" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.6s linear infinite" class="mr-2">
+        <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32" />
+      </svg>
+      {{ envoiEnCours ? 'Traitement et envoi...' : 'Transmettre les résultats' }}
+    </button>
+  </div>
+
+  <!-- Récapitulatif succès -->
+  <div class="card recap" *ngIf="resultat">
+    <div class="card-title text-cyan-400">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+      Envoi réussi avec succès
+    </div>
+
+    <div class="recap-grid">
+      <div><span class="detail-label">Patient</span><span>{{ resultat.patient_name }}</span></div>
+      <div><span class="detail-label">Téléphone</span><span>{{ resultat.patient_phone }}</span></div>
+      <div><span class="detail-label">Email</span><span>{{ resultat.patient_email || '—' }}</span></div>
+      <div><span class="detail-label">Canal sélectionné</span><span class="text-cyan-300 font-semibold">{{ resultat.channel }}</span></div>
+      <div><span class="detail-label">Code d'accès sécurisé</span><span class="code-fort text-cyan-400 font-mono">{{ resultat.access_code }}</span></div>
+      <div><span class="detail-label">Expiration du lien</span><span>{{ resultat.expires_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
+    </div>
+
+    <div class="recap-statuts">
+      <span class="badge" [class.badge-actif]="resultat.whatsapp_sent" [class.badge-suspendu]="!resultat.whatsapp_sent">
+        WhatsApp {{ resultat.whatsapp_sent ? '✓ Envoyé' : 'Non envoyé' }}
+      </span>
+      <span class="badge" [class.badge-actif]="resultat.sms_sent" [class.badge-suspendu]="!resultat.sms_sent">
+        SMS {{ resultat.sms_sent ? '✓ Envoyé' : 'Non envoyé' }}
+      </span>
+      <span class="badge" [class.badge-actif]="resultat.email_sent" [class.badge-suspendu]="!resultat.email_sent">
+        Email {{ resultat.email_sent ? '✓ Envoyé' : 'Non envoyé' }}
+      </span>
+    </div>
+
+    <button class="btn btn-primary" (click)="nouvelEnvoi()" style="width:100%; margin-top: 16px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Effectuer un nouvel envoi
+    </button>
   </div>
 </div>

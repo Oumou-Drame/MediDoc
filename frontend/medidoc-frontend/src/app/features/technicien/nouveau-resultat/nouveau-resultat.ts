@@ -3,21 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UploadService } from '../../../core/services/upload-service';
-import { AuthService } from '../../../core/services/auth-service';
 import { CanalOption, UploadResponse } from '../models/upload';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 
 @Component({
   selector: 'app-nouveau-resultat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule],
   templateUrl: './nouveau-resultat.html',
   styleUrl: './nouveau-resultat.css',
 })
 export class NouveauResultat implements OnInit {
   private uploadService = inject(UploadService);
-  private authService = inject(AuthService);
   private router = inject(Router);
 
   canaux: CanalOption[] = [];
@@ -84,11 +81,5 @@ export class NouveauResultat implements OnInit {
     this.resultat = null;
     this.patientName = ''; this.patientPhone = ''; this.patientEmail = '';
     this.channelChoisi = ''; this.fichier = null; this.nomFichier = '';
-  }
-  seDeconnecter() {
-    this.authService.logout().subscribe({
-      next: () => this.router.navigateByUrl('/login'),
-      error: () => this.router.navigateByUrl('/login')
-    });
   }
 }

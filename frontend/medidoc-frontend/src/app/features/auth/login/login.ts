@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule} from '@angular/forms';
 import { inject } from '@angular/core';
 import { Router} from '@angular/router';
@@ -9,41 +10,44 @@ import { LoginResponse } from '../models/LoginResponse';
 @Component({
   selector: 'app-login',
   imports: [
+    CommonModule,
     FormsModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
-   name:string = '';
-   password:string = '';
+   email: string = '';
+   password: string = '';
    loading: boolean = false;
    errorMessage: string = '';
-   router:Router=inject(Router);
-   AuthService:AuthService = inject(AuthService);
-   LoginRequest: LoginRequest = {username: '', password: ''}
+   emailFocused: boolean = false;
+   passwordFocused: boolean = false;
+   router: Router = inject(Router);
+   authService: AuthService = inject(AuthService);
+   loginRequest: LoginRequest = {email: '', password: ''}
 
   connection() {
     // Reset error
     this.errorMessage = '';
     
     // Basic validation
-    if (!this.name.trim() || !this.password.trim()) {
+    if (!this.email.trim() || !this.password.trim()) {
       this.errorMessage = 'Veuillez remplir tous les champs';
       return;
     }
 
     this.loading = true;
-    this.LoginRequest.username = this.name;
-    this.LoginRequest.password = this.password;
+    this.loginRequest.email = this.email;
+    this.loginRequest.password = this.password;
 
-    this.AuthService.login(this.LoginRequest).subscribe({
+    this.authService.login(this.loginRequest).subscribe({
       next: (value: LoginResponse) => {
         this.loading = false;
         const role = value.user.role;
-        if (role === 'admin') {
+        if (role === 'responsable_labo' || role === 'admin') {
           this.router.navigateByUrl('/admin/dashboard');
-        } else {
+        } else if (role === 'technicien') {
           this.router.navigateByUrl('/technicien');
         }
       },
@@ -51,7 +55,7 @@ export class Login {
         this.loading = false;
         console.log(err);
         if (err.status === 400) {
-          this.errorMessage = 'Identifiant ou mot de passe incorrect';
+          this.errorMessage = 'Email ou mot de passe incorrect';
         } else if (err.status === 0) {
           this.errorMessage = 'Impossible de se connecter au serveur';
         } else {
@@ -59,5 +63,9 @@ export class Login {
         }
       },
     });
+  }
+
+  forgotPassword() {
+    alert('Veuillez contacter l\'administrateur pour réinitialiser votre mot de passe.');
   }
 }

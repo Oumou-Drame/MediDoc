@@ -1,16 +1,17 @@
 <div class="card">
     <div class="comptes-header" *ngIf="!afficherFormulaire">
-        <div class="card-title">Comptes techniciens</div>
-        <button class="btn-primary" (click)="ouvrirAjout()">+ Ajouter un technicien</button>
+        <div class="card-title">Comptes & équipe</div>
+        <button class="btn btn-primary" (click)="ouvrirAjout()">+ Ajouter un compte</button>
     </div>
-    <input type="text" class="search-input" placeholder="Rechercher par nom ou email..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
+    <input type="text" class="search-input" placeholder="Rechercher par nom, email ou matricule..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
 
     <table class="comptes-table" *ngIf="!afficherFormulaire">
         <thead>
             <tr>
                 <th>Nom complet</th>
-                <th>Username</th>
                 <th>Email</th>
+                <th>Matricule</th>
+                <th>Rôle</th>
                 <th>Téléphone</th>
                 <th>Statut</th>
                 <th>Actions</th>
@@ -19,8 +20,13 @@
         <tbody>
             <tr *ngFor="let tech of techniciensFiltres">
                 <td>{{ tech.full_name }}</td>
-                <td>{{ tech.username }}</td>
                 <td>{{ tech.email }}</td>
+                <td><strong>{{ tech.matricule || '—' }}</strong></td>
+                <td>
+                    <span class="badge" [class.badge-technicien]="tech.role === 'technicien'" [class.badge-responsable]="tech.role === 'responsable_labo'">
+                        {{ getRoleLabel(tech.role) }}
+                    </span>
+                </td>
                 <td>{{ tech.phone || '—' }}</td>
                 <td>
                     <span class="badge" [class.actif]="tech.is_active" [class.suspendu]="!tech.is_active">
@@ -39,32 +45,72 @@
     </table>
 
     <form class="comptes-form" *ngIf="afficherFormulaire" (ngSubmit)="valider()">
-        <h3>{{ modeEdition ? 'Modifier le technicien' : 'Nouveau technicien' }}</h3>
+        <h3>{{ modeEdition ? 'Modifier le compte' : 'Nouveau compte' }}</h3>
+
+    <div class="form-row">
+            <label>Nom complet</label>
+            <input name="full_name" [(ngModel)]="formData.full_name" required placeholder="Ex: Ndiaye Fatou">
+        </div>
 
         <div class="form-row">
-            <label>Nom d'utilisateur</label>
-            <input name="username" [(ngModel)]="formData.username" required>
-        </div>
-        <div class="form-row">
-            <label>Nom complet</label>
-            <input name="full_name" [(ngModel)]="formData.full_name" required>
-        </div>
-        <div class="form-row">
             <label>Email</label>
-            <input name="email" type="email" [(ngModel)]="formData.email" required>
+            <input name="email" [(ngModel)]="formData.email" type="email" required placeholder="exemple@email.com">
         </div>
+
         <div class="form-row">
             <label>Téléphone</label>
-            <input name="phone" [(ngModel)]="formData.phone">
+            <input name="phone" [(ngModel)]="formData.phone" placeholder="Ex: +221771234567">
         </div>
-        <div class="form-row" *ngIf="!modeEdition">
-            <label>Mot de passe</label>
-            <input name="password" type="password" [(ngModel)]="formData.password" required>
+
+        <div class="form-row">
+            <label>Date de naissance</label>
+            <input name="date_naissance" [(ngModel)]="formData.date_naissance" type="date" required>
+            <span class="field-hint">Le compte doit être créé pour une personne majeure (18 ans minimum)</span>
+        </div>
+
+        <div class="form-row">
+            <label>Rôle</label>
+            <select name="role" [(ngModel)]="formData.role" required>
+                <option value="technicien">Technicien</option>
+                <option value="responsable_labo">Responsable de laboratoire</option>
+            </select>
+        </div>
+
+        <div class="form-row" *ngIf="matriculeGenere">
+            <label>Matricule généré</label>
+            <div class="matricule-display">
+                <span class="matricule-value font-mono">{{ matriculeGenere }}</span>
+                <button class="btn-copy" (click)="copierMatricule()" title="Copier le matricule">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                </button>
+            </div>
+            <span class="field-hint">Le matricule est généré automatiquement au format MED-YYYY-XXXX</span>
         </div>
 
         <div class="form-actions">
-            <button type="button" class="btn-secondary" (click)="annuler()">Annuler</button>
-            <button type="submit" class="btn-primary">{{ modeEdition ? 'Enregistrer' : 'Créer' }}</button>
+            <button type="button" class="btn btn-secondary" (click)="annuler()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="enregistrement">
+                {{ enregistrement ? 'Enregistrement...' : (modeEdition ? 'Enregistrer les modifications' : 'Enregistrer le compte') }}
+            </button>
         </div>
     </form>
+
+    <!-- Digital Seal Confirmation Overlay -->
+    <div class="digital-seal-overlay" *ngIf="afficherSceau">
+        <div class="digital-seal-content">
+            <div class="seal-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    <path d="M9 12l2 2 4-4" />
+                </svg>
+            </div>
+            <h3>Compte créé avec succès</h3>
+            <p class="seal-message">Le matricule a été généré automatiquement</p>
+            <div class="seal-matricule font-mono">{{ matriculeGenere }}</div>
+            <button class="btn btn-primary" (click)="fermerSceau()">Fermer</button>
+        </div>
+    </div>
 </div>

@@ -1,18 +1,19 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/services/auth-service';
 
 @Component({
-  selector: 'app-admin-layout',
+  selector: 'app-technicien-layout',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
-  templateUrl: './admin-layout.html',
-  styleUrl: './admin-layout.css',
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  templateUrl: './technicien-layout.html',
+  styleUrl: './technicien-layout.css',
 })
-export class AdminLayout implements OnInit {
+export class TechnicienLayout implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  
   nomUtilisateur = '';
   initiales = '';
   userRole = '';
@@ -32,14 +33,14 @@ export class AdminLayout implements OnInit {
           .toUpperCase()
           .slice(0, 2);
       },
-      error: (err) => console.error('Erreur récupération utilisateur:', err)
+      error: (err: any) => console.error('Erreur récupération utilisateur:', err)
     });
   }
 
   getRoleLabel(role: string): string {
     const labels: Record<string, string> = {
-      'responsable_labo': 'Responsable de laboratoire',
-      'technicien': 'Technicien'
+      'technicien': 'Technicien',
+      'responsable_labo': 'Responsable de laboratoire'
     };
     return labels[role] || role;
   }
@@ -53,9 +54,5 @@ export class AdminLayout implements OnInit {
 
   toggleSidebar() {
     this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
-
-  isResponsableLabo(): boolean {
-    return this.userRole === 'responsable_labo';
   }
 }
