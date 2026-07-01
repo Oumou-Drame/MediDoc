@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
+import { Home } from './features/home/home';
+import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password';
 import { Dashboard } from './features/admin/dashboard/dashboard';
 import { NouveauResultat } from './features/technicien/nouveau-resultat/nouveau-resultat';
 import { AdminLayout } from './features/admin/admin-layout/admin-layout';
@@ -14,8 +17,10 @@ import { AccessPatient } from './features/patient/access-patient/access-patient'
 import { Profil } from './features/profil/profil';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '', component: Home },
     { path: 'login', component: Login },
+    { path: 'forgot-password', component: ForgotPasswordComponent },
+    { path: 'reset-password', component: ResetPasswordComponent },
     {
         path: 'admin',
         component: AdminLayout,

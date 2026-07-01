@@ -8,43 +8,38 @@
 
 /* ===== CSS Custom Properties ===== */
 :root {
-  /* Colors - MediDoc Medical Palette (Dark Premium) */
-  --color-encre: #0F172A;
-  --color-ambre: #F59E0B;
-  --color-fond: #0B0F19;
-  --color-vert: #10B981;
-  --color-rouge: #EF4444;
-  --color-texte: #F8FAFC;
-  --color-texte-secondaire: #94A3B8;
+  /* Colors - MediDoc Light Medical Theme */
+  --color-encre: #1B3A4B;
+  --color-ambre: #C98A3E;
+  --color-fond: #F7F5F2;
+  --color-vert: #2F6F4E;
+  --color-rouge: #B5443A;
+  --color-texte: #1B3A4B;
+  --color-texte-secondaire: #5C6670;
   --color-texte-muted: #64748B;
   
   /* Semantic Colors */
-  --primary: #06B6D4; /* Cyan vibrante */
-  --primary-dark: #0891B2;
-  --primary-light: rgba(6, 182, 212, 0.15);
-  --accent: #10B981; /* Emeraude */
-  --accent-dark: #059669;
-  --accent-light: rgba(16, 185, 129, 0.1);
-  --success: #10B981;
-  --success-light: rgba(16, 185, 129, 0.15);
-  --error: #EF4444;
-  --error-light: rgba(239, 68, 68, 0.15);
+  --primary: #1B3A4B;
+  --primary-dark: #142D3A;
+  --primary-light: rgba(27, 58, 75, 0.1);
+  --accent: #C98A3E;
+  --accent-dark: #A87230;
+  --accent-light: rgba(201, 138, 62, 0.15);
+  --success: #2F6F4E;
+  --success-light: rgba(47, 111, 78, 0.15);
+  --error: #B5443A;
+  --error-light: rgba(181, 68, 58, 0.15);
   
   /* Backgrounds */
-  --bg-body: #080D1A;
-  --bg-card: rgba(15, 23, 42, 0.65);
-  --bg-muted: #1E293B;
+  --bg-body: #F7F5F2;
+  --bg-card: #FFFFFF;
+  --bg-muted: #EEECE8;
   
   /* Borders */
-  --border: rgba(51, 65, 85, 0.5);
-  --border-light: rgba(51, 65, 85, 0.3);
-  --border-hover: rgba(6, 182, 212, 0.4);
+  --border: #E5E2DD;
+  --border-light: #EEECE8;
+  --border-hover: rgba(27, 58, 75, 0.3);
   
-  /* Glassmorphism settings */
-  --glass-bg: rgba(15, 23, 42, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: blur(16px);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 
   /* Shadows */
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
@@ -115,12 +110,10 @@ a:hover {
 /* ===== Cards v3 - Enhanced ===== */
 .card {
   background: var(--bg-card);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
   padding: 28px;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   transition: all var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -139,8 +132,8 @@ a:hover {
 }
 
 .card:hover {
-  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
-  border-color: var(--border-hover);
+  box-shadow: 0 8px 24px rgba(27, 58, 75, 0.08);
+  border-color: var(--color-ambre);
   transform: translateY(-4px);
 }
 
@@ -167,11 +160,9 @@ a:hover {
 
 /* Glass Card */
 .card-glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
 }
 
 /* ===== Buttons v2 ===== */
@@ -215,12 +206,12 @@ a:hover {
 .btn-primary {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(27, 58, 75, 0.2);
+  box-shadow: 0 2px 6px rgba(27, 58, 75, 0.15);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-dark);
-  box-shadow: 0 4px 12px rgba(27, 58, 75, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 58, 75, 0.2);
   transform: translateY(-1px);
 }
 
@@ -350,8 +341,8 @@ a:hover {
 .form-row input:focus,
 .form-row select:focus,
 .form-row textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(27, 58, 75, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 138, 62, 0.15);
 }
 
 .form-row input::placeholder {
@@ -376,8 +367,8 @@ a:hover {
 }
 
 .input-group:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(27, 58, 75, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201, 138, 62, 0.15);
 }
 
 .input-group .input-icon {
@@ -419,13 +410,13 @@ table {
 table th {
   text-align: left;
   font-size: 0.75rem;
-  color: var(--color-texte-muted);
+  color: var(--color-texte-secondaire);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 14px 14px;
   background: var(--bg-muted);
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
 }
@@ -433,7 +424,7 @@ table th {
 table td {
   padding: 14px;
   font-size: 0.875rem;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
   color: var(--color-texte);
 }
 

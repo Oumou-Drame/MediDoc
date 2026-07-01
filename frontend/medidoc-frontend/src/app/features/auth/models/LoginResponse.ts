@@ -5,7 +5,6 @@ export interface LoginResponse {
     role: string;
     full_name: string;
     phone: string | null;
-    matricule: string | null;
-    date_naissance: string | null;
+    hospital_id: number | null;
   };
 }

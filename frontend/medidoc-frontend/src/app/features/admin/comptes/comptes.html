@@ -3,14 +3,13 @@
         <div class="card-title">Comptes & équipe</div>
         <button class="btn btn-primary" (click)="ouvrirAjout()">+ Ajouter un compte</button>
     </div>
-    <input type="text" class="search-input" placeholder="Rechercher par nom, email ou matricule..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
+    <input type="text" class="search-input" placeholder="Rechercher par nom ou email..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
 
     <table class="comptes-table" *ngIf="!afficherFormulaire">
         <thead>
             <tr>
                 <th>Nom complet</th>
                 <th>Email</th>
-                <th>Matricule</th>
                 <th>Rôle</th>
                 <th>Téléphone</th>
                 <th>Statut</th>
@@ -21,7 +20,6 @@
             <tr *ngFor="let tech of techniciensFiltres">
                 <td>{{ tech.full_name }}</td>
                 <td>{{ tech.email }}</td>
-                <td><strong>{{ tech.matricule || '—' }}</strong></td>
                 <td>
                     <span class="badge" [class.badge-technicien]="tech.role === 'technicien'" [class.badge-responsable]="tech.role === 'responsable_labo'">
                         {{ getRoleLabel(tech.role) }}
@@ -63,12 +61,6 @@
         </div>
 
         <div class="form-row">
-            <label>Date de naissance</label>
-            <input name="date_naissance" [(ngModel)]="formData.date_naissance" type="date" required>
-            <span class="field-hint">Le compte doit être créé pour une personne majeure (18 ans minimum)</span>
-        </div>
-
-        <div class="form-row">
             <label>Rôle</label>
             <select name="role" [(ngModel)]="formData.role" required>
                 <option value="technicien">Technicien</option>
@@ -76,18 +68,18 @@
             </select>
         </div>
 
-        <div class="form-row" *ngIf="matriculeGenere">
-            <label>Matricule généré</label>
+        <div class="form-row" *ngIf="tempPassword">
+            <label>Mot de passe temporaire</label>
             <div class="matricule-display">
-                <span class="matricule-value font-mono">{{ matriculeGenere }}</span>
-                <button class="btn-copy" (click)="copierMatricule()" title="Copier le matricule">
+                <span class="matricule-value font-mono">{{ tempPassword }}</span>
+                <button class="btn-copy" type="button" (click)="copierPassword()" title="Copier le mot de passe">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                     </svg>
                 </button>
             </div>
-            <span class="field-hint">Le matricule est généré automatiquement au format MED-YYYY-XXXX</span>
+            <span class="field-hint">Un mot de passe temporaire a été généré. Veuillez le communiquer à l'utilisateur.</span>
         </div>
 
         <div class="form-actions">
@@ -108,8 +100,8 @@
                 </svg>
             </div>
             <h3>Compte créé avec succès</h3>
-            <p class="seal-message">Le matricule a été généré automatiquement</p>
-            <div class="seal-matricule font-mono">{{ matriculeGenere }}</div>
+            <p class="seal-message">Un mot de passe temporaire a été généré automatiquement</p>
+            <div class="seal-matricule font-mono">{{ tempPassword }}</div>
             <button class="btn btn-primary" (click)="fermerSceau()">Fermer</button>
         </div>
     </div>

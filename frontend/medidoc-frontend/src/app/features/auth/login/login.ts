@@ -1,8 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule} from '@angular/forms';
-import { inject } from '@angular/core';
-import { Router} from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth-service';
 import { LoginRequest } from '../models/LoginRequest';
 import { LoginResponse } from '../models/LoginResponse';
@@ -11,7 +10,8 @@ import { LoginResponse } from '../models/LoginResponse';
   selector: 'app-login',
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -66,6 +66,6 @@ export class Login {
   }
 
   forgotPassword() {
-    alert('Veuillez contacter l\'administrateur pour réinitialiser votre mot de passe.');
+    this.router.navigateByUrl('/forgot-password');
   }
 }

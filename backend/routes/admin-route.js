@@ -1,16 +1,23 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { protect, requireResponsableLabo } from '../middleware/auth-middleware.js';
+import { protect, requireResponsableLabo, requireAdmin } from '../middleware/auth-middleware.js';
 import { queryOne, queryAll, query } from '../config/db.js';
 
 const router = express.Router();
+
+// Helper pour filtrer par hôpital (sauf pour l'admin global)
+const getHospitalFilter = (req, prefix = '') => {
+    if (req.user.role === 'admin') return '1=1';
+    return `${prefix}hospital_id = ${req.user.hospital_id}`;
+};
 
 // GET /api/admin/users — Liste des techniciens et responsables
 router.get('/users', protect, requireResponsableLabo, async (req, res) => {
     try {
         const users = await queryAll(
-            `SELECT id, email, full_name, role, phone, matricule, date_naissance, is_active, created_at 
+            `SELECT id, email, full_name, role, phone, is_active, created_at 
              FROM users WHERE role IN ('technicien', 'responsable_labo') 
+             AND ${getHospitalFilter(req, '')}
              ORDER BY created_at DESC`
         );
         res.json({ success: true, data: users });
@@ -22,7 +29,7 @@ router.get('/users', protect, requireResponsableLabo, async (req, res) => {
 
 // POST /api/admin/users — Créer un technicien ou responsable de laboratoire
 router.post('/users', protect, requireResponsableLabo, async (req, res) => {
-    const { email, full_name, phone, role, date_naissance, nom, prenom } = req.body;
+    const { email, full_name, phone, role } = req.body;
 
     if (!email || !full_name) {
         return res.status(400).json({ error: 'Email et nom complet requis' });
@@ -39,44 +46,27 @@ router.post('/users', protect, requireResponsableLabo, async (req, res) => {
             return res.status(400).json({ error: 'Cet email est déjà utilisé par un autre compte' });
         }
 
-        // Validation d'âge (minimum 18 ans)
-        if (date_naissance) {
-            const birthDate = new Date(date_naissance);
-            const minAge = new Date();
-            minAge.setFullYear(minAge.getFullYear() - 18);
-            if (birthDate > minAge) {
-                return res.status(400).json({ error: 'Le compte doit être créé pour une personne majeure (18 ans minimum)' });
-            }
-        }
-
-        // Générer le matricule au format MED-YYYY-XXXX
-        const year = new Date().getFullYear();
-        const count = await queryOne("SELECT COUNT(*) as count FROM users WHERE matricule LIKE $1", [`MED-${year}-%`]);
-        const num = String(parseInt(count.count) + 1).padStart(4, '0');
-        const matricule = `MED-${year}-${num}`;
+        const hospital_id = req.user.role === 'admin' && req.body.hospital_id ? req.body.hospital_id : req.user.hospital_id;
 
         // Générer un mot de passe temporaire
         const tempPassword = Math.random().toString(36).slice(-8).toUpperCase() + Math.random().toString(36).slice(-4);
         const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
         const result = await query(
-            `INSERT INTO users (email, password, full_name, role, phone, date_naissance, matricule, is_active, created_at, updated_at, must_change_password)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 1, NOW(), NOW(), true) RETURNING id, matricule`,
-            [email, hashedPassword, full_name, userRole, phone || null, date_naissance || null, matricule]
+            `INSERT INTO users (email, password, full_name, role, phone, hospital_id, is_active, created_at, updated_at, must_change_password)
+       VALUES ($1, $2, $3, $4, $5, $6, 1, NOW(), NOW(), true) RETURNING id`,
+            [email, hashedPassword, full_name, userRole, phone || null, hospital_id]
         );
 
         await query(
             'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
-            [req.user.id, 'create_user', `Création ${userRole}: ${email} (${matricule})`, req.ip]
+            [req.user.id, 'create_user', `Création ${userRole}: ${email}`, req.ip]
         );
-
-        // TODO: Envoyer email avec mot de passe temporaire
-        // Pour l'instant, on retourne le mot de passe dans la réponse (à remplacer par envoi d'email)
         
         res.json({ 
             success: true, 
-            message: `Compte créé — matricule ${matricule}`,
-            data: { id: result.rows[0].id, matricule, temp_password: tempPassword }
+            message: `Compte créé pour ${full_name}`,
+            data: { id: result.rows[0].id, temp_password: tempPassword }
         });
     } catch (err) {
         console.error('Create user error:', err);
@@ -87,7 +77,7 @@ router.post('/users', protect, requireResponsableLabo, async (req, res) => {
 // PUT /api/admin/users/:id/toggle — Activer/désactiver un compte
 router.put('/users/:id/toggle', protect, requireResponsableLabo, async (req, res) => {
     try {
-        const user = await queryOne('SELECT * FROM users WHERE id = $1', [req.params.id]);
+        const user = await queryOne(`SELECT * FROM users WHERE id = $1 AND ${getHospitalFilter(req)}`, [req.params.id]);
         if (!user) {
             return res.status(404).json({ error: 'Utilisateur non trouvé' });
         }
@@ -104,14 +94,14 @@ router.put('/users/:id/toggle', protect, requireResponsableLabo, async (req, res
 
 // PUT /api/admin/users/:id — Modifier un technicien existant
 router.put('/users/:id', protect, requireResponsableLabo, async (req, res) => {
-    const { full_name, email, phone, role, date_naissance } = req.body;
+    const { full_name, email, phone, role } = req.body;
 
     if (!full_name || !email) {
         return res.status(400).json({ error: 'Nom complet et email sont obligatoires' });
     }
 
     try {
-        const user = await queryOne('SELECT id FROM users WHERE id = $1 AND role IN ($2, $3)', 
+        const user = await queryOne(`SELECT id, role FROM users WHERE id = $1 AND role IN ($2, $3) AND ${getHospitalFilter(req)}`, 
             [req.params.id, 'technicien', 'responsable_labo']);
         if (!user) {
             return res.status(404).json({ error: 'Utilisateur non trouvé' });
@@ -125,8 +115,8 @@ router.put('/users/:id', protect, requireResponsableLabo, async (req, res) => {
         const newRole = role && ['technicien', 'responsable_labo'].includes(role) ? role : user.role;
 
         await query(
-            `UPDATE users SET full_name = $1, email = $2, phone = $3, role = $4, date_naissance = COALESCE($5, date_naissance), updated_at = NOW() WHERE id = $6`,
-            [full_name, email, phone || null, newRole, date_naissance, req.params.id]
+            `UPDATE users SET full_name = $1, email = $2, phone = $3, role = $4, updated_at = NOW() WHERE id = $5`,
+            [full_name, email, phone || null, newRole, req.params.id]
         );
 
         res.json({ success: true, message: 'Utilisateur modifié avec succès' });
@@ -139,8 +129,12 @@ router.put('/users/:id', protect, requireResponsableLabo, async (req, res) => {
 // DELETE /api/admin/users/:id — Supprimer un technicien
 router.delete('/users/:id', protect, requireResponsableLabo, async (req, res) => {
     try {
-        await query('DELETE FROM users WHERE id = $1 AND role IN ($2, $3)', 
+        const result = await query(`DELETE FROM users WHERE id = $1 AND role IN ($2, $3) AND ${getHospitalFilter(req)} RETURNING id`, 
             [req.params.id, 'technicien', 'responsable_labo']);
+            
+        if (result.rowCount === 0) {
+             return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        }
         res.json({ success: true, message: 'Utilisateur supprimé' });
     } catch (err) {
         console.error('Delete user error:', err);
@@ -151,37 +145,16 @@ router.delete('/users/:id', protect, requireResponsableLabo, async (req, res) =>
 // GET /api/admin/stats — Statistiques pour le dashboard
 router.get('/stats', protect, requireResponsableLabo, async (req, res) => {
     try {
-        const totalResults = await queryOne('SELECT COUNT(*) as count FROM medical_results', []);
-        const sentResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status IN ('sent', 'accessed')", []);
-        const pendingResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'pending'", []);
-        const accessedResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'accessed'", []);
-        const expiredResults = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'expired'", []);
-        const totalTechnicians = await queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo')", []);
-        const emailSms = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_sms'", []);
-        const emailWhatsapp = await queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_whatsapp'", []);
+        const totalResults = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE ${getHospitalFilter(req)}`, []);
+        const sentResults = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE status IN ('sent', 'accessed') AND ${getHospitalFilter(req)}`, []);
+        const pendingResults = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE status = 'pending' AND ${getHospitalFilter(req)}`, []);
+        const accessedResults = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE status = 'accessed' AND ${getHospitalFilter(req)}`, []);
+        const expiredResults = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE status = 'expired' AND ${getHospitalFilter(req)}`, []);
+        const totalTechnicians = await queryOne(`SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo') AND ${getHospitalFilter(req)}`, []);
+        const emailSms = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_sms' AND ${getHospitalFilter(req)}`, []);
+        const emailWhatsapp = await queryOne(`SELECT COUNT(*) as count FROM medical_results WHERE channel = 'email_whatsapp' AND ${getHospitalFilter(req)}`, []);
 
-        const recentActivity = await queryAll('SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 10', []);
-
-        const allResults = await queryAll('SELECT created_at FROM medical_results', []);
-        const dailyMap = {};
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        allResults.forEach(r => {
-            if (new Date(r.created_at) >= sevenDaysAgo) {
-                const date = r.created_at.toISOString().substring(0, 10);
-                dailyMap[date] = (dailyMap[date] || 0) + 1;
-            }
-        });
-        const dailyStats = Object.entries(dailyMap).map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
-
-        const enrichedActivity = [];
-        for (const a of recentActivity) {
-            let fullName = 'System';
-            if (a.user_id) {
-                const u = await queryOne('SELECT full_name FROM users WHERE id = $1', [a.user_id]);
-                if (u) fullName = u.full_name;
-            }
-            enrichedActivity.push({ ...a, full_name: fullName });
-        }
+        // Optional: scope activity logs? Let's leave them for now or join users.
 
         res.json({
             success: true,
@@ -195,9 +168,7 @@ router.get('/stats', protect, requireResponsableLabo, async (req, res) => {
                 channels: {
                     email_sms: parseInt(emailSms.count),
                     email_whatsapp: parseInt(emailWhatsapp.count)
-                },
-                recent_activity: enrichedActivity,
-                daily_stats: dailyStats
+                }
             }
         });
     } catch (err) {
@@ -206,8 +177,8 @@ router.get('/stats', protect, requireResponsableLabo, async (req, res) => {
     }
 });
 
-// GET /api/admin/settings — Lire les paramètres
-router.get('/settings', protect, requireResponsableLabo, async (req, res) => {
+// GET /api/admin/settings — Lire les paramètres globaux (ADMIN UNIQUEMENT)
+router.get('/settings', protect, requireAdmin, async (req, res) => {
     try {
         const settings = await queryAll('SELECT * FROM settings', []);
         const settingsObj = {};
@@ -219,8 +190,8 @@ router.get('/settings', protect, requireResponsableLabo, async (req, res) => {
     }
 });
 
-// PUT /api/admin/settings — Modifier les paramètres
-router.put('/settings', protect, requireResponsableLabo, async (req, res) => {
+// PUT /api/admin/settings — Modifier les paramètres globaux (ADMIN UNIQUEMENT)
+router.put('/settings', protect, requireAdmin, async (req, res) => {
     try {
         const updates = req.body;
         for (const [key, value] of Object.entries(updates)) {
@@ -234,83 +205,6 @@ router.put('/settings', protect, requireResponsableLabo, async (req, res) => {
         res.json({ success: true, message: 'Paramètres mis à jour' });
     } catch (err) {
         console.error('Update settings error:', err);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-});
-
-// GET /api/admin/dashboard — Données pour la page dashboard
-router.get('/dashboard', protect, requireResponsableLabo, async (req, res) => {
-    try {
-        const [
-            techniciensTotal, techniciensActifs, totalResultats, envoisCeMois,
-            resultatsAccedes, codesExpires,
-            whatsappCount, smsCount, emailCount,
-            techniciens,
-            recentActivity,
-            dailyRows
-        ] = await Promise.all([
-            queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo')", []),
-            queryOne("SELECT COUNT(*) as count FROM users WHERE role IN ('technicien', 'responsable_labo') AND is_active = 1", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE created_at >= date_trunc('month', CURRENT_DATE)", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'accessed'", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE status = 'expired'", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('whatsapp','email_whatsapp','sms_whatsapp','all')", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('sms','email_sms','sms_whatsapp','all')", []),
-            queryOne("SELECT COUNT(*) as count FROM medical_results WHERE channel IN ('email','email_sms','email_whatsapp','all')", []),
-            queryAll("SELECT id, full_name, email, is_active FROM users WHERE role IN ('technicien', 'responsable_labo') ORDER BY created_at DESC", []),
-            queryAll('SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 8', []),
-            queryAll(
-                `SELECT to_char(created_at, 'YYYY-MM-DD') as date, COUNT(*) as count
-         FROM medical_results
-         WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
-         GROUP BY date
-         ORDER BY date`, []
-            )
-        ]);
-
-        const total = parseInt(totalResultats.count) || 0;
-        const pct = (count) => total > 0 ? Math.round((parseInt(count) / total) * 100) : 0;
-
-        const tendance = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const key = d.toISOString().substring(0, 10);
-            const trouve = dailyRows.find(r => r.date === key);
-            tendance.push({ date: key, count: trouve ? parseInt(trouve.count) : 0 });
-        }
-
-        const activiteRecente = [];
-        for (const a of recentActivity) {
-            let nom = 'Système';
-            if (a.user_id) {
-                const u = await queryOne('SELECT full_name FROM users WHERE id = $1', [a.user_id]);
-                if (u) nom = u.full_name;
-            }
-            activiteRecente.push({ action: a.action, details: a.details, auteur: nom, date: a.created_at });
-        }
-
-        res.json({
-            success: true,
-            data: {
-                techniciens_total: parseInt(techniciensTotal.count),
-                techniciens_actifs: parseInt(techniciensActifs.count),
-                envois_ce_mois: parseInt(envoisCeMois.count),
-                taux_consultation: pct(resultatsAccedes.count),
-                codes_expires: parseInt(codesExpires.count),
-                techniciens: techniciens.map(t => ({ id: t.id, nom: t.full_name, email: t.email, en_ligne: !!t.is_active })),
-                canaux: [
-                    { nom: 'WhatsApp', pourcentage: pct(whatsappCount.count), classe: 'whatsapp' },
-                    { nom: 'SMS', pourcentage: pct(smsCount.count), classe: 'sms' },
-                    { nom: 'Email', pourcentage: pct(emailCount.count), classe: 'email' }
-                ],
-                activite_recente: activiteRecente,
-                tendance_7_jours: tendance
-            }
-        });
-    } catch (err) {
-        console.error('Dashboard error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });

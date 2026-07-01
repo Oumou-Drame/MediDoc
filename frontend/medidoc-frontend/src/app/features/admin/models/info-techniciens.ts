@@ -4,8 +4,7 @@ export interface Technicien {
     full_name: string;
     role: string;
     phone: string | null;
-    matricule: string | null;
-    date_naissance: string | null;
+    hospital_id: number | null;
     is_active: number;
     created_at: string;
 }

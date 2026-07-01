@@ -5,7 +5,6 @@
       <h1 class="text-white">{{ user.full_name || 'Utilisateur' }}</h1>
       <div class="profil-meta">
         <span class="badge badge-technicien">{{ getRoleLabel(user.role) }}</span>
-        <span class="profil-matricule font-mono" *ngIf="user.matricule">Matricule: {{ user.matricule }}</span>
       </div>
     </div>
   </div>
@@ -52,16 +51,6 @@
           <div class="form-row">
             <label>Téléphone</label>
             <input type="text" [(ngModel)]="editPhone" name="phone" placeholder="Ex: +221771234567">
-          </div>
-
-          <div class="form-row">
-            <label>Date de naissance</label>
-            <input type="date" [(ngModel)]="editDateNaissance" name="date_naissance">
-          </div>
-
-          <div class="form-row" *ngIf="user.matricule">
-            <label>Matricule</label>
-            <input type="text" [value]="user.matricule" disabled class="input-disabled font-mono">
           </div>
 
           <div class="profil-message succes" *ngIf="messageSucces">{{ messageSucces }}</div>

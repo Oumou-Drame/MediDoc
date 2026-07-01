@@ -1,0 +1,304 @@
+<div class="home-page">
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" [class.scrolled]="scrolled">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="nav-name">MediDoc</span>
+      </div>
+      <div class="nav-links">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#guide">Guide</a>
+        <a href="#cta">À propos</a>
+      </div>
+      <a routerLink="/login" class="nav-cta">
+        Se connecter
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <!-- Animated BG -->
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Particles -->
+    <div class="particles-wrap">
+      @for (p of particles; track p) {
+        <span class="dot" [style]="'--i:' + p"></span>
+      }
+    </div>
+
+    <div class="hero-inner">
+      <!-- Left: Text -->
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          Plateforme médicale sécurisée · v4
+        </div>
+
+        <h1 class="hero-title">
+          Résultats médicaux<br>
+          <span class="text-gradient">livrés en toute<br>sécurité</span>
+        </h1>
+
+        <p class="hero-desc">
+          MediDoc chiffre et transmet les résultats d'analyses directement aux patients
+          via <strong>WhatsApp</strong> ou <strong>email</strong> — avec traçabilité complète en temps réel.
+        </p>
+
+        <div class="hero-btns">
+          <a routerLink="/login" class="btn-primary-hero">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Accéder à la plateforme
+          </a>
+          <a href="#guide" class="btn-ghost-hero">
+            Voir le guide
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hstat">
+            <span class="hstat-val">100%</span>
+            <span class="hstat-lbl">Sécurisé</span>
+          </div>
+          <div class="hstat-sep"></div>
+          <div class="hstat">
+            <span class="hstat-val">&lt;5s</span>
+            <span class="hstat-lbl">Envoi</span>
+          </div>
+          <div class="hstat-sep"></div>
+          <div class="hstat">
+            <span class="hstat-val">24/7</span>
+            <span class="hstat-lbl">Disponible</span>
+          </div>
+          <div class="hstat-sep"></div>
+          <div class="hstat">
+            <span class="hstat-val">48h</span>
+            <span class="hstat-lbl">Validité lien</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Mockup -->
+      <div class="hero-mockup">
+        <div class="mockup-window">
+          <div class="mockup-bar">
+            <div class="mockup-dots">
+              <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+            </div>
+            <span class="mockup-url">medidoc · dashboard</span>
+          </div>
+          <div class="mockup-content">
+            <!-- Stats row -->
+            <div class="mk-stats">
+              <div class="mk-stat">
+                <div class="mk-stat-label">Envois ce mois</div>
+                <div class="mk-stat-val green">247</div>
+                <div class="mk-bar"><div class="mk-fill" style="width:78%"></div></div>
+              </div>
+              <div class="mk-stat">
+                <div class="mk-stat-label">Consultés</div>
+                <div class="mk-stat-val teal">189</div>
+                <div class="mk-bar"><div class="mk-fill teal" style="width:60%"></div></div>
+              </div>
+              <div class="mk-stat">
+                <div class="mk-stat-label">Taux accès</div>
+                <div class="mk-stat-val emerald">76%</div>
+                <div class="mk-bar"><div class="mk-fill emerald" style="width:76%"></div></div>
+              </div>
+            </div>
+            <!-- List -->
+            <div class="mk-list">
+              @for (r of mockRows; track r.name) {
+                <div class="mk-row">
+                  <div class="mk-avatar">{{ r.name[0] }}</div>
+                  <div class="mk-info">
+                    <span class="mk-name">{{ r.name }}</span>
+                    <span class="mk-time">{{ r.time }}</span>
+                  </div>
+                  <div class="mk-badge" [class]="r.color">{{ r.status }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+        <!-- Floating badges -->
+        <div class="float-badge fb-1">
+          <span class="fb-icon">🔐</span>
+          <span>Chiffrement actif</span>
+        </div>
+        <div class="float-badge fb-2">
+          <span class="fb-icon">✅</span>
+          <span>Résultat consulté</span>
+        </div>
+        <div class="float-badge fb-3">
+          <span class="fb-icon">📱</span>
+          <span>WhatsApp envoyé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint">
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      <span>Défiler</span>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-tag">Fonctionnalités</div>
+      <h2 class="section-heading">Tout ce dont vous avez besoin</h2>
+      <p class="section-sub">Une plateforme complète pour la gestion sécurisée des résultats médicaux</p>
+
+      <div class="features-grid">
+        @for (f of features; track f.title; let i = $index) {
+          <div class="feat-card" [style]="'--d:' + (i * 0.07) + 's'">
+            <div class="feat-icon-wrap">
+              <span class="feat-icon">{{ f.icon }}</span>
+            </div>
+            <h3 class="feat-title">{{ f.title }}</h3>
+            <p class="feat-desc">{{ f.desc }}</p>
+            <div class="feat-shine"></div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GUIDE ===== -->
+  <section class="guide-section" id="guide">
+    <div class="container">
+      <div class="section-tag">Guide d'utilisation</div>
+      <h2 class="section-heading">Comment ça fonctionne ?</h2>
+      <p class="section-sub">4 étapes simples pour envoyer et consulter un résultat médical</p>
+
+      <div class="guide-wrap">
+        <!-- Steps list -->
+        <div class="guide-steps">
+          @for (s of steps; track s.title; let i = $index) {
+            <div class="gstep" [class.active]="activeStep === i" (click)="setStep(i)">
+              <div class="gstep-num">
+                @if (activeStep > i) {
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                } @else {
+                  {{ i + 1 }}
+                }
+              </div>
+              <div class="gstep-body">
+                <div class="gstep-title">{{ s.title }}</div>
+                @if (activeStep === i) {
+                  <div class="gstep-desc">{{ s.desc }}</div>
+                }
+              </div>
+              @if (activeStep === i) {
+                <div class="gstep-arrow">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+              }
+            </div>
+          }
+          <!-- Progress -->
+          <div class="guide-progress-track">
+            <div class="guide-progress-fill" [style.width]="((activeStep + 1) / steps.length * 100) + '%'"></div>
+          </div>
+        </div>
+
+        <!-- Visual panel -->
+        <div class="guide-panel">
+          @for (s of steps; track s.title; let i = $index) {
+            <div class="gpanel" [class.visible]="activeStep === i">
+              <div class="gpanel-icon">{{ s.icon }}</div>
+              <h3>{{ s.title }}</h3>
+              <p>{{ s.desc }}</p>
+              <div class="gpanel-step-indicator">
+                Étape {{ i + 1 }} / {{ steps.length }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Role tips -->
+      <div class="tips-row">
+        <div class="tip">
+          <div class="tip-icon">💡</div>
+          <div>
+            <strong>Technicien</strong>
+            <p>Connectez-vous, saisissez les résultats et envoyez en un clic via WhatsApp ou email.</p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">👤</div>
+          <div>
+            <strong>Patient</strong>
+            <p>Recevez le lien par SMS/WhatsApp, entrez votre code PIN pour accéder à vos résultats.</p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🔑</div>
+          <div>
+            <strong>Administrateur</strong>
+            <p>Gérez les comptes, consultez les statistiques et l'historique complet en temps réel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section" id="cta">
+    <div class="cta-bg-orb"></div>
+    <div class="cta-inner">
+      <div class="cta-logo">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h2>Prêt à sécuriser vos résultats ?</h2>
+      <p>Rejoignez MediDoc et offrez à vos patients une expérience moderne, rapide et sécurisée.</p>
+      <a routerLink="/login" class="btn-cta">
+        Commencer maintenant
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span>MediDoc</span>
+      </div>
+      <p>© {{ getCurrentYear() }} MediDoc — Plateforme sécurisée de résultats médicaux</p>
+      <a routerLink="/login" class="footer-cta">Se connecter →</a>
+    </div>
+  </footer>
+
+</div>

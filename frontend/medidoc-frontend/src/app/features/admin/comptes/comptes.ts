@@ -18,9 +18,9 @@ export class Comptes implements OnInit {
   afficherFormulaire = false;
   modeEdition = false;
   idEnCours: number | null = null;
-  matriculeGenere = '';
+  tempPassword = '';
 
-  formData = { email: '', full_name: '', phone: '', role: 'technicien', date_naissance: '' };
+  formData = { email: '', full_name: '', phone: '', role: 'technicien' };
   enregistrement = false;
   afficherSceau = false;
 
@@ -38,21 +38,19 @@ export class Comptes implements OnInit {
   ouvrirAjout() {
     this.modeEdition = false;
     this.idEnCours = null;
-    this.matriculeGenere = '';
-    this.formData = { email: '', full_name: '', phone: '', role: 'technicien', date_naissance: '' };
+    this.tempPassword = '';
+    this.formData = { email: '', full_name: '', phone: '', role: 'technicien' };
     this.afficherFormulaire = true;
   }
 
   ouvrirEdition(tech: Technicien) {
     this.modeEdition = true;
     this.idEnCours = tech.id;
-    this.matriculeGenere = tech.matricule || '';
     this.formData = {
       email: tech.email,
       full_name: tech.full_name,
       phone: tech.phone || '',
-      role: tech.role,
-      date_naissance: tech.date_naissance ? tech.date_naissance.substring(0, 10) : ''
+      role: tech.role
     };
     this.afficherFormulaire = true;
   }
@@ -68,8 +66,7 @@ export class Comptes implements OnInit {
         full_name: this.formData.full_name,
         email: this.formData.email,
         phone: this.formData.phone,
-        role: this.formData.role,
-        date_naissance: this.formData.date_naissance || undefined
+        role: this.formData.role
       }).subscribe({
         next: () => { 
           this.afficherFormulaire = false; 
@@ -87,14 +84,13 @@ export class Comptes implements OnInit {
         email: this.formData.email,
         full_name: this.formData.full_name,
         phone: this.formData.phone,
-        role: this.formData.role,
-        date_naissance: this.formData.date_naissance || undefined
+        role: this.formData.role
       }).subscribe({
         next: (res) => {
           this.enregistrement = false;
-          this.matriculeGenere = res.data?.matricule || '';
+          this.tempPassword = res.data?.temp_password || '';
           this.chargerTechniciens();
-          if (res.data?.matricule) {
+          if (this.tempPassword) {
             this.afficherSceau = true;
           }
         },
@@ -128,8 +124,7 @@ export class Comptes implements OnInit {
     const terme = this.rechercheLocale.toLowerCase();
     return this.techniciens.filter(t =>
       t.full_name.toLowerCase().includes(terme) ||
-      t.email.toLowerCase().includes(terme) ||
-      (t.matricule && t.matricule.toLowerCase().includes(terme))
+      t.email.toLowerCase().includes(terme)
     );
   }
 
@@ -144,12 +139,12 @@ export class Comptes implements OnInit {
   fermerSceau() {
     this.afficherSceau = false;
     this.afficherFormulaire = false;
-    this.matriculeGenere = '';
+    this.tempPassword = '';
   }
 
-  copierMatricule() {
-    if (this.matriculeGenere) {
-      navigator.clipboard.writeText(this.matriculeGenere).then(() => {
+  copierPassword() {
+    if (this.tempPassword) {
+      navigator.clipboard.writeText(this.tempPassword).then(() => {
         // Could add a toast notification here
       }).catch(err => {
         console.error('Erreur lors de la copie:', err);

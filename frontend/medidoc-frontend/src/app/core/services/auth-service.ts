@@ -46,12 +46,22 @@ export class AuthService {
   }
 
   // Modifier le profil
-  updateProfile(data: { full_name?: string; phone?: string; date_naissance?: string }): Observable<any> {
+  updateProfile(data: { full_name?: string; phone?: string }): Observable<any> {
     return this.http.put(`${this.apiUrl}/profile`, data, { withCredentials: true });
   }
 
   // Changer le mot de passe
   changePassword(data: { current_password: string; new_password: string }): Observable<any> {
     return this.http.put(`${this.apiUrl}/password`, data, { withCredentials: true });
+  }
+
+  // Mot de passe oublié
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  // Réinitialiser le mot de passe
+  resetPassword(token: string, new_password: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, new_password });
   }
 }

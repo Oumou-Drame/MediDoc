@@ -27,7 +27,6 @@ export class Profil implements OnInit {
   user: any = {};
   editFullName = '';
   editPhone = '';
-  editDateNaissance = '';
   avatarInitiales = '';
 
   // Mot de passe
@@ -43,7 +42,6 @@ export class Profil implements OnInit {
         this.user = user;
         this.editFullName = user.full_name || '';
         this.editPhone = user.phone || '';
-        this.editDateNaissance = user.date_naissance ? user.date_naissance.substring(0, 10) : '';
         this.avatarInitiales = this.getInitiales(user.full_name);
         this.chargement = false;
       },
@@ -65,8 +63,7 @@ export class Profil implements OnInit {
     this.erreur = '';
     this.authService.updateProfile({
       full_name: this.editFullName,
-      phone: this.editPhone,
-      date_naissance: this.editDateNaissance || undefined
+      phone: this.editPhone
     }).subscribe({
       next: () => {
         this.enregistrement = false;

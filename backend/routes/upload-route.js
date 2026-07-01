@@ -83,12 +83,12 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
 
         const result = await queryOne(
             `INSERT INTO medical_results 
-       (technician_id, patient_name, patient_phone, patient_email, original_filename, 
+       (technician_id, hospital_id, patient_name, patient_phone, patient_email, original_filename, 
         protected_filename, access_code, access_token, channel, status, whatsapp_sent, sms_sent, 
         email_sent, code_accessed, access_count, attempt_count, is_locked, created_at, sent_at, accessed_at, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', 0, 0, 0, 0, 0, 0, 0, NOW(), NULL, NULL, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', 0, 0, 0, 0, 0, 0, 0, NOW(), NULL, NULL, $11)
        RETURNING id`,
-            [req.user.id, patient_name, patient_phone, patient_email,
+            [req.user.id, req.user.hospital_id, patient_name, patient_phone, patient_email,
             req.file.filename, protectedFilename, accessCode, accessToken, channel, expiresAt]
         );
 

@@ -14,7 +14,14 @@ router.get('/', protect, async (req, res) => {
         const params = [];
         let paramIndex = 1;
 
-        if (req.user.role !== 'admin') {
+        if (req.user.role === 'responsable_labo') {
+            whereClause += ` AND mr.hospital_id = $${paramIndex}`;
+            params.push(req.user.hospital_id);
+            paramIndex++;
+        } else if (req.user.role === 'technicien') {
+            whereClause += ` AND mr.hospital_id = $${paramIndex}`;
+            params.push(req.user.hospital_id);
+            paramIndex++;
             whereClause += ` AND mr.technician_id = $${paramIndex}`;
             params.push(req.user.id);
             paramIndex++;
@@ -79,7 +86,10 @@ router.get('/:id', protect, async (req, res) => {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
-        if (req.user.role !== 'admin' && result.technician_id !== req.user.id) {
+        if (req.user.role === 'responsable_labo' && result.hospital_id !== req.user.hospital_id) {
+            return res.status(404).json({ error: 'Résultat non trouvé' });
+        }
+        if (req.user.role === 'technicien' && (result.hospital_id !== req.user.hospital_id || result.technician_id !== req.user.id)) {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
@@ -96,7 +106,10 @@ router.put('/:id/unlock', protect, async (req, res) => {
         if (!result) {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
-        if (req.user.role !== 'admin' && result.technician_id !== req.user.id) {
+        if (req.user.role === 'responsable_labo' && result.hospital_id !== req.user.hospital_id) {
+            return res.status(404).json({ error: 'Résultat non trouvé' });
+        }
+        if (req.user.role === 'technicien' && (result.hospital_id !== req.user.hospital_id || result.technician_id !== req.user.id)) {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
