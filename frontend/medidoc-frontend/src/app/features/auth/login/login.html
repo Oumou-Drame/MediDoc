@@ -1,57 +1,96 @@
 <div class="login-page">
+  <div class="particles">
+    <div class="particle" style="--x: 10%; --y: 20%; --size: 8px; --delay: 0s; --duration: 8s;"></div>
+    <div class="particle" style="--x: 25%; --y: 60%; --size: 12px; --delay: 1s; --duration: 10s;"></div>
+    <div class="particle" style="--x: 70%; --y: 15%; --size: 6px; --delay: 2s; --duration: 7s;"></div>
+    <div class="particle" style="--x: 85%; --y: 70%; --size: 10px; --delay: 0.5s; --duration: 9s;"></div>
+    <div class="particle" style="--x: 45%; --y: 85%; --size: 7px; --delay: 3s; --duration: 11s;"></div>
+  </div>
+  <div class="shape shape-1"></div>
+  <div class="shape shape-2"></div>
+
   <div class="login-card">
     <div class="login-brand">
-      <div class="login-logo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      </div>
+      <a routerLink="/" class="brand-link">
+        <div class="login-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+      </a>
       <div class="login-title">MediDoc</div>
-      <div class="login-subtitle">Connectez-vous à votre espace</div>
+      <div class="login-subtitle">Plateforme sécurisée de résultats médicaux</div>
     </div>
 
-    <form class="login-form">
-      <div class="flex-row">
+    <form class="login-form" (ngSubmit)="connection()">
+      <div class="flex-row" [class.focused]="emailFocused">
         <label class="lf--label" for="email">
-          <svg x="0px" y="0px" width="12px" height="13px">
-            <path fill="#B1B7C4"
-              d="M8.9,7.2C9,6.9,9,6.7,9,6.5v-4C9,1.1,7.9,0,6.5,0h-1C4.1,0,3,1.1,3,2.5v4c0,0.2,0,0.4,0.1,0.7 C1.3,7.8,0,9.5,0,11.5V13h12v-1.5C12,9.5,10.7,7.8,8.9,7.2z M4,2.5C4,1.7,4.7,1,5.5,1h1C7.3,1,8,1.7,8,2.5v4c0,0.2,0,0.4-0.1,0.6 l0.1,0L7.9,7.3C7.6,7.8,7.1,8.2,6.5,8.2h-1c-0.6,0-1.1-0.4-1.4-0.9L4.1,7.1l0.1,0C4,6.9,4,6.7,4,6.5V2.5z M11,12H1v-0.5 c0-1.6,1-2.9,2.4-3.4c0.5,0.7,1.2,1.1,2.1,1.1h1c0.8,0,1.6-0.4,2.1-1.1C10,8.5,11,9.9,11,11.5V12z" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
           </svg>
         </label>
-        <input id="email" name="email" [(ngModel)]="email" class='lf--input' placeholder='Email' type='email'>
+        <input id="email" name="email" [(ngModel)]="email" class="lf--input" placeholder="Adresse email"
+          type="email" autocomplete="email"
+          (focus)="emailFocused = true" (blur)="emailFocused = false">
       </div>
 
-      <div class="flex-row">
+      <div class="flex-row" [class.focused]="passwordFocused">
         <label class="lf--label" for="password">
-          <svg x="0px" y="0px" width="15px" height="5px">
-            <g>
-              <path fill="#B1B7C4"
-                d="M6,2L6,2c0-1.1-1-2-2.1-2H2.1C1,0,0,0.9,0,2.1v0.8C0,4.1,1,5,2.1,5h1.7C5,5,6,4.1,6,2.9V3h5v1h1V3h1v2h1V3h1 V2H6z M5.1,2.9c0,0.7-0.6,1.2-1.3,1.2H2.1c-0.7,0-1.3-0.6-1.3-1.2V2.1c0-0.7,0.6-1.2,1.3-1.2h1.7c0.7,0,1.3,0.6,1.3,1.2V2.9z" />
-            </g>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
         </label>
-        <input id="password" name="password" [(ngModel)]="password" class='lf--input' placeholder='Password'
-          [type]="motDePasseVisible ? 'text' : 'password'">
+        <input id="password" name="password" [(ngModel)]="password" class="lf--input" placeholder="Mot de passe"
+          [type]="motDePasseVisible ? 'text' : 'password'" autocomplete="current-password"
+          (focus)="passwordFocused = true" (blur)="passwordFocused = false">
         <button type="button" class="btn-oeil" (click)="basculerVisibiliteMotDePasse()"
-          [attr.aria-label]="motDePasseVisible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
-          <svg *ngIf="!motDePasseVisible" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-          <svg *ngIf="motDePasseVisible" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.9 18.9 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-            <line x1="1" y1="1" x2="23" y2="23" />
-          </svg>
+          [attr.aria-label]="motDePasseVisible ? 'Masquer' : 'Afficher'">
+          @if (!motDePasseVisible) {
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          } @else {
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.9 18.9 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          }
         </button>
       </div>
 
-      <input class='lf--submit' type='button' (click)="connection()" value='LOGIN'>
+      @if (errorMessage) {
+        <div class="login-error">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button type="submit" class="lf--submit" [class.loading]="loading" [disabled]="loading">
+        @if (!loading) {
+          <span>Se connecter</span>
+        } @else {
+          <span class="spinner"></span>
+        }
+      </button>
     </form>
 
-    <a class='lf--forgot' routerLink="/forgot-password">Mot de passe oublié ?</a>
-    <a class='lf--forgot' routerLink="/">← Retour à l'accueil</a>
+    <div class="login-footer">
+      <span class="lf--forgot" (click)="forgotPassword()">Mot de passe oublié ?</span>
+      <a routerLink="/" class="lf--back-home">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          <polyline points="9,22 9,12 15,12 15,22" />
+        </svg>
+        Retour à l'accueil
+      </a>
+    </div>
   </div>
 </div>

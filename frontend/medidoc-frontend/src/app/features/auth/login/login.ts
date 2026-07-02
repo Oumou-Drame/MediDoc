@@ -20,7 +20,11 @@ import { LoginResponse } from '../models/LoginResponse';
 export class Login {
   email: string = '';
   password: string = '';
+  loading: boolean = false;
+  errorMessage: string = '';
   motDePasseVisible = false;
+  emailFocused = false;
+  passwordFocused = false;
   router: Router = inject(Router);
   AuthService: AuthService = inject(AuthService);
   LoginRequest: LoginRequest = { email: '', password: '' };
@@ -30,31 +34,39 @@ export class Login {
   }
 
   connection() {
+    this.errorMessage = '';
+    if (!this.email.trim() || !this.password.trim()) {
+      this.errorMessage = 'Veuillez remplir tous les champs';
+      return;
+    }
+    this.loading = true;
     this.LoginRequest.email = this.email;
     this.LoginRequest.password = this.password;
 
     this.AuthService.login(this.LoginRequest).subscribe({
       next: (value: LoginResponse) => {
-        const user = value.user;
-
-        // Compte cumulant responsable de labo + technicien : on respecte la dernière vue choisie.
-        const veutVueTechnicien = user.role === 'lab_manager' && user.is_technician && user.active_view === 'technician';
-
-        if (user.role === 'admin') {
-          this.router.navigateByUrl('/admin/hopitaux');
-        } else if (user.role === 'lab_manager' && !veutVueTechnicien) {
-          this.router.navigateByUrl('/lab-manager/dashboard');
-        } else {
+        this.loading = false;
+        const role = value.user.role;
+        if (role === 'lab_manager' || role === 'admin') {
+          this.router.navigateByUrl('/admin/dashboard');
+        } else if (role === 'technician') {
           this.router.navigateByUrl('/technicien');
         }
       },
       error: (err) => {
-        console.log(err);
-        alert(err.error?.message || 'Email ou mot de passe incorrect');
-      },
-      complete() {
-        console.log('Authentification terminée');
+        this.loading = false;
+        if (err.status === 400) {
+          this.errorMessage = 'Email ou mot de passe incorrect';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Impossible de se connecter au serveur';
+        } else {
+          this.errorMessage = 'Erreur de connexion. Veuillez réessayer.';
+        }
       }
     });
+  }
+
+  forgotPassword() {
+    this.router.navigateByUrl('/forgot-password');
   }
 }
