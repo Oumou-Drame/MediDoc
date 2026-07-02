@@ -1,6 +1,13 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Historique</div>
+        <div class="page-subtitle">Tous les envois de votre hôpital, tous techniciens confondus</div>
+    </div>
+</div>
+
 <div class="card">
     <div class="historique-header">
-        <div class="card-title">Historique global</div>
+        <div class="card-title">{{ pagination?.total || resultats.length }} résultat(s)</div>
     </div>
 
     <div class="filtres">
@@ -33,7 +40,7 @@
                 <td><span class="badge" [ngClass]="'badge-' + r.status">{{ libelleStatut(r.status) }}</span></td>
                 <td>{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
                 <td>{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td><a [routerLink]="['/admin/historique', r.id]">Voir</a></td>
+                <td><a [routerLink]="['/lab-manager/historique', r.id]" class="btn-link">Voir</a></td>
             </tr>
             <tr *ngIf="resultats.length === 0">
                 <td colspan="7" class="empty">Aucun résultat trouvé</td>

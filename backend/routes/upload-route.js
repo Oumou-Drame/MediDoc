@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 import { protect, requireTechnician } from '../middleware/auth-middleware.js';
 import { queryOne, query } from '../config/db.js';
 import { protectPdf } from '../utils/pdf.js';
-import { sendWhatsApp, sendSMS, sendEmail } from '../utils/sms.js';
+import { sendWhatsApp, sendSMS, sendEmail, ESTIMATED_SMS_COST, ESTIMATED_WHATSAPP_COST } from '../utils/sms.js';
+import { getBalance, deduct } from '../utils/credits.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,6 +51,7 @@ function generateAccessToken() {
 
 router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, res) => {
     const { patient_name, patient_phone, patient_email, channel } = req.body;
+    const hospitalId = req.user.hospital_id;
 
     if (!req.file) {
         return res.status(400).json({ error: 'Aucun fichier PDF uploadé' });
@@ -66,7 +68,23 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
         return res.status(400).json({ error: "Mode d'envoi invalide. Choisissez WhatsApp+Email ou Email+SMS." });
     }
 
+    // Le canal SMS/WhatsApp consomme le solde de crédits de l'hôpital ; l'email reste toujours disponible (section 7.1)
+    const requiresCredit = channel === 'email_whatsapp' || channel === 'email_sms';
+    if (requiresCredit) {
+        const balance = await getBalance(hospitalId);
+        if (balance <= 0) {
+            return res.status(402).json({
+                error: "Solde de crédits SMS/WhatsApp épuisé pour votre établissement. Contactez votre administrateur pour une recharge.",
+                code: 'CREDIT_EXHAUSTED'
+            });
+        }
+    }
+
     try {
+        const hospital = await queryOne('SELECT name FROM hospitals WHERE id = $1', [hospitalId]);
+        const sendConfig = await queryOne('SELECT * FROM hospital_send_config WHERE hospital_id = $1', [hospitalId]);
+        const hospitalName = hospital ? hospital.name : 'MediDoc';
+
         const accessCode = generateAccessCode();
         const accessToken = generateAccessToken();
 
@@ -82,29 +100,26 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
         const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
         const result = await queryOne(
-            `INSERT INTO medical_results 
-       (technician_id, patient_name, patient_phone, patient_email, original_filename, 
-        protected_filename, access_code, access_token, channel, status, whatsapp_sent, sms_sent, 
+            `INSERT INTO medical_results
+       (technician_id, hospital_id, patient_name, patient_phone, patient_email, original_filename,
+        protected_filename, access_code, access_token, channel, status, whatsapp_sent, sms_sent,
         email_sent, code_accessed, access_count, attempt_count, is_locked, created_at, sent_at, accessed_at, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', 0, 0, 0, 0, 0, 0, 0, NOW(), NULL, NULL, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'pending', 0, 0, 0, 0, 0, 0, 0, NOW(), NULL, NULL, $11)
        RETURNING id`,
-            [req.user.id, patient_name, patient_phone, patient_email,
+            [req.user.id, hospitalId, patient_name, patient_phone, patient_email,
             req.file.filename, protectedFilename, accessCode, accessToken, channel, expiresAt]
         );
 
         const resultId = result.id;
-        // Avant !!
-       // const accessUrl = `${req.protocol}://${req.get('host')}/access/${accessToken}`;
-       // Après
         const accessUrl = `${process.env.CLIENT_URL}/access/${accessToken}`;
 
-        const whatsappMessage = `Bonjour ${patient_name},\n\nVos résultats médicaux sont disponibles.\n\n🔗 Lien d'accès:\n${accessUrl}\n\n⚠️ Ce lien expire dans 48 heures.\n\nUtilisez le code que vous recevrez par un autre canal pour accéder à vos résultats.`;
-        const smsMessage = `Bonjour ${patient_name},\n\n Votre code d'accès MediDoc: ${accessCode}\n\nUtilisez le lien que vous avez reçu par email pour accéder à vos résultats.\n⚠️ Expire dans 48h. Max 3 tentatives.`;
+        const whatsappMessage = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\n🔗 Lien d'accès:\n${accessUrl}\n\n⚠️ Ce lien expire dans 48 heures.\n\nUtilisez le code que vous recevrez par un autre canal pour accéder à vos résultats.`;
+        const smsMessage = `Bonjour ${patient_name},\n\n Votre code d'accès ${hospitalName}: ${accessCode}\n\nUtilisez le lien que vous avez reçu par email pour accéder à vos résultats.\n⚠️ Expire dans 48h. Max 3 tentatives.`;
 
-        const emailSubject = " Code d'accès - Résultats médicaux MediDoc";
+        const emailSubject = ` Code d'accès - Résultats médicaux ${hospitalName}`;
         const emailText = `Bonjour ${patient_name},\n\n Votre code d'accès: ${accessCode}\n\nUtilisez le lien que vous avez reçu via WhatsApp pour accéder à vos résultats.\n\n⚠️ Ce code expire dans 48 heures.\n⚠️ Maximum 3 tentatives d'accès.\n\nNe partagez ce code avec personne.`;
         const emailHtml = `
-      <h2> MediDoc - Code d'accès</h2>
+      <h2> ${hospitalName} - Code d'accès</h2>
       <p>Bonjour <strong>${patient_name}</strong>,</p>
       <p>Voici votre code d'accès pour consulter vos résultats médicaux :</p>
       <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center;">
@@ -116,15 +131,15 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
       <p style="color: #dc2626;">⚠️ Maximum 3 tentatives d'accès.</p>
       <p>Ne partagez ce code avec personne.</p>
       <hr>
-      <p style="color: #9ca3af; font-size: 12px;">MediDoc - Plateforme sécurisée de résultats médicaux</p>
+      <p style="color: #9ca3af; font-size: 12px;">${hospitalName} via MediDoc - Plateforme sécurisée de résultats médicaux</p>
     `;
 
-        const emailLinkSubject = "🔗 Lien d'accès - Résultats médicaux MediDoc";
-        const emailLinkText = `Bonjour ${patient_name},\n\nVos résultats médicaux sont disponibles.\n\n🔗 Lien d'accès: ${accessUrl}\n\nUtilisez le code que vous recevrez par SMS pour accéder à vos résultats.\n\n⚠️ Ce lien expire dans 48 heures.\n\nNe partagez ce lien avec personne.`;
+        const emailLinkSubject = `🔗 Lien d'accès - Résultats médicaux ${hospitalName}`;
+        const emailLinkText = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\n🔗 Lien d'accès: ${accessUrl}\n\nUtilisez le code que vous recevrez par SMS pour accéder à vos résultats.\n\n⚠️ Ce lien expire dans 48 heures.\n\nNe partagez ce lien avec personne.`;
         const emailLinkHtml = `
-      <h2> MediDoc - Lien d'accès</h2>
+      <h2> ${hospitalName} - Lien d'accès</h2>
       <p>Bonjour <strong>${patient_name}</strong>,</p>
-      <p>Vos résultats médicaux sont disponibles.</p>
+      <p>Vos résultats médicaux de <strong>${hospitalName}</strong> sont disponibles.</p>
       <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 16px; margin: 16px 0;">
         <p><strong>🔗 Lien d'accès:</strong></p>
         <p><a href="${accessUrl}" style="font-size: 16px; color: #065f46; word-break: break-all;">${accessUrl}</a></p>
@@ -133,7 +148,7 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
       <p style="color: #dc2626;"> Ce lien expire dans 48 heures.</p>
       <p>Ne partagez ce lien avec personne.</p>
       <hr>
-      <p style="color: #9ca3af; font-size: 12px;">MediDoc - Plateforme sécurisée de résultats médicaux</p>
+      <p style="color: #9ca3af; font-size: 12px;">${hospitalName} via MediDoc - Plateforme sécurisée de résultats médicaux</p>
     `;
 
         let whatsappSent = false;
@@ -143,13 +158,21 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
         try {
             if (channel === 'email_whatsapp') {
                 whatsappSent = await sendWhatsApp(patient_phone, whatsappMessage);
-                emailSent = await sendEmail(patient_email, emailSubject, emailText, null, emailHtml);
+                emailSent = await sendEmail(patient_email, emailSubject, emailText, null, emailHtml, sendConfig);
             } else if (channel === 'email_sms') {
-                emailSent = await sendEmail(patient_email, emailLinkSubject, emailLinkText, null, emailLinkHtml);
+                emailSent = await sendEmail(patient_email, emailLinkSubject, emailLinkText, null, emailLinkHtml, sendConfig);
                 smsSent = await sendSMS(patient_phone, smsMessage);
             }
         } catch (sendErr) {
             console.error('Send error:', sendErr);
+        }
+
+        // Déduction du solde de crédits de l'hôpital uniquement pour les envois SMS/WhatsApp réussis (section 7.1)
+        if (whatsappSent) {
+            await deduct(hospitalId, ESTIMATED_WHATSAPP_COST, { resultId, note: `Envoi WhatsApp résultat #${resultId}` });
+        }
+        if (smsSent) {
+            await deduct(hospitalId, ESTIMATED_SMS_COST, { resultId, note: `Envoi SMS résultat #${resultId}` });
         }
 
         let anySent = false;
@@ -161,7 +184,7 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
 
         const newStatus = anySent ? 'sent' : 'pending';
         await query(
-            `UPDATE medical_results 
+            `UPDATE medical_results
        SET status = $1, whatsapp_sent = $2, sms_sent = $3, email_sent = $4, sent_at = $5
        WHERE id = $6`,
             [newStatus, whatsappSent ? 1 : 0, smsSent ? 1 : 0, emailSent ? 1 : 0,

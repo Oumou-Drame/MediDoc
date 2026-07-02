@@ -16,6 +16,13 @@
     font-size: 0.875rem;
 }
 
+.param-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #1e8c5a;
+    cursor: pointer;
+}
+
 .param-actions {
     display: flex;
     align-items: center;

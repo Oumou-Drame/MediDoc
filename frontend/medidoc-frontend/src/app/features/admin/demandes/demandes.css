@@ -1,0 +1,46 @@
+.demandes-liste {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.demande-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    border: 1px solid #e2ece7;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.demande-nom {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a2e25;
+}
+
+.demande-contact {
+    font-size: 0.8rem;
+    color: #4a6358;
+    margin-top: 4px;
+}
+
+.demande-message {
+    font-size: 0.8rem;
+    color: #7a9488;
+    margin-top: 6px;
+    font-style: italic;
+}
+
+.demande-date {
+    font-size: 0.75rem;
+    color: #aab8b2;
+    margin-top: 8px;
+}
+
+.demande-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}

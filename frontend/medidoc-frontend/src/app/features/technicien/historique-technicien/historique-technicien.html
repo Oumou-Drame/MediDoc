@@ -1,16 +1,14 @@
 <div class="technicien-page">
-    <div class="technicien-topbar">
-        <div class="technicien-titre">MediDoc — Espace technicien</div>
-        <div class="technicien-nav">
-            <a routerLink="/technicien" routerLinkActive="active">Nouvel envoi</a>
-            <a routerLink="/technicien/historique" routerLinkActive="active">Mes envois</a>
-        </div>
-        <button class="btn-secondary" (click)="seDeconnecter()">Déconnexion</button>
-    </div>
-
     <div class="technicien-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Mes envois</div>
+                <div class="page-subtitle">Historique de vos envois de résultats</div>
+            </div>
+        </div>
+
         <div class="card">
-            <div class="card-title">Mes envois</div>
+            <div class="card-title">{{ pagination?.total || resultats.length }} envoi(s)</div>
 
             <div class="filtres">
                 <input type="text" class="search-input" placeholder="Rechercher un patient..." [(ngModel)]="recherche"

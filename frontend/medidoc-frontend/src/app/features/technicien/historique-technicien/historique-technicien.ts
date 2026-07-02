@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router } from '@angular/router';
 import { HistoryService } from '../../../core/services/history-service';
 import { AuthService } from '../../../core/services/auth-service';
 import { ResultatMedical, Pagination } from '../../admin/models/history'
@@ -9,7 +9,7 @@ import { ResultatMedical, Pagination } from '../../admin/models/history'
 @Component({
   selector: 'app-historique-technicien',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule],
   templateUrl: './historique-technicien.html',
   styleUrl: './historique-technicien.css',
 })

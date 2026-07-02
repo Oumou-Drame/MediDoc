@@ -1,5 +1,5 @@
-const { PDFDocument } = require('pdf-lib');
-const fs = require('fs');
+import { PDFDocument } from 'pdf-lib';
+import fs from 'fs';
 
 /**
  * Protect a PDF file with a password using pdf-lib
@@ -98,4 +98,4 @@ async function createTestPdf(outputPath, content = 'Résultats médicaux - Test 
   }
 }
 
-module.exports = { protectPdf, createTestPdf };
+export { protectPdf, createTestPdf };

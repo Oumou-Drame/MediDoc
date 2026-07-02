@@ -5,13 +5,12 @@ import { Router } from '@angular/router';
 import { UploadService } from '../../../core/services/upload-service';
 import { AuthService } from '../../../core/services/auth-service';
 import { CanalOption, UploadResponse } from '../models/upload';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 
 
 @Component({
   selector: 'app-nouveau-resultat',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule],
   templateUrl: './nouveau-resultat.html',
   styleUrl: './nouveau-resultat.css',
 })

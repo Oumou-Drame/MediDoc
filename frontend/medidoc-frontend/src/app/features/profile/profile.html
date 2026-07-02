@@ -1,0 +1,147 @@
+<div class="page-header" *ngIf="!chargement && profil">
+    <div>
+        <div class="page-title">Mon profil</div>
+        <div class="page-subtitle">Vos informations personnelles et vos préférences</div>
+    </div>
+</div>
+
+<div class="profile-page" *ngIf="!chargement && profil">
+
+    <!-- Carte d'identité -->
+    <div class="card identite-card">
+        <div class="avatar-grand">{{ initiales }}</div>
+        <div class="identite-info">
+            <div class="identite-nom">{{ profil.full_name }}</div>
+            <div class="identite-email">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16v16H4z" opacity="0" /><path d="M22 6 12 13 2 6" /><path d="M2 6h20v12H2z" />
+                </svg>
+                {{ profil.email }}
+            </div>
+            <div class="identite-badges">
+                <span class="badge" [class.badge-role-primary]="i === 0" [class.badge-role-secondary]="i > 0"
+                    *ngFor="let b of badgesRole; let i = index">{{ b }}</span>
+            </div>
+            <div class="identite-hopital" *ngIf="profil.hospital">{{ profil.hospital.name }}</div>
+        </div>
+        <div class="identite-meta">
+            <div class="identite-membre-depuis">Membre depuis</div>
+            <div class="identite-date">{{ profil.created_at | date:'MMMM yyyy' }}</div>
+        </div>
+    </div>
+
+    <!-- Capacité technicien : un responsable de labo peut choisir d'être aussi technicien -->
+    <div class="card" *ngIf="estResponsableLabo">
+        <div class="capacite-header">
+            <div>
+                <div class="card-title">Capacité technicien</div>
+                <p class="champ-note">
+                    Activez cette option si vous devez parfois vous connecter comme un simple
+                    technicien (envoi de résultats). Vous pourrez ensuite basculer entre les deux vues.
+                </p>
+            </div>
+            <button type="button" class="interrupteur" [class.actif]="profil.is_technician"
+                [disabled]="enregistrementCapacite" (click)="changerCapaciteTechnicien(!profil.is_technician)"
+                [attr.aria-pressed]="profil.is_technician">
+                <span class="interrupteur-bouton"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Switch de vue pour les comptes cumulant responsable de labo + technicien -->
+    <div class="card" *ngIf="cumuleRoles">
+        <div class="card-title">Vue active</div>
+        <p class="champ-note" style="margin-bottom: 14px;">
+            Votre compte cumule les deux capacités. Choisissez la vue à afficher dans la navigation
+            (ce choix est mémorisé pour vos prochaines connexions).
+        </p>
+        <div class="taille-police-choix">
+            <button type="button" class="taille-btn" [class.actif]="profil.active_view !== 'technician'" (click)="changerVue('lab_manager')">
+                Responsable de labo
+            </button>
+            <button type="button" class="taille-btn" [class.actif]="profil.active_view === 'technician'" (click)="changerVue('technician')">
+                Technicien
+            </button>
+        </div>
+    </div>
+
+    <!-- Informations personnelles -->
+    <div class="card">
+        <div class="card-title-icone">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+            <div class="card-title">Informations personnelles</div>
+        </div>
+
+        <div class="profil-form-grid">
+            <div class="form-row">
+                <label>Nom complet</label>
+                <input type="text" [(ngModel)]="fullName" name="fullName">
+            </div>
+
+            <div class="form-row">
+                <label>Téléphone</label>
+                <input type="text" [(ngModel)]="phone" name="phone">
+            </div>
+
+            <div class="form-row">
+                <label>Email (non modifiable)</label>
+                <input type="email" [value]="profil.email" disabled>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <span class="message-succes" *ngIf="messageInfos">{{ messageInfos }}</span>
+            <button class="btn-primary" [disabled]="enregistrementInfos" (click)="enregistrerInfos()">
+                {{ enregistrementInfos ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Préférences d'affichage -->
+    <div class="card">
+        <div class="card-title">Préférences d'affichage</div>
+        <div class="form-row">
+            <label>Taille de la police</label>
+            <div class="taille-police-choix">
+                <button type="button" class="taille-btn" *ngFor="let t of taillesDisponibles"
+                    [class.actif]="tailleActuelle === t.valeur" (click)="changerTaillePolice(t.valeur)">
+                    {{ t.label }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Changement de mot de passe -->
+    <div class="card">
+        <div class="card-title">Changer le mot de passe</div>
+
+        <div class="form-row">
+            <label>Mot de passe actuel</label>
+            <input type="password" [(ngModel)]="currentPassword" name="currentPassword">
+        </div>
+
+        <div class="form-row">
+            <label>Nouveau mot de passe</label>
+            <input type="password" [(ngModel)]="newPassword" name="newPassword">
+        </div>
+
+        <div class="form-row">
+            <label>Confirmer le nouveau mot de passe</label>
+            <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword">
+        </div>
+
+        <div class="form-actions">
+            <span class="erreur-msg" *ngIf="erreurMdp">{{ erreurMdp }}</span>
+            <span class="message-succes" *ngIf="messageMdp">{{ messageMdp }}</span>
+            <button class="btn-primary" [disabled]="enregistrementMdp" (click)="changerMotDePasse()">
+                {{ enregistrementMdp ? 'Enregistrement...' : 'Changer le mot de passe' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-page" *ngIf="chargement">
+    <div class="card">Chargement du profil...</div>
+</div>

@@ -8,18 +8,21 @@
  * On first run, a QR code will be generated for scanning.
  */
 
-const {
-  default: makeWASocket,
+import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,
   makeCacheableSignalKeyStore
-} = require('@whiskeysockets/baileys');
-const pino = require('pino');
-const Boom = require('@hapi/boom');
-const path = require('path');
-const fs = require('fs');
-const QRCode = require('qrcode');
+} from '@whiskeysockets/baileys';
+import pino from 'pino';
+import Boom from '@hapi/boom';
+import path from 'path';
+import fs from 'fs';
+import QRCode from 'qrcode';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Session directory for Baileys auth state
 const AUTH_DIR = path.join(__dirname, '..', 'whatsapp_auth');
@@ -550,7 +553,7 @@ async function reconnect() {
   };
 }
 
-module.exports = {
+export {
   // Config
   isConfigured,
   getConnectionStatus,

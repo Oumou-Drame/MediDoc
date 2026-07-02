@@ -1,17 +1,15 @@
 <div class="technicien-page">
-  <div class="technicien-topbar">
-    <div class="technicien-titre">MediDoc — Espace technicien</div>
-    <div class="technicien-nav">
-      <a routerLink="/technicien" routerLinkActive="active">Nouvel envoi</a>
-      <a routerLink="/technicien/historique" routerLinkActive="active">Mes envois</a>
-    </div>
-    <button class="btn-secondary" (click)="seDeconnecter()">Déconnexion</button>
-  </div>
-
   <div class="technicien-content">
 
+    <div class="page-header" *ngIf="!resultat">
+      <div>
+        <div class="page-title">Nouvel envoi</div>
+        <div class="page-subtitle">Envoyez des résultats médicaux protégés à un patient</div>
+      </div>
+    </div>
+
     <div class="card" *ngIf="!resultat">
-      <div class="card-title">Envoyer les résultats d'un patient</div>
+      <div class="card-title">Informations du patient</div>
 
       <div class="form-row">
         <label>Nom complet du patient</label>
@@ -55,7 +53,8 @@
     </div>
 
     <div class="card recap" *ngIf="resultat">
-      <div class="card-title"> Envoi réussi</div>
+      <div class="recap-icone">✓</div>
+      <div class="card-title">Envoi réussi</div>
 
       <div class="recap-grid">
         <div><span class="detail-label">Patient</span><span>{{ resultat.patient_name }}</span></div>

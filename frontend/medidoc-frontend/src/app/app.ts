@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { PreferencesService } from './core/services/preferences-service';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +10,8 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('medidoc-frontend');
+
+  constructor() {
+    inject(PreferencesService).appliquerPreferenceSauvegardee();
+  }
 }

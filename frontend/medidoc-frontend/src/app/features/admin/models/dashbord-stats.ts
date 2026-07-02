@@ -48,4 +48,5 @@ export interface DashboardStats {
     canaux: Canal[];
     activite_recente: ActiviteRecente[];
     tendance_7_jours: TendanceJour[];
+    solde_credits: number;
 }

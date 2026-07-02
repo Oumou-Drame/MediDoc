@@ -1,105 +1,31 @@
-.app-shell {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.page-bg {
-    flex: 1;
-    background: var(--mint-bg);
-    padding: 32px;
-}
-
-.two-col {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    background: #fff;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.col-panel {
-    padding: 32px 36px;
-}
-
-/* DROPZONE */
-.dropzone {
-    border: 1.8px dashed #9FC9BF;
-    border-radius: 14px;
-    background: var(--mint-card);
-    padding: 28px 20px;
-    text-align: center;
+.form-row input[type="file"] {
+    padding: 9px 10px;
+    font-size: 0.8rem;
+    color: #4a6358;
+    border: 1.5px dashed #c7dcd3;
+    border-radius: 10px;
+    background: #fafcfb;
     cursor: pointer;
-    transition: .2s;
 }
 
-.dropzone:hover,
-.dropzone.dragover {
-    border-color: var(--teal);
-    background: #EAF5F1;
+.form-row input[type="file"]:hover {
+    border-color: #1e8c5a;
 }
 
-.dropzone.has-file {
-    border-style: solid;
-    border-color: var(--teal);
+.recap {
+    text-align: left;
 }
 
-.file-preview {
+.recap-icone {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e1f5ee;
+    color: #1e8c5a;
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-/* ========================= */
-/* CANAUX EN BOUTONS         */
-/* ========================= */
-
-.canaux {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-
-.btn-canal {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: 2px solid var(--line);
-    background: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.btn-canal:hover {
-    border-color: var(--teal);
-    background: #eef8f5;
-}
-
-.btn-canal.selected {
-    background: var(--teal);
-    color: #fff;
-    border-color: var(--teal);
-}
-
-/* BOUTON ENVOYER */
-.btn-submit {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: var(--teal);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.btn-submit:disabled {
-    opacity: .5;
-    cursor: not-allowed;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 16px;
 }

@@ -1,0 +1,342 @@
+.sidebar {
+    width: 236px;
+    flex-shrink: 0;
+    background: #0f1c18;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    transition: width 0.18s ease, transform 0.2s ease;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+}
+
+.sidebar.repliee {
+    width: 68px;
+    padding: 20px 10px;
+}
+
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 4px 24px;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.logo-icon {
+    width: 34px;
+    height: 34px;
+    background: #1c6b4a;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.sidebar-brand-texte {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.sidebar-titre {
+    font-family: 'Lora', Georgia, serif;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar-soustitre {
+    color: #6f7d76;
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-toggle {
+    background: none;
+    border: none;
+    color: #6f7d76;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 6px;
+}
+
+.btn-toggle:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
+.btn-toggle svg {
+    transition: transform 0.18s ease;
+}
+
+.sidebar.repliee .sidebar-top {
+    justify-content: center;
+}
+
+.sidebar.repliee .sidebar-logo {
+    display: none;
+}
+
+.btn-toggle-mobile {
+    display: none;
+}
+
+/* Switch de vue — comptes cumulant responsable de labo + technicien */
+.vue-switch {
+    display: flex;
+    gap: 3px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 9px;
+    padding: 3px;
+    margin: 0 4px 18px;
+}
+
+.vue-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #8a978f;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 7px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.vue-btn.actif {
+    background: #1c6b4a;
+    color: #fff;
+}
+
+.sidebar-section-label {
+    font-size: 10.5px;
+    color: #5c6a63;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0 10px 10px;
+    font-weight: 600;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #93a099;
+    font-size: 13px;
+    font-weight: 500;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.sidebar-nav a svg {
+    flex-shrink: 0;
+    opacity: .85;
+}
+
+.sidebar-nav a:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+}
+
+.sidebar-nav a.active {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-left-color: #c99a4d;
+}
+
+.sidebar-nav a.active svg {
+    opacity: 1;
+    color: #c99a4d;
+    stroke: #c99a4d;
+}
+
+.sidebar.repliee .sidebar-nav a {
+    justify-content: center;
+    padding: 10px;
+    border-left: none;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    border-top: 0.5px solid rgba(255, 255, 255, 0.10);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 6px 8px 14px;
+}
+
+.sidebar.repliee .sidebar-user {
+    justify-content: center;
+    padding: 6px 0 14px;
+}
+
+.avatar-admin {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #1c2e28;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #d9c290;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.sidebar-user-info {
+    min-width: 0;
+}
+
+.sidebar-user-nom {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+    font-size: 10.5px;
+    color: #6f7d76;
+    margin-top: 1px;
+}
+
+.sidebar-bottom-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 8px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    color: #93a099;
+    cursor: pointer;
+    font-size: 12.5px;
+    text-decoration: none;
+    font-family: inherit;
+    transition: background .15s, color .15s;
+}
+
+.sidebar-bottom-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.sidebar-bottom-link.btn-logout:hover {
+    background: rgba(179, 69, 63, 0.15);
+    color: #e0938e;
+}
+
+.sidebar.repliee .sidebar-bottom-link {
+    justify-content: center;
+    padding: 8px;
+}
+
+/* ===== Mobile : sidebar repliable en tiroir (menu hamburger) ===== */
+
+.btn-hamburger {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #0f1c18;
+    color: #fff;
+    border: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 860px) {
+    .btn-hamburger {
+        display: flex;
+    }
+
+    .btn-toggle-desktop {
+        display: none;
+    }
+
+    .btn-toggle-mobile {
+        display: flex;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 50;
+        width: 250px;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar.repliee {
+        width: 250px;
+        padding: 20px 14px;
+    }
+
+    .sidebar.repliee .sidebar-logo,
+    .sidebar.repliee .sidebar-top {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .sidebar.ouverte-mobile {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 45;
+    }
+}

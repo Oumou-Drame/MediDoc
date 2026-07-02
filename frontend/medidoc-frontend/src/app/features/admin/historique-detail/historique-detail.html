@@ -27,4 +27,19 @@
         Ce compte est verrouillé après trop de tentatives échouées.
         <button class="btn-primary" (click)="debloquer()">Débloquer ce compte</button>
     </div>
+
+    <div class="detail-acces">
+        <div class="card-title">Accès patient</div>
+        <p class="champ-note">
+            À utiliser pour retester ou renvoyer manuellement l'accès, sans dépendre d'un envoi
+            SMS/WhatsApp/Email réel (utile en développement ou en support).
+        </p>
+        <div class="detail-grid">
+            <div><span class="detail-label">Code d'accès</span><span class="code-fort">{{ resultat.access_code }}</span></div>
+        </div>
+        <div class="lien-acces-row">
+            <input type="text" class="lien-acces-input" [value]="lienAcces" readonly>
+            <button type="button" class="btn-secondary" (click)="copierLien()">{{ lienCopie ? 'Copié !' : 'Copier le lien' }}</button>
+        </div>
+    </div>
 </div>

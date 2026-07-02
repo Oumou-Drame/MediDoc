@@ -8,32 +8,18 @@
 .search-input {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid #dde8e3;
+    border: 1px solid var(--c-border-strong);
     border-radius: 8px;
     font-size: 0.875rem;
     margin-bottom: 18px;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: var(--font-sans);
 }
 
-.btn-primary {
-    background: #1e8c5a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-secondary {
-    background: #f4faf7;
-    color: #4a6358;
-    border: 1px solid #dde8e3;
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
+.search-input:focus {
+    outline: none;
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
 }
 
 .comptes-table {
@@ -43,34 +29,38 @@
 
 .comptes-table th {
     text-align: left;
-    font-size: 0.75rem;
-    color: #7a9488;
-    font-weight: 600;
-    padding: 10px 8px;
-    border-bottom: 1px solid #e2ece7;
+    font-size: 0.72rem;
+    color: var(--c-text-faint);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 10px;
+    border-bottom: 1.5px solid var(--c-border);
 }
 
 .comptes-table td {
-    padding: 14px 8px;
+    padding: 15px 10px;
     font-size: 0.875rem;
-    border-bottom: 1px solid #f0f5f2;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
 }
 
-.badge {
-    padding: 4px 10px;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 600;
+.comptes-table tbody tr {
+    transition: background .15s;
+}
+
+.comptes-table tbody tr:hover {
+    background: var(--c-bg);
 }
 
 .badge.actif {
-    background: #e1f5ee;
-    color: #1e8c5a;
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
 }
 
 .badge.suspendu {
-    background: #faece7;
-    color: #c84f4f;
+    background: var(--c-danger-soft);
+    color: var(--c-danger);
 }
 
 .actions {
@@ -78,21 +68,33 @@
     gap: 14px;
 }
 
-.btn-link {
-    background: none;
-    border: none;
-    color: #1e8c5a;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-}
-
-.btn-link.danger {
-    color: #c84f4f;
-}
-
 .comptes-form {
-    max-width: 480px;
+    max-width: 520px;
 }
 
+.comptes-form h3 {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin-bottom: 20px;
+}
+
+.form-row-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+@media (max-width: 480px) {
+    .form-row-double {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}

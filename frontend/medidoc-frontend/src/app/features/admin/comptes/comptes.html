@@ -1,6 +1,13 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Comptes techniciens</div>
+        <div class="page-subtitle">Gérez les comptes de votre équipe technique</div>
+    </div>
+</div>
+
 <div class="card">
     <div class="comptes-header" *ngIf="!afficherFormulaire">
-        <div class="card-title">Comptes techniciens</div>
+        <div class="card-title">{{ techniciensFiltres.length }} technicien(s)</div>
         <button class="btn-primary" (click)="ouvrirAjout()">+ Ajouter un technicien</button>
     </div>
     <input type="text" class="search-input" placeholder="Rechercher par nom ou email..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
@@ -9,7 +16,6 @@
         <thead>
             <tr>
                 <th>Nom complet</th>
-                <th>Username</th>
                 <th>Email</th>
                 <th>Téléphone</th>
                 <th>Statut</th>
@@ -19,7 +25,6 @@
         <tbody>
             <tr *ngFor="let tech of techniciensFiltres">
                 <td>{{ tech.full_name }}</td>
-                <td>{{ tech.username }}</td>
                 <td>{{ tech.email }}</td>
                 <td>{{ tech.phone || '—' }}</td>
                 <td>
@@ -35,19 +40,28 @@
                     <button class="btn-link danger" (click)="supprimer(tech)">Supprimer</button>
                 </td>
             </tr>
+            <tr *ngIf="techniciensFiltres.length === 0">
+                <td colspan="5" class="empty">Aucun technicien trouvé</td>
+            </tr>
         </tbody>
     </table>
 
     <form class="comptes-form" *ngIf="afficherFormulaire" (ngSubmit)="valider()">
         <h3>{{ modeEdition ? 'Modifier le technicien' : 'Nouveau technicien' }}</h3>
 
-        <div class="form-row">
-            <label>Nom d'utilisateur</label>
-            <input name="username" [(ngModel)]="formData.username" required>
+        <div class="form-row-double">
+            <div class="form-row">
+                <label>Prénom</label>
+                <input name="first_name" [(ngModel)]="formData.first_name" required>
+            </div>
+            <div class="form-row">
+                <label>Nom</label>
+                <input name="last_name" [(ngModel)]="formData.last_name" required>
+            </div>
         </div>
         <div class="form-row">
-            <label>Nom complet</label>
-            <input name="full_name" [(ngModel)]="formData.full_name" required>
+            <label>Date de naissance</label>
+            <input name="date_naissance" type="date" [(ngModel)]="formData.date_naissance" required>
         </div>
         <div class="form-row">
             <label>Email</label>

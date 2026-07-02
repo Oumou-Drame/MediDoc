@@ -1,0 +1,59 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Crédits</div>
+        <div class="page-subtitle">Solde SMS/WhatsApp réel plateforme et répartition par hôpital</div>
+    </div>
+</div>
+
+<div class="credits-plateforme-page" *ngIf="!chargement">
+
+    <div class="card solde-card">
+        <div class="solde-label">Solde virtuel total réparti entre les hôpitaux</div>
+        <div class="solde-valeur">{{ total }}</div>
+        <p class="solde-note">
+            L'admin détient un seul compte/solde réel chez le fournisseur SMS/WhatsApp. Ce total est la somme
+            des soldes virtuels alloués à chaque hôpital dans MediDoc.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Répartition par hôpital</div>
+        <table class="historique-table">
+            <thead>
+                <tr>
+                    <th>Hôpital</th>
+                    <th>Solde</th>
+                    <th>Allocation manuelle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let h of hospitals">
+                    <tr>
+                        <td>{{ h.hospital_name }}</td>
+                        <td>{{ h.balance }}</td>
+                        <td>
+                            <button class="btn-link" *ngIf="hopitalEnCours !== h.hospital_id" (click)="ouvrirAllocation(h)">
+                                Allouer des crédits
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="hopitalEnCours === h.hospital_id">
+                        <td colspan="3">
+                            <div class="allocation-form">
+                                <input type="number" min="1" placeholder="Montant" [(ngModel)]="montantAllocation">
+                                <input type="text" placeholder="Note (ex: paiement reçu le ...)" [(ngModel)]="noteAllocation">
+                                <button class="btn-secondary" (click)="annulerAllocation()">Annuler</button>
+                                <button class="btn-primary" [disabled]="allocationEnCours" (click)="allouer(h)">
+                                    {{ allocationEnCours ? 'Allocation...' : 'Confirmer' }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-container>
+                <tr *ngIf="hospitals.length === 0">
+                    <td colspan="3" class="empty">Aucun hôpital pour le moment</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

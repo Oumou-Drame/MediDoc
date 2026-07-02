@@ -19,6 +19,22 @@ export class HistoriqueDetail implements OnInit {
   resultat: ResultatMedical | null = null;
   chargement = true;
   erreur = '';
+  lienCopie = false;
+
+  // Lien d'accès patient reconstruit côté client (même origine que /access/:token de cette app),
+  // utile pour retester ou renvoyer manuellement sans dépendre d'un vrai envoi SMS/WhatsApp/Email.
+  get lienAcces(): string {
+    if (!this.resultat?.access_token) return '';
+    return `${window.location.origin}/access/${this.resultat.access_token}`;
+  }
+
+  copierLien() {
+    if (!this.lienAcces) return;
+    navigator.clipboard.writeText(this.lienAcces).then(() => {
+      this.lienCopie = true;
+      setTimeout(() => { this.lienCopie = false; }, 2000);
+    });
+  }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -39,6 +55,6 @@ export class HistoriqueDetail implements OnInit {
   }
 
   retour() {
-    this.router.navigateByUrl('/admin/historique');
+    this.router.navigateByUrl('/lab-manager/historique');
   }
 }

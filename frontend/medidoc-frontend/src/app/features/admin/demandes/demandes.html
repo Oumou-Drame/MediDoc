@@ -1,0 +1,29 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Demandes d'inscription</div>
+        <div class="page-subtitle">Chaque hôpital est vérifié manuellement avant validation</div>
+    </div>
+</div>
+
+<div class="card" *ngIf="!chargement">
+    <div class="card-title">{{ requests.length }} demande(s) en attente</div>
+
+    <div class="demandes-liste" *ngIf="requests.length > 0; else vide">
+        <div class="demande-item" *ngFor="let r of requests">
+            <div class="demande-info">
+                <div class="demande-nom">{{ r.hospital_name }}</div>
+                <div class="demande-contact">{{ r.contact_name }} — {{ r.contact_email }} <span *ngIf="r.contact_phone">— {{ r.contact_phone }}</span></div>
+                <div class="demande-message" *ngIf="r.message">{{ r.message }}</div>
+                <div class="demande-date">Reçue le {{ r.created_at | date:'dd/MM/yyyy' }}</div>
+            </div>
+            <div class="demande-actions">
+                <button class="btn-secondary" [disabled]="traitementEnCours === r.id" (click)="refuser(r)">Refuser</button>
+                <button class="btn-primary" [disabled]="traitementEnCours === r.id" (click)="valider(r)">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #vide>
+        <div class="empty">Aucune demande en attente</div>
+    </ng-template>
+</div>

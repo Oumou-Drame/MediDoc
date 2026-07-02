@@ -37,6 +37,8 @@ export interface ResultatMedical {
     original_filename: string;
     channel: string;
     status: string;
+    access_code: string;
+    access_token: string;
     access_count: number;
     attempt_count: number;
     is_locked: number;

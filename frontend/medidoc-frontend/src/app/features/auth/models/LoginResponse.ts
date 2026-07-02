@@ -1,8 +1,5 @@
+import { CurrentUser } from '../../../core/models/user';
+
 export interface LoginResponse {
-   user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-  };
+  user: CurrentUser;
 }

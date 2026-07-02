@@ -4,6 +4,9 @@ import cors from 'cors'; // Allow to register routes
 import cookieParser from 'cookie-parser';
 import authRoutes from "./routes/auth-route.js";
 import adminRoutes from './routes/admin-route.js';
+import hospitalRoutes from './routes/hospital-route.js';
+import labManagerRoutes from './routes/lab-manager-route.js';
+import profileRoutes from './routes/profile-route.js';
 import historyRoutes from './routes/history-route.js';
 import uploadRoutes from './routes/upload-route.js';
 import patientRoutes from './routes/patient-route.js';
@@ -26,8 +29,14 @@ app.use(cookieParser());
 // Toutes les routes définies dans auth.js seront accessibles sous le préfixe /api/auth
 // Exemple : router.post('/register') devient ici POST /api/auth/register
 app.use('/api/auth',authRoutes);
-// Routes admin
+// Routes admin (niveau plateforme, jamais de données patient)
 app.use('/api/admin', adminRoutes);
+// Inscription / gestion des hôpitaux (public + admin)
+app.use('/api/hospitals', hospitalRoutes);
+// Routes responsable de labo (niveau hôpital)
+app.use('/api/lab-manager', labManagerRoutes);
+// Page Profil (commune aux 3 rôles)
+app.use('/api/profile', profileRoutes);
 // Route historique
 app.use('/api/history', historyRoutes);
 // Route upload PDF

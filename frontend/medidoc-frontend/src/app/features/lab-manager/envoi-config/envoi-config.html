@@ -1,0 +1,73 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Configuration d'envoi</div>
+        <div class="page-subtitle">Numéro SMS/WhatsApp et email propres à votre hôpital</div>
+    </div>
+</div>
+
+<div class="card" *ngIf="!chargement">
+    <div class="card-title">Paramètres d'envoi</div>
+    <p class="config-note">
+        Le numéro SMS/WhatsApp doit être un numéro déjà activé sur le compte de la plateforme —
+        les identifiants techniques du fournisseur restent gérés au niveau plateforme.
+    </p>
+
+    <div class="form-row">
+        <label>Numéro d'envoi SMS/WhatsApp</label>
+        <input type="text" [(ngModel)]="smsWhatsappSender" placeholder="Ex: +221771234567">
+    </div>
+
+    <div class="config-separateur">Email de l'hôpital</div>
+
+    <p class="config-note">
+        C'est cette adresse que vos patients verront comme expéditeur des résultats — elle doit être
+        celle de votre laboratoire, pas une adresse personnelle. Utilisez l'adresse <strong>Gmail</strong>
+        du laboratoire avec un <strong>mot de passe d'application</strong> (pas le mot de passe Gmail habituel) :
+        Compte Google → Sécurité → Validation en 2 étapes → Mots de passe des applications.
+    </p>
+
+    <div class="form-row">
+        <label>Nom affiché comme expéditeur</label>
+        <input type="text" [(ngModel)]="smtpFromName" placeholder="Ex: Laboratoire Fann">
+    </div>
+
+    <div class="form-row">
+        <label>Adresse email de l'hôpital</label>
+        <input type="email" [(ngModel)]="smtpUser" placeholder="labo.fann@gmail.com" required>
+    </div>
+
+    <div class="form-row">
+        <label>Mot de passe d'application</label>
+        <input type="password" [(ngModel)]="smtpPass" placeholder="Laisser tel quel pour ne pas le modifier">
+    </div>
+
+    <button type="button" class="btn-link" (click)="avanceOuvert = !avanceOuvert">
+        {{ avanceOuvert ? 'Masquer les options avancées' : "Je n'utilise pas Gmail" }}
+    </button>
+
+    <ng-container *ngIf="avanceOuvert">
+        <div class="form-row">
+            <label>Serveur SMTP</label>
+            <input type="text" [(ngModel)]="smtpHost" placeholder="Ex: smtp.gmail.com">
+        </div>
+        <div class="form-row">
+            <label>Port SMTP</label>
+            <input type="number" [(ngModel)]="smtpPort">
+        </div>
+    </ng-container>
+
+    <div class="test-connexion-row">
+        <button type="button" class="btn-secondary" [disabled]="testEnCours" (click)="testerConnexion()">
+            {{ testEnCours ? 'Test en cours...' : 'Tester la connexion' }}
+        </button>
+        <span class="test-message-ok" *ngIf="testMessage">✓ {{ testMessage }}</span>
+        <span class="test-message-erreur" *ngIf="testErreur">✕ {{ testErreur }}</span>
+    </div>
+
+    <div class="form-actions">
+        <span class="message-succes" *ngIf="messageSucces">{{ messageSucces }}</span>
+        <button class="btn-primary" [disabled]="enregistrement" (click)="enregistrer()">
+            {{ enregistrement ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+    </div>
+</div>

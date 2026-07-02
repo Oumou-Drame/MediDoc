@@ -1,0 +1,44 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Hôpitaux</div>
+        <div class="page-subtitle">Établissements inscrits sur la plateforme</div>
+    </div>
+</div>
+
+<div class="card" *ngIf="!chargement">
+    <div class="card-title">{{ hospitals.length }} établissement(s)</div>
+
+    <table class="historique-table">
+        <thead>
+            <tr>
+                <th>Établissement</th>
+                <th>Contact</th>
+                <th>Comptes</th>
+                <th>Solde crédits</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let h of hospitals">
+                <td>{{ h.name }}</td>
+                <td>{{ h.email || '—' }}</td>
+                <td>{{ h.total_users }}</td>
+                <td>{{ h.credit_balance }}</td>
+                <td>
+                    <span class="badge" [class.badge-delivered]="h.status === 'active'" [class.badge-expired]="h.status === 'suspended'">
+                        {{ h.status === 'active' ? 'Actif' : 'Suspendu' }}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn-link" (click)="basculerStatut(h)">
+                        {{ h.status === 'active' ? 'Suspendre' : 'Activer' }}
+                    </button>
+                </td>
+            </tr>
+            <tr *ngIf="hospitals.length === 0">
+                <td colspan="6" class="empty">Aucun hôpital inscrit pour le moment</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

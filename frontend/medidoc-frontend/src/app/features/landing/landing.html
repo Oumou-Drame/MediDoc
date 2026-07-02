@@ -1,0 +1,91 @@
+<div class="landing-page">
+
+    <header class="landing-header">
+        <div class="landing-brand">
+            <div class="landing-logo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+            </div>
+            <span>MediDoc</span>
+        </div>
+        <a routerLink="/login" class="btn-secondary">Se connecter</a>
+    </header>
+
+    <section class="landing-hero">
+        <h1>Envoyez les résultats médicaux à vos patients, en toute sécurité</h1>
+        <p>
+            MediDoc permet à votre laboratoire ou hôpital d'envoyer des résultats médicaux protégés par code d'accès,
+            via email, SMS et WhatsApp — avec un espace dédié pour votre équipe et vos données isolées de celles
+            des autres établissements.
+        </p>
+    </section>
+
+    <section class="landing-features">
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-titre">Résultats protégés</div>
+            <div class="feature-desc">Code d'accès à 6 chiffres, lien à durée limitée, document verrouillé après 3 tentatives.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🏥</div>
+            <div class="feature-titre">Un espace par établissement</div>
+            <div class="feature-desc">Vos comptes, vos patients et votre historique d'envois, totalement isolés des autres hôpitaux.</div>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">✉️</div>
+            <div class="feature-titre">Email, SMS, WhatsApp</div>
+            <div class="feature-desc">Le patient reçoit ses résultats via le canal de son choix, avec le nom de votre établissement.</div>
+        </div>
+    </section>
+
+    <section class="landing-form-section" id="demande">
+        <div class="card demande-card" *ngIf="!envoye">
+            <div class="card-title">Vous représentez un hôpital ou un laboratoire ?</div>
+            <p class="demande-intro">
+                Faites une demande d'accès à MediDoc. Chaque établissement est vérifié manuellement
+                avant validation.
+            </p>
+
+            <div class="form-row">
+                <label>Nom de l'établissement</label>
+                <input type="text" [(ngModel)]="hospitalName" placeholder="Ex: Laboratoire Fann">
+            </div>
+            <div class="form-row">
+                <label>Nom du contact (futur responsable de labo)</label>
+                <input type="text" [(ngModel)]="contactName" placeholder="Ex: Awa Ndiaye">
+            </div>
+            <div class="form-row">
+                <label>Email du contact</label>
+                <input type="email" [(ngModel)]="contactEmail" placeholder="Ex: contact@labofann.sn">
+            </div>
+            <div class="form-row">
+                <label>Téléphone du contact</label>
+                <input type="text" [(ngModel)]="contactPhone" placeholder="Ex: +221771234567">
+            </div>
+            <div class="form-row">
+                <label>Message (optionnel)</label>
+                <input type="text" [(ngModel)]="message" placeholder="Précisions sur votre établissement">
+            </div>
+
+            <div class="erreur-msg" *ngIf="erreur">{{ erreur }}</div>
+
+            <button class="btn-primary" [disabled]="envoiEnCours" (click)="envoyerDemande()">
+                {{ envoiEnCours ? 'Envoi...' : 'Envoyer la demande' }}
+            </button>
+        </div>
+
+        <div class="card demande-card confirmation-card" *ngIf="envoye">
+            <div class="card-title">Demande envoyée</div>
+            <p>
+                Merci ! Votre demande a bien été reçue. Notre équipe la vérifiera avant de valider
+                l'accès de votre établissement. Vous serez contacté par email.
+            </p>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        MediDoc — Plateforme sécurisée de résultats médicaux
+    </footer>
+</div>

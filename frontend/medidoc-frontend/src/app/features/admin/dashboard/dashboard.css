@@ -1,46 +1,12 @@
-  .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+  .credits-banniere {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 28px;
   }
 
-  .stat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px 28px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
-  }
-
-  .stat-label {
-      font-size: 0.8rem;
-      color: #7a9488;
-      font-weight: 500;
-      margin-bottom: 10px;
-  }
-
-  .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1a2e25;
-  }
-
-  .stat-value.green {
-      color: #1e8c5a;
-  }
-
-  .stat-value.purple {
-      color: #6b4fc8;
-  }
-
-  .stat-value.red {
-      color: #c84f4f;
-  }
-
-  .stat-detail {
-      font-size: 0.72rem;
-      color: #9aab9f;
-      margin-top: 6px;
+  .credits-banniere-zero {
+      border: 1px solid #f3c9c9;
   }
 
   .bottom-grid {
@@ -48,20 +14,6 @@
       grid-template-columns: 1fr 420px;
       gap: 20px;
       align-items: start;
-  }
-
-  .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
-  }
-
-  .card-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #1a2e25;
-      margin-bottom: 22px;
   }
 
   .tech-list {
@@ -74,7 +26,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 12px 8px;
+      padding: 12px 10px;
       border-radius: 10px;
       transition: background .15s;
   }
@@ -99,6 +51,7 @@
 
   .tech-info {
       flex: 1;
+      min-width: 0;
   }
 
   .tech-name {
@@ -111,17 +64,22 @@
       font-size: 0.75rem;
       color: #7a9488;
       margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
   }
 
   .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.02);
   }
 
   .status-dot.online {
       background: #1e8c5a;
+      box-shadow: 0 0 0 3px rgba(30, 140, 90, 0.15);
   }
 
   .status-dot.offline {
@@ -145,11 +103,12 @@
 
   .channel-pct {
       color: #4a6358;
+      font-variant-numeric: tabular-nums;
   }
 
   .bar-track {
       height: 8px;
-      background: #e8f5ee;
+      background: #eef6f1;
       border-radius: 99px;
       overflow: hidden;
   }
@@ -157,6 +116,7 @@
   .bar-fill {
       height: 100%;
       border-radius: 99px;
+      transition: width .4s ease;
   }
 
   .bar-fill.whatsapp {
@@ -196,7 +156,7 @@
   .activite-list {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 4px;
   }
 
   .activite-row {
@@ -204,6 +164,12 @@
       justify-content: space-between;
       gap: 12px;
       font-size: 0.85rem;
+      padding: 9px 4px;
+      border-bottom: 1px solid #f0f5f2;
+  }
+
+  .activite-row:last-child {
+      border-bottom: none;
   }
 
   .activite-texte {
@@ -236,15 +202,16 @@
   .tendance-bar {
       width: 100%;
       max-width: 32px;
-      background: #1e8c5a;
-      border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, #29a570, #1e8c5a);
+      border-radius: 6px 6px 0 0;
       min-height: 4px;
+      transition: height .4s ease;
   }
 
   .tendance-valeur {
       font-size: 0.7rem;
       color: #4a6358;
-      margin-top: 4px;
+      margin-top: 6px;
       font-weight: 600;
   }
 
@@ -255,17 +222,9 @@
   }
 
   @media (max-width: 900px) {
+
+      .bottom-grid,
       .bottom-grid-2 {
-          grid-template-columns: 1fr;
-      }
-  }
-
-  @media (max-width: 900px) {
-      .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-      }
-
-      .bottom-grid {
           grid-template-columns: 1fr;
       }
   }
