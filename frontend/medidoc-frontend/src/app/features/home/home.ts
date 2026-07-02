@@ -1,14 +1,31 @@
+<<<<<<< HEAD
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
+=======
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { RegistrationService } from '../../core/services/registration-service';
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
 
 @Component({
   selector: 'app-home',
   standalone: true,
+<<<<<<< HEAD
   imports: [RouterLink],
+=======
+  imports: [CommonModule, FormsModule, RouterLink],
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
 export class Home implements OnInit, OnDestroy {
+<<<<<<< HEAD
+=======
+  private registrationService = inject(RegistrationService);
+
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
   scrolled = false;
   activeStep = 0;
   private stepInterval: any;
@@ -60,4 +77,38 @@ export class Home implements OnInit, OnDestroy {
   getCurrentYear(): number {
     return new Date().getFullYear();
   }
+<<<<<<< HEAD
+=======
+
+  // ===== Formulaire d'inscription hôpital =====
+  hospitalName = '';
+  contactName = '';
+  contactEmail = '';
+  contactPhone = '';
+  message = '';
+
+  envoiEnCours = false;
+  envoye = false;
+  erreur = '';
+
+  envoyerDemande() {
+    this.erreur = '';
+    if (!this.hospitalName.trim() || !this.contactName.trim() || !this.contactEmail.trim()) {
+      this.erreur = "Le nom de l'établissement, le contact et l'email sont obligatoires";
+      return;
+    }
+
+    this.envoiEnCours = true;
+    this.registrationService.submitRequest({
+      hospital_name: this.hospitalName,
+      contact_name: this.contactName,
+      contact_email: this.contactEmail,
+      contact_phone: this.contactPhone || undefined,
+      message: this.message || undefined
+    }).subscribe({
+      next: () => { this.envoiEnCours = false; this.envoye = true; },
+      error: (err) => { this.envoiEnCours = false; this.erreur = err.error?.error || "Erreur lors de l'envoi de la demande"; }
+    });
+  }
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
 }

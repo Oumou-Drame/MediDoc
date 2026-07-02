@@ -9,11 +9,29 @@
   margin-bottom: 22px;
 }
 
+<<<<<<< HEAD
 .comptes-header h2 {
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-texte);
+=======
+.search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--c-border-strong);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 18px;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: var(--font-sans);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
 }
 
 .comptes-table {
@@ -22,6 +40,7 @@
 }
 
 .comptes-table th {
+<<<<<<< HEAD
   text-align: left;
   font-size: 0.75rem;
   color: var(--color-texte-muted);
@@ -83,6 +102,41 @@
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(27, 58, 75, 0.1);
   outline: none;
+=======
+    text-align: left;
+    font-size: 0.72rem;
+    color: var(--c-text-faint);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 10px;
+    border-bottom: 1.5px solid var(--c-border);
+}
+
+.comptes-table td {
+    padding: 15px 10px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+}
+
+.comptes-table tbody tr {
+    transition: background .15s;
+}
+
+.comptes-table tbody tr:hover {
+    background: var(--c-bg);
+}
+
+.badge.actif {
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
+}
+
+.badge.suspendu {
+    background: var(--c-danger-soft);
+    color: var(--c-danger);
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
 }
 
 .actions {
@@ -90,6 +144,7 @@
   gap: 14px;
 }
 
+<<<<<<< HEAD
 .btn-link {
   background: none;
   border: none;
@@ -230,3 +285,35 @@
   border-radius: var(--radius-sm);
   border: 2px solid var(--color-ambre);
 }
+=======
+.comptes-form {
+    max-width: 520px;
+}
+
+.comptes-form h3 {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--c-text);
+    margin-bottom: 20px;
+}
+
+.form-row-double {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+@media (max-width: 480px) {
+    .form-row-double {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a

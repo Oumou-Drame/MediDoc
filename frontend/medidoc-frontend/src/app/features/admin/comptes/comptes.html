@@ -1,7 +1,19 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Comptes techniciens</div>
+        <div class="page-subtitle">Gérez les comptes de votre équipe technique</div>
+    </div>
+</div>
+
 <div class="card">
     <div class="comptes-header" *ngIf="!afficherFormulaire">
+<<<<<<< HEAD
         <div class="card-title">Comptes & équipe</div>
         <button class="btn btn-primary" (click)="ouvrirAjout()">+ Ajouter un compte</button>
+=======
+        <div class="card-title">{{ techniciensFiltres.length }} technicien(s)</div>
+        <button class="btn-primary" (click)="ouvrirAjout()">+ Ajouter un technicien</button>
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
     </div>
     <input type="text" class="search-input" placeholder="Rechercher par nom ou email..." [(ngModel)]="rechercheLocale"  *ngIf="!afficherFormulaire">
 
@@ -39,6 +51,9 @@
                     <button class="btn-link danger" (click)="supprimer(tech)">Supprimer</button>
                 </td>
             </tr>
+            <tr *ngIf="techniciensFiltres.length === 0">
+                <td colspan="5" class="empty">Aucun technicien trouvé</td>
+            </tr>
         </tbody>
     </table>
 
@@ -50,6 +65,23 @@
             <input name="full_name" [(ngModel)]="formData.full_name" required placeholder="Ex: Ndiaye Fatou">
         </div>
 
+<<<<<<< HEAD
+=======
+        <div class="form-row-double">
+            <div class="form-row">
+                <label>Prénom</label>
+                <input name="first_name" [(ngModel)]="formData.first_name" required>
+            </div>
+            <div class="form-row">
+                <label>Nom</label>
+                <input name="last_name" [(ngModel)]="formData.last_name" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <label>Date de naissance</label>
+            <input name="date_naissance" type="date" [(ngModel)]="formData.date_naissance" required>
+        </div>
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
         <div class="form-row">
             <label>Email</label>
             <input name="email" [(ngModel)]="formData.email" type="email" required placeholder="exemple@email.com">

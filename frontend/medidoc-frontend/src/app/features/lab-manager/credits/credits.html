@@ -1,0 +1,49 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Crédits</div>
+        <div class="page-subtitle">Solde SMS/WhatsApp de votre hôpital</div>
+    </div>
+</div>
+
+<div class="credits-page" *ngIf="!chargement">
+
+    <div class="card solde-card">
+        <div class="solde-label">Solde de crédits SMS/WhatsApp</div>
+        <div class="solde-valeur" [class.solde-zero]="balance <= 0">{{ balance }}</div>
+        <p class="solde-note" *ngIf="balance <= 0">
+            Solde épuisé : les envois SMS/WhatsApp sont bloqués pour votre hôpital (l'email reste disponible).
+            Contactez l'administrateur de la plateforme pour une recharge.
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Historique des mouvements</div>
+        <table class="historique-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Solde après</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let t of transactions">
+                    <td>{{ t.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                        <span class="badge" [class.badge-sent]="t.type === 'recharge'" [class.badge-expired]="t.type === 'deduction'">
+                            {{ t.type === 'recharge' ? 'Recharge' : t.type === 'deduction' ? 'Déduction' : 'Ajustement' }}
+                        </span>
+                    </td>
+                    <td>{{ t.amount }}</td>
+                    <td>{{ t.balance_after }}</td>
+                    <td>{{ t.note || '—' }}</td>
+                </tr>
+                <tr *ngIf="transactions.length === 0">
+                    <td colspan="5" class="empty">Aucun mouvement pour le moment</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

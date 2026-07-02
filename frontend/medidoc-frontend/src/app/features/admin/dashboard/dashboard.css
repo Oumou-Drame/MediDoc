@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ============================================
    MediDoc — Admin Dashboard v2
    ============================================ */
@@ -347,6 +348,153 @@
 
   .bottom-grid {
     grid-template-columns: 1fr;
+=======
+  .credits-banniere {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+  }
+
+  .credits-banniere-zero {
+      border: 1px solid #f3c9c9;
+  }
+
+  .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 20px;
+      align-items: start;
+  }
+
+  .tech-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .tech-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 10px;
+      border-radius: 10px;
+      transition: background .15s;
+  }
+
+  .tech-row:hover {
+      background: #f4faf7;
+  }
+
+  .tech-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #dde8e3;
+      color: #4a6358;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+  }
+
+  .tech-info {
+      flex: 1;
+      min-width: 0;
+  }
+
+  .tech-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1a2e25;
+  }
+
+  .tech-email {
+      font-size: 0.75rem;
+      color: #7a9488;
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+  }
+
+  .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.02);
+  }
+
+  .status-dot.online {
+      background: #1e8c5a;
+      box-shadow: 0 0 0 3px rgba(30, 140, 90, 0.15);
+  }
+
+  .status-dot.offline {
+      background: #b0c4bc;
+  }
+
+  .channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+  }
+
+  .channel-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1a2e25;
+      margin-bottom: 8px;
+  }
+
+  .channel-pct {
+      color: #4a6358;
+      font-variant-numeric: tabular-nums;
+  }
+
+  .bar-track {
+      height: 8px;
+      background: #eef6f1;
+      border-radius: 99px;
+      overflow: hidden;
+  }
+
+  .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .4s ease;
+  }
+
+  .bar-fill.whatsapp {
+      background: #1e8c5a;
+  }
+
+  .bar-fill.sms {
+      background: #6b4fc8;
+  }
+
+  .bar-fill.email {
+      background: #e07b54;
+  }
+
+  .voir-plus {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1e8c5a;
+      text-decoration: none;
+  }
+
+  .voir-plus:hover {
+      text-decoration: underline;
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
   }
 }
 
@@ -356,8 +504,86 @@
   }
 }
 
+<<<<<<< HEAD
 @media (max-width: 520px) {
   .stats-grid {
     grid-template-columns: 1fr;
   }
 }
+=======
+  .activite-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+  }
+
+  .activite-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.85rem;
+      padding: 9px 4px;
+      border-bottom: 1px solid #f0f5f2;
+  }
+
+  .activite-row:last-child {
+      border-bottom: none;
+  }
+
+  .activite-texte {
+      color: #1a2e25;
+  }
+
+  .activite-date {
+      color: #9aab9f;
+      font-size: 0.75rem;
+      white-space: nowrap;
+  }
+
+  .tendance-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      height: 140px;
+      padding-top: 10px;
+  }
+
+  .tendance-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+  }
+
+  .tendance-bar {
+      width: 100%;
+      max-width: 32px;
+      background: linear-gradient(180deg, #29a570, #1e8c5a);
+      border-radius: 6px 6px 0 0;
+      min-height: 4px;
+      transition: height .4s ease;
+  }
+
+  .tendance-valeur {
+      font-size: 0.7rem;
+      color: #4a6358;
+      margin-top: 6px;
+      font-weight: 600;
+  }
+
+  .tendance-jour {
+      font-size: 0.68rem;
+      color: #9aab9f;
+      margin-top: 2px;
+  }
+
+  @media (max-width: 900px) {
+
+      .bottom-grid,
+      .bottom-grid-2 {
+          grid-template-columns: 1fr;
+      }
+  }
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a

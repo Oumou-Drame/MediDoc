@@ -8,8 +8,12 @@
  * On first run, a QR code will be generated for scanning.
  */
 
+<<<<<<< HEAD
 import {
   default as makeWASocket,
+=======
+import makeWASocket, {
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
   useMultiFileAuthState,
   DisconnectReason,
   fetchLatestBaileysVersion,

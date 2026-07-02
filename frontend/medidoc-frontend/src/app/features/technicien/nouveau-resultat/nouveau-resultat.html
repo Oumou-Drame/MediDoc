@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="technicien-content animate-fade-in-up">
   <div class="page-header">
     <h1 class="page-title text-cyan-400">Nouvel envoi</h1>
@@ -17,6 +18,90 @@
     <div class="form-row">
       <label>Nom complet du patient <span class="text-cyan-400">*</span></label>
       <input type="text" [(ngModel)]="patientName" placeholder="Ex: Aminata Diallo">
+=======
+<div class="technicien-page">
+  <div class="technicien-content">
+
+    <div class="page-header" *ngIf="!resultat">
+      <div>
+        <div class="page-title">Nouvel envoi</div>
+        <div class="page-subtitle">Envoyez des résultats médicaux protégés à un patient</div>
+      </div>
+    </div>
+
+    <div class="card" *ngIf="!resultat">
+      <div class="card-title">Informations du patient</div>
+
+      <div class="form-row">
+        <label>Nom complet du patient</label>
+        <input type="text" [(ngModel)]="patientName" placeholder="Ex: Mark Diop">
+      </div>
+
+      <div class="form-row">
+        <label>Numéro de téléphone</label>
+        <input type="text" [(ngModel)]="patientPhone" placeholder="Ex: +221771234567">
+      </div>
+
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="patientEmail" placeholder="Ex: patient@email.com">
+      </div>
+
+      <div class="form-row">
+        <label>Document PDF des résultats</label>
+        <input type="file" accept="application/pdf" (change)="onFichierSelectionne($event)">
+        <span class="fichier-nom" *ngIf="nomFichier"> {{ nomFichier }}</span>
+      </div>
+
+      <div class="form-row">
+        <label>Mode d'envoi</label>
+        <div class="canaux-choix">
+          <label class="canal-option" *ngFor="let c of canaux">
+            <input type="radio" name="channel" [value]="c.value" [(ngModel)]="channelChoisi">
+            <div>
+              <div class="canal-label">{{ c.label }}</div>
+              <div class="canal-desc">{{ c.description }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="erreur-msg" *ngIf="erreur">{{ erreur }}</div>
+
+      <button class="btn-primary" (click)="envoyer()" [disabled]="envoiEnCours">
+        {{ envoiEnCours ? 'Envoi en cours...' : 'Envoyer les résultats' }}
+      </button>
+    </div>
+
+    <div class="card recap" *ngIf="resultat">
+      <div class="recap-icone">✓</div>
+      <div class="card-title">Envoi réussi</div>
+
+      <div class="recap-grid">
+        <div><span class="detail-label">Patient</span><span>{{ resultat.patient_name }}</span></div>
+        <div><span class="detail-label">Téléphone</span><span>{{ resultat.patient_phone }}</span></div>
+        <div><span class="detail-label">Email</span><span>{{ resultat.patient_email }}</span></div>
+        <div><span class="detail-label">Mode d'envoi</span><span>{{ resultat.channel }}</span></div>
+        <div><span class="detail-label">Code d'accès</span><span class="code-fort">{{ resultat.access_code }}</span>
+        </div>
+        <div><span class="detail-label">Expire le</span><span>{{ resultat.expires_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+
+      <div class="recap-statuts">
+        <span class="badge" [class.badge-sent]="resultat.whatsapp_sent" [class.badge-locked]="!resultat.whatsapp_sent">
+          WhatsApp {{ resultat.whatsapp_sent ? 'envoyé ✓' : 'non envoyé' }}
+        </span>
+        <span class="badge" [class.badge-sent]="resultat.sms_sent" [class.badge-locked]="!resultat.sms_sent">
+          SMS {{ resultat.sms_sent ? 'envoyé ✓' : 'non envoyé' }}
+        </span>
+        <span class="badge" [class.badge-sent]="resultat.email_sent" [class.badge-locked]="!resultat.email_sent">
+          Email {{ resultat.email_sent ? 'envoyé ✓' : 'non envoyé' }}
+        </span>
+      </div>
+
+      <button class="btn-primary" (click)="nouvelEnvoi()">+ Nouvel envoi</button>
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
     </div>
 
     <div class="form-row">

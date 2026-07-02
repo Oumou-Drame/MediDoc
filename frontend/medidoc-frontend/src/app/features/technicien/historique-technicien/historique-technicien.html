@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="technicien-content animate-fade-in-up">
 
   <!-- ===== Page Header ===== -->
@@ -30,6 +31,63 @@
       <select class="status-select" [(ngModel)]="statutFiltre" (ngModelChange)="onStatutChange()">
         <option *ngFor="let s of statuts" [value]="s.valeur">{{ s.libelle }}</option>
       </select>
+=======
+<div class="technicien-page">
+    <div class="technicien-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">Mes envois</div>
+                <div class="page-subtitle">Historique de vos envois de résultats</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">{{ pagination?.total || resultats.length }} envoi(s)</div>
+
+            <div class="filtres">
+                <input type="text" class="search-input" placeholder="Rechercher un patient..." [(ngModel)]="recherche"
+                    (ngModelChange)="onRechercheChange()">
+                <select class="status-select" [(ngModel)]="statutFiltre" (ngModelChange)="onStatutChange()">
+                    <option *ngFor="let s of statuts" [value]="s.valeur">{{ s.libelle }}</option>
+                </select>
+            </div>
+
+            <table class="historique-table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Téléphone</th>
+                        <th>Canal</th>
+                        <th>Statut</th>
+                        <th>Envoyé le</th>
+                        <th>Expire le</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let r of resultats">
+                        <td>{{ r.patient_name }}</td>
+                        <td>{{ r.patient_phone }}</td>
+                        <td>{{ r.channel }}</td>
+                        <td><span class="badge" [ngClass]="'badge-' + r.status">{{ libelleStatut(r.status) }}</span>
+                        </td>
+                        <td>{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+                        <td>{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                    </tr>
+                    <tr *ngIf="resultats.length === 0">
+                        <td colspan="6" class="empty">Aucun envoi trouvé</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" *ngIf="pagination">
+                <button class="btn-secondary" (click)="pagePrecedente()"
+                    [disabled]="pageActuelle === 1">Précédent</button>
+                <span>Page {{ pagination.page }} / {{ pagination.pages || 1 }} — {{ pagination.total }} résultats</span>
+                <button class="btn-secondary" (click)="pageSuivante()"
+                    [disabled]="pageActuelle >= pagination.pages">Suivant</button>
+            </div>
+        </div>
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
     </div>
 
     <div class="table-container">

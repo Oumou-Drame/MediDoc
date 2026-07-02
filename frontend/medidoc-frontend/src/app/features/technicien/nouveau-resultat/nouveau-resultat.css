@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ============================================
    MediDoc — Nouveau Résultat — Design Premium v3
    ============================================ */
@@ -224,3 +225,36 @@
     padding: 0 12px;
   }
 }
+=======
+.form-row input[type="file"] {
+    padding: 9px 10px;
+    font-size: 0.8rem;
+    color: #4a6358;
+    border: 1.5px dashed #c7dcd3;
+    border-radius: 10px;
+    background: #fafcfb;
+    cursor: pointer;
+}
+
+.form-row input[type="file"]:hover {
+    border-color: #1e8c5a;
+}
+
+.recap {
+    text-align: left;
+}
+
+.recap-icone {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e1f5ee;
+    color: #1e8c5a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a

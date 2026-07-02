@@ -1,0 +1,67 @@
+.credits-plateforme-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.solde-card {
+    text-align: center;
+}
+
+.solde-label {
+    font-size: 0.85rem;
+    color: #7a9488;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.solde-valeur {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #1e8c5a;
+}
+
+.solde-note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #7a9488;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: #1e8c5a;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.allocation-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+    flex-wrap: wrap;
+}
+
+.allocation-form input[type="number"] {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.allocation-form input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 10px;
+    border: 1px solid #dde8e3;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}

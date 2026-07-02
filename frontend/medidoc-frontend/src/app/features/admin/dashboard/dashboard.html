@@ -1,27 +1,90 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Bonjour{{ prenomUtilisateur ? ', ' + prenomUtilisateur : '' }}</div>
+        <div class="page-subtitle">Tableau de bord — {{ dateAujourdhui | date:'EEEE d MMMM y' }}</div>
+    </div>
+    <div class="page-actions">
+        <a routerLink="/lab-manager/comptes" [queryParams]="{ nouveau: 1 }" class="btn-secondary">+ Nouveau technicien</a>
+        <a routerLink="/lab-manager/historique" class="btn-primary">Voir l'historique</a>
+    </div>
+</div>
+
 <div class="stats-grid" *ngIf="stats">
     <div class="stat-card">
+        <div class="stat-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+        </div>
         <div class="stat-label">Techniciens actifs</div>
         <div class="stat-value">{{ stats.techniciens_actifs }}</div>
         <div class="stat-detail">{{ stats.techniciens_total }} au total · {{ stats.techniciens_total -
             stats.techniciens_actifs }} suspendus</div>
     </div>
+
     <div class="stat-card">
+        <div class="stat-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+        </div>
         <div class="stat-label">Envois ce mois</div>
         <div class="stat-value green">{{ stats.envois_ce_mois }}</div>
+        <div class="stat-detail">Tous canaux confondus</div>
     </div>
+
     <div class="stat-card">
+        <div class="stat-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="M18 17V9" />
+                <path d="M13 17V5" />
+                <path d="M8 17v-3" />
+            </svg>
+        </div>
         <div class="stat-label">Taux de consultation</div>
         <div class="stat-value purple">{{ stats.taux_consultation }}%</div>
+        <div class="stat-detail">Résultats consultés par les patients</div>
     </div>
+
     <div class="stat-card">
+        <div class="stat-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
         <div class="stat-label">Code expirés</div>
         <div class="stat-value red">{{ stats.codes_expires }}</div>
+        <div class="stat-detail">Non consultés à temps</div>
     </div>
+</div>
+
+<div class="card credits-banniere" *ngIf="stats" [class.credits-banniere-zero]="stats.solde_credits <= 0">
+    <div>
+        <div class="stat-label">Solde de crédits SMS/WhatsApp</div>
+        <div class="stat-value" [class.green]="stats.solde_credits > 0" [class.red]="stats.solde_credits <= 0">
+            {{ stats.solde_credits }}
+        </div>
+    </div>
+    <a routerLink="/lab-manager/credits" class="lien-tout-voir">Voir le détail →</a>
 </div>
 
 <div class="bottom-grid" *ngIf="stats">
     <div class="card">
-        <div class="card-title">Comptes techniciens</div>
+        <div class="card-header-row">
+            <div class="card-title">Comptes techniciens</div>
+            <a routerLink="/lab-manager/comptes" class="lien-tout-voir">Tout voir →</a>
+        </div>
         <div class="tech-list">
             <div class="tech-row" *ngFor="let tech of techniciensAffiches">
                 <div class="tech-avatar">{{ initiales(tech.nom) }}</div>
@@ -32,9 +95,6 @@
                 <div class="status-dot" [class.online]="tech.en_ligne" [class.offline]="!tech.en_ligne"></div>
             </div>
         </div>
-        <a *ngIf="stats.techniciens.length > 5" routerLink="/admin/comptes" class="voir-plus">
-            Voir tous les techniciens ({{ stats.techniciens.length }})
-        </a>
     </div>
 
     <div class="card">
@@ -52,9 +112,12 @@
         </div>
     </div>
 </div>
+
 <div class="bottom-grid-2" *ngIf="stats">
     <div class="card">
-        <div class="card-title">Activité récente</div>
+        <div class="card-header-row">
+            <div class="card-title">Activité récente</div>
+        </div>
         <div class="activite-list">
             <div class="activite-row" *ngFor="let a of stats.activite_recente">
                 <div class="activite-texte"><strong>{{ a.auteur }}</strong> — {{ a.details || a.action }}</div>

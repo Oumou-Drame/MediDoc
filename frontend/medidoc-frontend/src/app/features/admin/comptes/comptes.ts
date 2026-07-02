@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../../core/services/admin-service';
 import { Technicien } from '../models/info-techniciens';
 
@@ -13,6 +14,7 @@ import { Technicien } from '../models/info-techniciens';
 })
 export class Comptes implements OnInit {
   private adminService = inject(AdminService);
+  private route = inject(ActivatedRoute);
 
   techniciens: Technicien[] = [];
   afficherFormulaire = false;
@@ -20,12 +22,22 @@ export class Comptes implements OnInit {
   idEnCours: number | null = null;
   tempPassword = '';
 
+<<<<<<< HEAD
   formData = { email: '', full_name: '', phone: '', role: 'technicien' };
   enregistrement = false;
   afficherSceau = false;
+=======
+  formData = { email: '', password: '', first_name: '', last_name: '', date_naissance: '', phone: '' };
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
 
   ngOnInit(): void {
     this.chargerTechniciens();
+
+    // Permet d'arriver directement sur le formulaire depuis le bouton "+ Nouveau technicien"
+    // du dashboard, sans avoir à recliquer une fois sur la page (ex: /lab-manager/comptes?nouveau=1).
+    if (this.route.snapshot.queryParamMap.get('nouveau')) {
+      this.ouvrirAjout();
+    }
   }
 
   chargerTechniciens() {
@@ -38,8 +50,12 @@ export class Comptes implements OnInit {
   ouvrirAjout() {
     this.modeEdition = false;
     this.idEnCours = null;
+<<<<<<< HEAD
     this.tempPassword = '';
     this.formData = { email: '', full_name: '', phone: '', role: 'technicien' };
+=======
+    this.formData = { email: '', password: '', first_name: '', last_name: '', date_naissance: '', phone: '' };
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
     this.afficherFormulaire = true;
   }
 
@@ -48,9 +64,17 @@ export class Comptes implements OnInit {
     this.idEnCours = tech.id;
     this.formData = {
       email: tech.email,
+<<<<<<< HEAD
       full_name: tech.full_name,
       phone: tech.phone || '',
       role: tech.role
+=======
+      password: '',
+      first_name: tech.first_name || '',
+      last_name: tech.last_name || '',
+      date_naissance: tech.date_naissance ? tech.date_naissance.substring(0, 10) : '',
+      phone: tech.phone || ''
+>>>>>>> 762d4911a37f514379d908ed155a5e662fcf658a
     };
     this.afficherFormulaire = true;
   }
@@ -63,7 +87,9 @@ export class Comptes implements OnInit {
     if (this.modeEdition && this.idEnCours) {
       this.enregistrement = true;
       this.adminService.updateUser(this.idEnCours, {
-        full_name: this.formData.full_name,
+        first_name: this.formData.first_name,
+        last_name: this.formData.last_name,
+        date_naissance: this.formData.date_naissance,
         email: this.formData.email,
         phone: this.formData.phone,
         role: this.formData.role
