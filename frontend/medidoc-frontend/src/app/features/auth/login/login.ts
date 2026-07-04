@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth-service';
 import { LoginRequest } from '../models/LoginRequest';
@@ -21,20 +20,25 @@ export class Login {
   email: string = '';
   password: string = '';
   motDePasseVisible = false;
+  erreur = '';
+  connexionEnCours = false;
   router: Router = inject(Router);
-  AuthService: AuthService = inject(AuthService);
-  LoginRequest: LoginRequest = { email: '', password: '' };
+  authService: AuthService = inject(AuthService);
+  loginRequest: LoginRequest = { email: '', password: '' };
 
   basculerVisibiliteMotDePasse() {
     this.motDePasseVisible = !this.motDePasseVisible;
   }
 
   connection() {
-    this.LoginRequest.email = this.email;
-    this.LoginRequest.password = this.password;
+    this.erreur = '';
+    this.loginRequest.email = this.email;
+    this.loginRequest.password = this.password;
 
-    this.AuthService.login(this.LoginRequest).subscribe({
+    this.connexionEnCours = true;
+    this.authService.login(this.loginRequest).subscribe({
       next: (value: LoginResponse) => {
+        this.connexionEnCours = false;
         const user = value.user;
 
         // Compte cumulant responsable de labo + technicien : on respecte la dernière vue choisie.
@@ -49,12 +53,13 @@ export class Login {
         }
       },
       error: (err) => {
-        console.log(err);
-        alert(err.error?.message || 'Email ou mot de passe incorrect');
+        this.connexionEnCours = false;
+        this.erreur = err.error?.message || 'Email ou mot de passe incorrects';
       },
-      complete() {
-        console.log('Authentification terminée');
-      }
     });
+  }
+
+  forgotPassword() {
+    this.router.navigateByUrl('/forgot-password');
   }
 }
