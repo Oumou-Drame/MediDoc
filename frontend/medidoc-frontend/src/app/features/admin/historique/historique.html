@@ -43,7 +43,7 @@
                 <td class="actions-cell">
                     <a [routerLink]="['/lab-manager/historique', r.id]" class="btn-link">Voir</a>
                     <button *ngIf="peutAnnuler(r)" class="btn-secondary btn-annuler"
-                        [disabled]="annulationEnCours === r.id" (click)="annuler(r)">
+                        [disabled]="annulationEnCours === r.id" (click)="demanderAnnulation(r)">
                         {{ annulationEnCours === r.id ? 'Annulation...' : 'Annuler' }}
                     </button>
                 </td>
@@ -60,4 +60,17 @@
         <button class="btn-secondary" (click)="pageSuivante()"
             [disabled]="pageActuelle >= pagination.pages">Suivant</button>
     </div>
+
+    <div class="erreur-msg" *ngIf="erreurAnnulation">{{ erreurAnnulation }}</div>
 </div>
+
+<app-confirm-dialog
+    [visible]="!!resultatAAnnuler"
+    titre="Annuler cet envoi ?"
+    [message]="resultatAAnnuler ? ('Le lien envoyé à ' + resultatAAnnuler.patient_name + ' deviendra invalide. Cette action est irréversible.') : ''"
+    texteConfirmer="Oui, annuler l'envoi"
+    texteAnnuler="Non, revenir"
+    [enCours]="!!resultatAAnnuler && annulationEnCours === resultatAAnnuler.id"
+    (confirmer)="confirmerAnnulation()"
+    (annulerAction)="fermerConfirmation()">
+</app-confirm-dialog>

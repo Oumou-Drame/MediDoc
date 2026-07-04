@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HistoryService } from '../../../core/services/history-service';
 import { ResultatMedical } from '../models/history';
+import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
   selector: 'app-historique-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ConfirmDialog],
   templateUrl: './historique-detail.html',
   styleUrl: './historique-detail.css',
 })
@@ -45,23 +46,36 @@ export class HistoriqueDetail implements OnInit {
   }
 
   annulationEnCours = false;
+  confirmationAnnulationVisible = false;
+  erreurAnnulation = '';
 
   peutAnnuler(): boolean {
     return !!this.resultat && this.resultat.status !== 'cancelled' && this.resultat.status !== 'expired';
   }
 
-  annuler() {
+  demanderAnnulation() {
+    this.erreurAnnulation = '';
+    this.confirmationAnnulationVisible = true;
+  }
+
+  fermerConfirmation() {
+    if (this.annulationEnCours) return;
+    this.confirmationAnnulationVisible = false;
+  }
+
+  confirmerAnnulation() {
     if (!this.resultat) return;
-    if (!confirm(`Annuler l'envoi pour ${this.resultat.patient_name} ? Le lien envoyé au patient deviendra invalide.`)) return;
     this.annulationEnCours = true;
     this.historyService.cancel(this.resultat.id).subscribe({
       next: () => {
         this.annulationEnCours = false;
+        this.confirmationAnnulationVisible = false;
         if (this.resultat) { this.resultat.status = 'cancelled'; }
       },
       error: (err) => {
         this.annulationEnCours = false;
-        alert(err.error?.error || "Erreur lors de l'annulation");
+        this.confirmationAnnulationVisible = false;
+        this.erreurAnnulation = err.error?.error || "Erreur lors de l'annulation";
       }
     });
   }

@@ -9,7 +9,6 @@ export interface UploadResponse {
     patient_name: string;
     patient_phone: string;
     patient_email: string;
-    access_code: string;
     channel: string;
     status: string;
     whatsapp_sent: boolean;

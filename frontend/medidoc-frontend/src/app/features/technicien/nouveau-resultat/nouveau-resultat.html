@@ -61,22 +61,16 @@
         <div><span class="detail-label">Téléphone</span><span>{{ resultat.patient_phone }}</span></div>
         <div><span class="detail-label">Email</span><span>{{ resultat.patient_email }}</span></div>
         <div><span class="detail-label">Mode d'envoi</span><span>{{ resultat.channel }}</span></div>
-        <div><span class="detail-label">Code d'accès</span><span class="code-fort">{{ resultat.access_code }}</span>
-        </div>
         <div><span class="detail-label">Expire le</span><span>{{ resultat.expires_at | date:'dd/MM/yyyy HH:mm' }}</span>
         </div>
       </div>
 
+      <p class="champ-note">Le code d'accès a été envoyé directement au patient. Il n'est pas affiché ici pour des raisons de confidentialité.</p>
+
       <div class="recap-statuts">
-        <span class="badge" [class.badge-sent]="resultat.whatsapp_sent" [class.badge-locked]="!resultat.whatsapp_sent">
-          WhatsApp {{ resultat.whatsapp_sent ? 'envoyé ✓' : 'non envoyé' }}
-        </span>
-        <span class="badge" [class.badge-sent]="resultat.sms_sent" [class.badge-locked]="!resultat.sms_sent">
-          SMS {{ resultat.sms_sent ? 'envoyé ✓' : 'non envoyé' }}
-        </span>
-        <span class="badge" [class.badge-sent]="resultat.email_sent" [class.badge-locked]="!resultat.email_sent">
-          Email {{ resultat.email_sent ? 'envoyé ✓' : 'non envoyé' }}
-        </span>
+        <span class="badge badge-sent" *ngIf="resultat.whatsapp_sent">WhatsApp envoyé ✓</span>
+        <span class="badge badge-sent" *ngIf="resultat.sms_sent">SMS envoyé ✓</span>
+        <span class="badge badge-sent" *ngIf="resultat.email_sent">Email envoyé ✓</span>
       </div>
 
       <button class="btn-primary" (click)="nouvelEnvoi()">+ Nouvel envoi</button>

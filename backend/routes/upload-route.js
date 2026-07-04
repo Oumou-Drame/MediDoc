@@ -167,7 +167,33 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
             console.error('Send error:', sendErr);
         }
 
-        // Déduction du solde de crédits de l'hôpital uniquement pour les envois SMS/WhatsApp réussis (section 7.1)
+        // L'envoi n'est valide que si TOUS les canaux du mode choisi ont réussi (le patient a besoin du lien ET
+        // du code, envoyés séparément) : si un seul échoue, on annule l'envoi entièrement plutôt que de le
+        // laisser à moitié fait (section demandée : pas d'envoi partiel).
+        const toutesLesPartiesEnvoyees = channel === 'email_whatsapp'
+            ? (whatsappSent && emailSent)
+            : (smsSent && emailSent);
+
+        if (!toutesLesPartiesEnvoyees) {
+            await query('DELETE FROM medical_results WHERE id = $1', [resultId]);
+            try { fs.unlinkSync(req.file.path); } catch (e) { /* déjà absent */ }
+            try { fs.unlinkSync(protectedPath); } catch (e) { /* déjà absent */ }
+
+            const canalEnEchec = channel === 'email_whatsapp'
+                ? (!whatsappSent ? 'WhatsApp' : 'Email')
+                : (!smsSent ? 'SMS' : 'Email');
+
+            await query(
+                'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
+                [req.user.id, 'upload_failed', `Échec envoi pour ${patient_name} (canal en échec: ${canalEnEchec})`, req.ip]
+            );
+
+            return res.status(502).json({
+                error: `L'envoi a échoué (canal ${canalEnEchec} indisponible). Aucun message n'a été envoyé au patient, veuillez réessayer.`
+            });
+        }
+
+        // Déduction du solde de crédits de l'hôpital pour les envois SMS/WhatsApp (section 7.1)
         if (whatsappSent) {
             await deduct(hospitalId, ESTIMATED_WHATSAPP_COST, { resultId, note: `Envoi WhatsApp résultat #${resultId}` });
         }
@@ -175,25 +201,16 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
             await deduct(hospitalId, ESTIMATED_SMS_COST, { resultId, note: `Envoi SMS résultat #${resultId}` });
         }
 
-        let anySent = false;
-        if (channel === 'email_whatsapp') {
-            anySent = whatsappSent || emailSent;
-        } else if (channel === 'email_sms') {
-            anySent = smsSent || emailSent;
-        }
-
-        const newStatus = anySent ? 'sent' : 'pending';
         await query(
             `UPDATE medical_results
-       SET status = $1, whatsapp_sent = $2, sms_sent = $3, email_sent = $4, sent_at = $5
-       WHERE id = $6`,
-            [newStatus, whatsappSent ? 1 : 0, smsSent ? 1 : 0, emailSent ? 1 : 0,
-                newStatus === 'sent' ? new Date().toISOString() : null, resultId]
+       SET status = 'sent', whatsapp_sent = $1, sms_sent = $2, email_sent = $3, sent_at = $4
+       WHERE id = $5`,
+            [whatsappSent ? 1 : 0, smsSent ? 1 : 0, emailSent ? 1 : 0, new Date().toISOString(), resultId]
         );
 
         await query(
             'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
-            [req.user.id, 'upload', `Upload PDF pour ${patient_name} (code: ${accessCode}, mode: ${channel})`, req.ip]
+            [req.user.id, 'upload', `Upload PDF pour ${patient_name} (mode: ${channel})`, req.ip]
         );
 
         res.json({
@@ -201,7 +218,7 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
             message: 'PDF uploadé et envoyé avec succès',
             data: {
                 id: resultId, patient_name, patient_phone, patient_email,
-                access_code: accessCode, channel, status: newStatus,
+                channel, status: 'sent',
                 whatsapp_sent: whatsappSent, sms_sent: smsSent, email_sent: emailSent,
                 expires_at: expiresAt, access_url: accessUrl
             }

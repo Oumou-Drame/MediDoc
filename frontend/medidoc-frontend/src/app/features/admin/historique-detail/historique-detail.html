@@ -33,10 +33,12 @@
     </div>
 
     <div class="detail-actions" *ngIf="peutAnnuler()">
-        <button class="btn-secondary btn-annuler" [disabled]="annulationEnCours" (click)="annuler()">
+        <button class="btn-secondary btn-annuler" [disabled]="annulationEnCours" (click)="demanderAnnulation()">
             {{ annulationEnCours ? 'Annulation...' : "Annuler cet envoi" }}
         </button>
     </div>
+
+    <div class="erreur-msg" *ngIf="erreurAnnulation">{{ erreurAnnulation }}</div>
 
     <div class="detail-acces">
         <div class="card-title">Accès patient</div>
@@ -53,3 +55,14 @@
         </div>
     </div>
 </div>
+
+<app-confirm-dialog
+    [visible]="confirmationAnnulationVisible"
+    titre="Annuler cet envoi ?"
+    [message]="resultat ? ('Le lien envoyé à ' + resultat.patient_name + ' deviendra invalide. Cette action est irréversible.') : ''"
+    texteConfirmer="Oui, annuler l'envoi"
+    texteAnnuler="Non, revenir"
+    [enCours]="annulationEnCours"
+    (confirmer)="confirmerAnnulation()"
+    (annulerAction)="fermerConfirmation()">
+</app-confirm-dialog>
