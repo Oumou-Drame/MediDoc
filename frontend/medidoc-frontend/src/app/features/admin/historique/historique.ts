@@ -32,7 +32,9 @@ export class Historique implements OnInit {
     { valeur: 'accessed', libelle: 'Consulté' },
     { valeur: 'expired', libelle: 'Expiré' },
     { valeur: 'locked', libelle: 'Verrouillé' },
+    { valeur: 'cancelled', libelle: 'Annulé' },
   ];
+  annulationEnCours: number | null = null;
 
   private timeoutRecherche: any;
   ngOnInit(): void {
@@ -80,6 +82,22 @@ export class Historique implements OnInit {
   }
     libelleStatut(statut: string): string {
       return this.statuts.find(s => s.valeur === statut)?.libelle || statut;
+    }
+
+    peutAnnuler(r: ResultatMedical): boolean {
+      return r.status !== 'cancelled' && r.status !== 'expired';
+    }
+
+    annuler(r: ResultatMedical) {
+      if (!confirm(`Annuler l'envoi pour ${r.patient_name} ? Le lien envoyé au patient deviendra invalide.`)) return;
+      this.annulationEnCours = r.id;
+      this.historyService.cancel(r.id).subscribe({
+        next: () => { this.annulationEnCours = null; this.charger(); },
+        error: (err) => {
+          this.annulationEnCours = null;
+          alert(err.error?.error || "Erreur lors de l'annulation");
+        }
+      });
     }
   }
 

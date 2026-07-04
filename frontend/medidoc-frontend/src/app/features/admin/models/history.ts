@@ -46,4 +46,6 @@ export interface ResultatMedical {
     sent_at: string | null;
     accessed_at: string | null;
     expires_at: string;
+    cancelled_by?: number | null;
+    cancelled_at?: string | null;
 }

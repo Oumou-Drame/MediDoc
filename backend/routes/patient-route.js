@@ -23,6 +23,10 @@ router.post('/verify', async (req, res) => {
             return res.status(404).json({ error: 'Lien invalide. Aucun résultat trouvé.' });
         }
 
+        if (result.status === 'cancelled') {
+            return res.status(410).json({ error: 'Cet envoi a été annulé. Contactez votre établissement.', cancelled: true });
+        }
+
         if (result.is_locked) {
             return res.status(403).json({
                 error: 'Ce document est bloqué. Nombre maximum de tentatives atteint. Veuillez contacter votre technicien.',
@@ -130,6 +134,9 @@ router.get('/download/:token', async (req, res) => {
         const result = await queryOne('SELECT * FROM medical_results WHERE access_token = $1', [token]);
         if (!result) {
             return res.status(404).json({ error: 'Lien invalide' });
+        }
+        if (result.status === 'cancelled') {
+            return res.status(410).json({ error: 'Cet envoi a été annulé. Contactez votre établissement.' });
         }
         if (result.is_locked) {
             return res.status(403).json({ error: 'Ce document est bloqué. Veuillez contacter votre technicien.' });

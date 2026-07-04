@@ -28,6 +28,16 @@
         <button class="btn-primary" (click)="debloquer()">Débloquer ce compte</button>
     </div>
 
+    <div class="detail-verrou" *ngIf="resultat.status === 'cancelled'">
+        Cet envoi a été annulé. Le lien n'est plus accessible au patient.
+    </div>
+
+    <div class="detail-actions" *ngIf="peutAnnuler()">
+        <button class="btn-secondary btn-annuler" [disabled]="annulationEnCours" (click)="annuler()">
+            {{ annulationEnCours ? 'Annulation...' : "Annuler cet envoi" }}
+        </button>
+    </div>
+
     <div class="detail-acces">
         <div class="card-title">Accès patient</div>
         <p class="champ-note">

@@ -236,6 +236,16 @@ body {
     color: #6b6a62;
 }
 
+.badge-cancelled {
+    background: var(--c-danger-soft);
+    color: var(--c-danger);
+}
+
+.btn-annuler {
+    color: var(--c-danger);
+    border-color: var(--c-danger-soft);
+}
+
 /* Badges de rôle (profil, sidebar) — rôle principal doré, rôle secondaire neutre */
 .badge-role-primary {
     background: var(--c-gold-soft);

@@ -1,6 +1,8 @@
 import express from 'express';
 import { protect, requireHospitalUser, effectiveRoles } from '../middleware/auth-middleware.js';
 import { queryOne, queryAll, query } from '../config/db.js';
+import { refund } from '../utils/credits.js';
+import { ESTIMATED_SMS_COST, ESTIMATED_WHATSAPP_COST } from '../utils/sms.js';
 
 const router = express.Router();
 
@@ -113,6 +115,53 @@ router.put('/:id/unlock', async (req, res) => {
         res.json({ success: true, message: 'Compte débloqué avec succès' });
     } catch (err) {
         console.error('Unlock error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// PUT /api/history/:id/cancel — Annule un envoi (erreur de destinataire, mauvais document, etc.)
+// Autorisé au technicien qui a fait l'envoi, ainsi qu'au responsable de labo de l'hôpital,
+// même si le patient a déjà consulté le résultat (ex: mauvais patient) — section demandée explicitement.
+router.put('/:id/cancel', async (req, res) => {
+    try {
+        const result = await queryOne('SELECT * FROM medical_results WHERE id = $1', [req.params.id]);
+        if (!result || result.hospital_id !== req.user.hospital_id) {
+            return res.status(404).json({ error: 'Résultat non trouvé' });
+        }
+
+        const isLabManager = effectiveRoles(req.user).includes('lab_manager');
+        if (!isLabManager && result.technician_id !== req.user.id) {
+            return res.status(403).json({ error: "Vous ne pouvez annuler que vos propres envois" });
+        }
+
+        if (result.status === 'cancelled') {
+            return res.status(400).json({ error: 'Cet envoi est déjà annulé' });
+        }
+
+        await query(
+            `UPDATE medical_results SET status = 'cancelled', cancelled_by = $1, cancelled_at = NOW() WHERE id = $2`,
+            [req.user.id, result.id]
+        );
+
+        // Remboursement du crédit SMS/WhatsApp déduit lors de l'envoi, s'il y en avait un
+        let cost = 0;
+        if (result.channel === 'email_whatsapp' && result.whatsapp_sent) cost = ESTIMATED_WHATSAPP_COST;
+        if (result.channel === 'email_sms' && result.sms_sent) cost = ESTIMATED_SMS_COST;
+        if (cost > 0) {
+            await refund(result.hospital_id, cost, {
+                resultId: result.id,
+                note: `Remboursement suite à l'annulation de l'envoi #${result.id} (${result.patient_name})`
+            });
+        }
+
+        await query(
+            'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
+            [req.user.id, 'cancel_result', `Envoi annulé pour ${result.patient_name} (résultat #${result.id})`, req.ip]
+        );
+
+        res.json({ success: true, message: 'Envoi annulé. Le lien envoyé au patient est désormais invalide.' });
+    } catch (err) {
+        console.error('Cancel result error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });

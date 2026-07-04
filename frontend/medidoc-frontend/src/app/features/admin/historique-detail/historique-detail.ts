@@ -44,6 +44,28 @@ export class HistoriqueDetail implements OnInit {
     });
   }
 
+  annulationEnCours = false;
+
+  peutAnnuler(): boolean {
+    return !!this.resultat && this.resultat.status !== 'cancelled' && this.resultat.status !== 'expired';
+  }
+
+  annuler() {
+    if (!this.resultat) return;
+    if (!confirm(`Annuler l'envoi pour ${this.resultat.patient_name} ? Le lien envoyé au patient deviendra invalide.`)) return;
+    this.annulationEnCours = true;
+    this.historyService.cancel(this.resultat.id).subscribe({
+      next: () => {
+        this.annulationEnCours = false;
+        if (this.resultat) { this.resultat.status = 'cancelled'; }
+      },
+      error: (err) => {
+        this.annulationEnCours = false;
+        alert(err.error?.error || "Erreur lors de l'annulation");
+      }
+    });
+  }
+
   debloquer() {
     if (!this.resultat) return;
     this.historyService.unlock(this.resultat.id).subscribe({

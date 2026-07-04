@@ -25,4 +25,8 @@ export class HistoryService {
   unlock(id: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}/unlock`, {}, { withCredentials: true });
   }
+
+  cancel(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/cancel`, {}, { withCredentials: true });
+  }
 }
