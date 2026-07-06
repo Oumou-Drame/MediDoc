@@ -28,15 +28,18 @@
                 <td>{{ tech.email }}</td>
                 <td>{{ tech.phone || '—' }}</td>
                 <td>
-                    <span class="badge" [class.actif]="tech.is_active" [class.suspendu]="!tech.is_active">
+                    <button type="button" class="statut-switch" [class.actif]="tech.is_active"
+                        (click)="toggleStatut(tech)"
+                        [attr.aria-label]="tech.is_active ? 'Désactiver ce compte' : 'Activer ce compte'"
+                        role="switch" [attr.aria-checked]="tech.is_active">
+                        <span class="statut-switch-curseur"></span>
+                    </button>
+                    <span class="statut-switch-libelle" [class.actif]="tech.is_active">
                         {{ tech.is_active ? 'Actif' : 'Suspendu' }}
                     </span>
                 </td>
                 <td class="actions">
                     <button class="btn-link" (click)="ouvrirEdition(tech)">Modifier</button>
-                    <button class="btn-link" (click)="toggleStatut(tech)">
-                        {{ tech.is_active ? 'Suspendre' : 'Activer' }}
-                    </button>
                     <button class="btn-link danger" (click)="supprimer(tech)">Supprimer</button>
                 </td>
             </tr>

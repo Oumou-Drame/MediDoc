@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { DashboardResponse } from '../../features/admin/models/dashbord-stats';
 import { Observable } from 'rxjs';
 import { ParametresApp } from '../../features/admin/models/settings';
+import { ActiviteResponse, Auteur } from '../../features/admin/models/activite';
 
 
 @Injectable({
@@ -60,6 +61,23 @@ export class AdminService {
   // Solde de crédits SMS/WhatsApp de l'hôpital
   getCredits(): Observable<any> {
     return this.http.get<any>(`${this.labManagerUrl}/credits`, { withCredentials: true });
+  }
+
+  // Journal d'activité de l'équipe de l'hôpital
+  getActivite(params: { action?: string; technicien?: number; search?: string; date_debut?: string; date_fin?: string; page?: number; limit?: number }): Observable<ActiviteResponse> {
+    const qs = new URLSearchParams();
+    if (params.action) qs.set('action', params.action);
+    if (params.technicien) qs.set('technicien', String(params.technicien));
+    if (params.search) qs.set('search', params.search);
+    if (params.date_debut) qs.set('date_debut', params.date_debut);
+    if (params.date_fin) qs.set('date_fin', params.date_fin);
+    qs.set('page', String(params.page || 1));
+    qs.set('limit', String(params.limit || 20));
+    return this.http.get<ActiviteResponse>(`${this.labManagerUrl}/activite?${qs.toString()}`, { withCredentials: true });
+  }
+
+  getActiviteAuteurs(): Observable<{ success: boolean; data: Auteur[] }> {
+    return this.http.get<any>(`${this.labManagerUrl}/activite/auteurs`, { withCredentials: true });
   }
 
 }

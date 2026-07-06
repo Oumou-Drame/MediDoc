@@ -1,0 +1,39 @@
+.filtres-activite {
+    flex-wrap: wrap;
+}
+
+.filtres-dates {
+    align-items: center;
+    margin-top: -8px;
+}
+
+.champ-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.champ-date label {
+    font-size: 0.8rem;
+    color: var(--c-text-muted);
+}
+
+.champ-date input {
+    padding: 8px 10px;
+    border: 1px solid var(--c-border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.badge-action {
+    background: var(--c-accent-soft);
+    color: var(--c-accent);
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .filtres-dates {
+        flex-wrap: wrap;
+    }
+}

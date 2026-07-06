@@ -22,6 +22,10 @@ export class HistoryService {
     return this.http.get<any>(`${this.apiUrl}/${id}`, { withCredentials: true });
   }
 
+  getStats(): Observable<{ success: boolean; data: { total: number; en_attente: number; consultes: number; annules: number } }> {
+    return this.http.get<any>(`${this.apiUrl}/stats`, { withCredentials: true });
+  }
+
   unlock(id: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}/unlock`, {}, { withCredentials: true });
   }

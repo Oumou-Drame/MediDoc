@@ -1,0 +1,63 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Journal d'activité</div>
+        <div class="page-subtitle">Historique complet des actions de votre équipe (envois, annulations, comptes)</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">{{ pagination?.total || logs.length }} action(s)</div>
+
+    <div class="filtres filtres-activite">
+        <input type="text" class="search-input" placeholder="Rechercher dans les détails..." [(ngModel)]="recherche"
+            (ngModelChange)="onRechercheChange()">
+        <select class="status-select" [(ngModel)]="actionFiltre" (ngModelChange)="onFiltreChange()">
+            <option *ngFor="let a of actions" [value]="a.valeur">{{ a.libelle }}</option>
+        </select>
+        <select class="status-select" [(ngModel)]="auteurFiltre" (ngModelChange)="onFiltreChange()">
+            <option value="">Tous les auteurs</option>
+            <option *ngFor="let a of auteurs" [value]="a.id">{{ a.full_name }}</option>
+        </select>
+    </div>
+
+    <div class="filtres filtres-dates">
+        <div class="champ-date">
+            <label>Du</label>
+            <input type="date" [(ngModel)]="dateDebut" (ngModelChange)="onFiltreChange()">
+        </div>
+        <div class="champ-date">
+            <label>Au</label>
+            <input type="date" [(ngModel)]="dateFin" (ngModelChange)="onFiltreChange()">
+        </div>
+        <button class="btn-link" (click)="reinitialiserFiltres()">Réinitialiser les filtres</button>
+    </div>
+
+    <table class="historique-table">
+        <thead>
+            <tr>
+                <th>Auteur</th>
+                <th>Action</th>
+                <th>Détails</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let log of logs">
+                <td>{{ log.auteur }}</td>
+                <td><span class="badge badge-action">{{ libelleAction(log.action) }}</span></td>
+                <td>{{ log.details }}</td>
+                <td>{{ log.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+            <tr *ngIf="logs.length === 0">
+                <td colspan="4" class="empty">Aucune activité trouvée</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="pagination">
+        <button class="btn-secondary" (click)="pagePrecedente()" [disabled]="pageActuelle === 1">Précédent</button>
+        <span>Page {{ pagination.page }} / {{ pagination.pages || 1 }} — {{ pagination.total }} résultats</span>
+        <button class="btn-secondary" (click)="pageSuivante()"
+            [disabled]="pageActuelle >= pagination.pages">Suivant</button>
+    </div>
+</div>

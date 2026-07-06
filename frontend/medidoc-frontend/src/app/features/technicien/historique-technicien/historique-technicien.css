@@ -1,0 +1,105 @@
+.technicien-page {
+    background: #e8f5ee;
+}
+
+.stats-envois {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-envoi-card {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+}
+
+.stat-envoi-label {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+    margin-bottom: 4px;
+}
+
+.stat-envoi-valeur {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--c-text);
+}
+
+.stat-envoi-valeur--attente {
+    color: var(--c-gold);
+}
+
+.stat-envoi-valeur--consulte {
+    color: var(--c-purple);
+}
+
+.stat-envoi-valeur--annule {
+    color: var(--c-danger);
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+.historique-table--technicien th {
+    font-size: 0.78rem;
+    padding: 14px 10px;
+}
+
+.historique-table--technicien td {
+    font-size: 0.9rem;
+    padding: 16px 10px;
+}
+
+.historique-table--technicien .patient-nom {
+    white-space: nowrap;
+}
+
+.historique-table--technicien .canaux-cell {
+    white-space: nowrap;
+    color: var(--c-text-muted);
+}
+
+.historique-table--technicien .col-date {
+    white-space: nowrap;
+}
+
+.historique-table--technicien .col-statut {
+    text-align: center;
+    width: 110px;
+}
+
+.historique-table--technicien .col-actions {
+    text-align: right;
+    white-space: nowrap;
+    width: 90px;
+}
+
+.historique-table--technicien .btn-annuler {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--c-danger);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.historique-table--technicien .btn-annuler:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.action-indisponible {
+    color: var(--c-text-faint);
+    font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+    .stats-envois {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

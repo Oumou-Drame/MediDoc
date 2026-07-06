@@ -53,14 +53,50 @@
     background: var(--c-bg);
 }
 
-.badge.actif {
-    background: var(--c-accent-soft);
-    color: var(--c-accent);
+.statut-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    border: none;
+    border-radius: 100px;
+    background: #d8d6cd;
+    padding: 0;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background .15s;
+    flex-shrink: 0;
 }
 
-.badge.suspendu {
-    background: var(--c-danger-soft);
-    color: var(--c-danger);
+.statut-switch.actif {
+    background: var(--c-accent);
+}
+
+.statut-switch-curseur {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .15s;
+}
+
+.statut-switch.actif .statut-switch-curseur {
+    transform: translateX(16px);
+}
+
+.statut-switch-libelle {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--c-text-muted);
+    vertical-align: middle;
+}
+
+.statut-switch-libelle.actif {
+    color: var(--c-accent);
 }
 
 .actions {

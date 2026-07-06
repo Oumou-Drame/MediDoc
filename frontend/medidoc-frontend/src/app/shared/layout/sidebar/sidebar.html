@@ -80,6 +80,9 @@
             <svg *ngIf="item.icon === 'credits'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="8" /><path d="M12 8v8M9.5 9.5h3.25a1.75 1.75 0 1 1 0 3.5H10.25a1.75 1.75 0 1 0 0 3.5H14" />
             </svg>
+            <svg *ngIf="item.icon === 'activity'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
 
             <span *ngIf="!sidebarReplie">{{ item.label }}</span>
         </a>

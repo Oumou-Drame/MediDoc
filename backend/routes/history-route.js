@@ -10,12 +10,21 @@ const router = express.Router();
 // (responsable de labo ou technicien). L'admin plateforme n'y a jamais accès (section 3.1).
 router.use(protect, requireHospitalUser);
 
+// Un responsable de labo qui cumule la capacité technicien et a basculé sur la vue "technicien"
+// (active_view = 'technician') doit être traité comme un simple technicien tant qu'il est dans
+// cette vue : il ne doit voir/gérer que ses propres envois, pas ceux de tout l'hôpital.
+function isActingAsLabManager(user) {
+    if (!effectiveRoles(user).includes('lab_manager')) return false;
+    if (user.is_technician && user.active_view === 'technician') return false;
+    return true;
+}
+
 // GET /api/history — responsable de labo: tous les résultats de son hôpital, technicien: les siens uniquement
 router.get('/', async (req, res) => {
     try {
         const { status, search, page = 1, limit = 20 } = req.query;
         const skip = (page - 1) * limit;
-        const isLabManager = effectiveRoles(req.user).includes('lab_manager');
+        const isLabManager = isActingAsLabManager(req.user);
 
         let whereClause = 'mr.hospital_id = $1';
         const params = [req.user.hospital_id];
@@ -71,6 +80,43 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /api/history/stats — Compteurs pour les cartes en haut de la page (total, en attente, consultés, annulés)
+router.get('/stats', async (req, res) => {
+    try {
+        const isLabManager = isActingAsLabManager(req.user);
+        let whereClause = 'hospital_id = $1';
+        const params = [req.user.hospital_id];
+
+        if (!isLabManager) {
+            whereClause += ' AND technician_id = $2';
+            params.push(req.user.id);
+        }
+
+        const row = await queryOne(
+            `SELECT
+         COUNT(*) AS total,
+         COUNT(*) FILTER (WHERE status = 'pending') AS en_attente,
+         COUNT(*) FILTER (WHERE status = 'accessed') AS consultes,
+         COUNT(*) FILTER (WHERE status = 'cancelled') AS annules
+       FROM medical_results WHERE ${whereClause}`,
+            params
+        );
+
+        res.json({
+            success: true,
+            data: {
+                total: parseInt(row.total),
+                en_attente: parseInt(row.en_attente),
+                consultes: parseInt(row.consultes),
+                annules: parseInt(row.annules)
+            }
+        });
+    } catch (err) {
+        console.error('History stats error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
 // GET /api/history/:id — Détail d'un résultat précis
 router.get('/:id', async (req, res) => {
     try {
@@ -86,7 +132,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
-        const isLabManager = effectiveRoles(req.user).includes('lab_manager');
+        const isLabManager = isActingAsLabManager(req.user);
         if (!isLabManager && result.technician_id !== req.user.id) {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
@@ -106,7 +152,7 @@ router.put('/:id/unlock', async (req, res) => {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
-        const isLabManager = effectiveRoles(req.user).includes('lab_manager');
+        const isLabManager = isActingAsLabManager(req.user);
         if (!isLabManager && result.technician_id !== req.user.id) {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
@@ -129,13 +175,17 @@ router.put('/:id/cancel', async (req, res) => {
             return res.status(404).json({ error: 'Résultat non trouvé' });
         }
 
-        const isLabManager = effectiveRoles(req.user).includes('lab_manager');
+        const isLabManager = isActingAsLabManager(req.user);
         if (!isLabManager && result.technician_id !== req.user.id) {
             return res.status(403).json({ error: "Vous ne pouvez annuler que vos propres envois" });
         }
 
         if (result.status === 'cancelled') {
             return res.status(400).json({ error: 'Cet envoi est déjà annulé' });
+        }
+
+        if (result.status === 'expired' || new Date(result.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'Ce lien a déjà expiré, il ne peut plus être annulé' });
         }
 
         await query(

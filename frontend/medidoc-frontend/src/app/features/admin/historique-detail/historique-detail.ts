@@ -50,7 +50,8 @@ export class HistoriqueDetail implements OnInit {
   erreurAnnulation = '';
 
   peutAnnuler(): boolean {
-    return !!this.resultat && this.resultat.status !== 'cancelled' && this.resultat.status !== 'expired';
+    if (!this.resultat || this.resultat.status === 'cancelled' || this.resultat.status === 'expired') return false;
+    return new Date(this.resultat.expires_at).getTime() > Date.now();
   }
 
   demanderAnnulation() {

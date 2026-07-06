@@ -8,7 +8,7 @@ import { CurrentUser, effectiveRoles, roleLabel, ActiveView } from '../../../cor
 interface NavItem {
   label: string;
   route: string;
-  icon: 'dashboard' | 'accounts' | 'history' | 'settings' | 'upload' | 'hospitals' | 'requests' | 'credits';
+  icon: 'dashboard' | 'accounts' | 'history' | 'settings' | 'upload' | 'hospitals' | 'requests' | 'credits' | 'activity';
 }
 
 // Nav propre à chaque rôle effectif (voir cadrage section 5 : "Un seul composant réutilisable,
@@ -24,6 +24,7 @@ const NAV_BY_ROLE: Record<string, NavItem[]> = {
     { label: 'Dashboard', route: '/lab-manager/dashboard', icon: 'dashboard' },
     { label: 'Comptes techniciens', route: '/lab-manager/comptes', icon: 'accounts' },
     { label: 'Historique', route: '/lab-manager/historique', icon: 'history' },
+    { label: "Journal d'activité", route: '/lab-manager/activite', icon: 'activity' },
     { label: "Config. d'envoi", route: '/lab-manager/envoi', icon: 'settings' },
     { label: 'Crédits', route: '/lab-manager/credits', icon: 'credits' },
   ],

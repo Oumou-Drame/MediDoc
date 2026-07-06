@@ -7,6 +7,25 @@
             </div>
         </div>
 
+        <div class="stats-envois">
+            <div class="stat-envoi-card">
+                <div class="stat-envoi-label">Total</div>
+                <div class="stat-envoi-valeur">{{ stats.total }}</div>
+            </div>
+            <div class="stat-envoi-card">
+                <div class="stat-envoi-label">En attente</div>
+                <div class="stat-envoi-valeur stat-envoi-valeur--attente">{{ stats.en_attente }}</div>
+            </div>
+            <div class="stat-envoi-card">
+                <div class="stat-envoi-label">Consultés</div>
+                <div class="stat-envoi-valeur stat-envoi-valeur--consulte">{{ stats.consultes }}</div>
+            </div>
+            <div class="stat-envoi-card">
+                <div class="stat-envoi-label">Annulés</div>
+                <div class="stat-envoi-valeur stat-envoi-valeur--annule">{{ stats.annules }}</div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-title">{{ pagination?.total || resultats.length }} envoi(s)</div>
 
@@ -18,39 +37,43 @@
                 </select>
             </div>
 
-            <table class="historique-table">
-                <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Téléphone</th>
-                        <th>Canal</th>
-                        <th>Statut</th>
-                        <th>Envoyé le</th>
-                        <th>Expire le</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let r of resultats">
-                        <td>{{ r.patient_name }}</td>
-                        <td>{{ r.patient_phone }}</td>
-                        <td>{{ r.channel }}</td>
-                        <td><span class="badge" [ngClass]="'badge-' + r.status">{{ libelleStatut(r.status) }}</span>
-                        </td>
-                        <td>{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
-                        <td>{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
-                        <td>
-                            <button *ngIf="peutAnnuler(r)" class="btn-secondary btn-annuler"
-                                [disabled]="annulationEnCours === r.id" (click)="demanderAnnulation(r)">
-                                {{ annulationEnCours === r.id ? 'Annulation...' : 'Annuler' }}
-                            </button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="resultats.length === 0">
-                        <td colspan="7" class="empty">Aucun envoi trouvé</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-scroll">
+                <table class="historique-table historique-table--technicien">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Téléphone</th>
+                            <th>Canaux</th>
+                            <th class="col-statut">Statut</th>
+                            <th class="col-date">Envoyé le</th>
+                            <th class="col-date">Expire le</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of resultats">
+                            <td class="patient-nom">{{ r.patient_name }}</td>
+                            <td>{{ r.patient_phone }}</td>
+                            <td class="canaux-cell">{{ libelleCanal(r.channel) }}</td>
+                            <td class="col-statut">
+                                <span class="badge" [ngClass]="'badge-' + r.status">{{ libelleStatut(r.status) }}</span>
+                            </td>
+                            <td class="col-date">{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+                            <td class="col-date">{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td class="col-actions">
+                                <button *ngIf="peutAnnuler(r)" class="btn-secondary btn-annuler"
+                                    [disabled]="annulationEnCours === r.id" (click)="demanderAnnulation(r)">
+                                    {{ annulationEnCours === r.id ? 'Annulation...' : 'Annuler' }}
+                                </button>
+                                <span *ngIf="!peutAnnuler(r) && r.status !== 'cancelled'" class="action-indisponible">—</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="resultats.length === 0">
+                            <td colspan="7" class="empty">Aucun envoi trouvé</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="pagination" *ngIf="pagination">
                 <button class="btn-secondary" (click)="pagePrecedente()"

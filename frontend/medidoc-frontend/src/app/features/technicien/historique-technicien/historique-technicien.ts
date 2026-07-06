@@ -36,7 +36,19 @@ export class HistoriqueTechnicien implements OnInit {
     { valeur: 'cancelled', libelle: 'Annulé' },
   ];
   annulationEnCours: number | null = null;
-  ngOnInit(): void { this.charger(); }
+
+  stats = { total: 0, en_attente: 0, consultes: 0, annules: 0 };
+
+  private readonly libellesCanaux: Record<string, string> = {
+    email_whatsapp: 'WhatsApp + Email',
+    email_sms: 'Email + SMS',
+  };
+
+  ngOnInit(): void {
+    this.charger();
+    this.chargerStats();
+  }
+
   charger() {
     this.historyService.getHistory({
       status: this.statutFiltre || undefined,
@@ -47,6 +59,17 @@ export class HistoriqueTechnicien implements OnInit {
       next: (res) => { this.resultats = res.data.results; this.pagination = res.data.pagination; },
       error: (err) => console.error('Erreur chargement historique:', err)
     });
+  }
+
+  chargerStats() {
+    this.historyService.getStats().subscribe({
+      next: (res) => { this.stats = res.data; },
+      error: (err) => console.error('Erreur chargement des statistiques:', err)
+    });
+  }
+
+  libelleCanal(channel: string): string {
+    return this.libellesCanaux[channel] || channel;
   }
   onRechercheChange() {
     clearTimeout(this.timeoutRecherche);
@@ -62,7 +85,8 @@ export class HistoriqueTechnicien implements OnInit {
   }
 
   peutAnnuler(r: ResultatMedical): boolean {
-    return r.status !== 'cancelled' && r.status !== 'expired';
+    if (r.status === 'cancelled' || r.status === 'expired') return false;
+    return new Date(r.expires_at).getTime() > Date.now();
   }
 
   resultatAAnnuler: ResultatMedical | null = null;
@@ -83,7 +107,7 @@ export class HistoriqueTechnicien implements OnInit {
     if (!r) return;
     this.annulationEnCours = r.id;
     this.historyService.cancel(r.id).subscribe({
-      next: () => { this.annulationEnCours = null; this.resultatAAnnuler = null; this.charger(); },
+      next: () => { this.annulationEnCours = null; this.resultatAAnnuler = null; this.charger(); this.chargerStats(); },
       error: (err) => {
         this.annulationEnCours = null;
         this.resultatAAnnuler = null;

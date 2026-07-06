@@ -18,6 +18,7 @@ import { CreditsPlateforme } from './features/admin/credits-plateforme/credits-p
 import { EnvoiConfig } from './features/lab-manager/envoi-config/envoi-config';
 import { Credits } from './features/lab-manager/credits/credits';
 import { HistoriqueTechnicien } from './features/technicien/historique-technicien/historique-technicien';
+import { Activite } from './features/admin/activite/activite';
 import { AccessPatient } from './features/patient/access-patient/access-patient';
 import { Profile } from './features/profile/profile';
 
@@ -51,6 +52,7 @@ export const routes: Routes = [
             { path: 'comptes', component: Comptes },
             { path: 'historique', component: Historique },
             { path: 'historique/:id', component: HistoriqueDetail },
+            { path: 'activite', component: Activite },
             { path: 'envoi', component: EnvoiConfig },
             { path: 'credits', component: Credits },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }

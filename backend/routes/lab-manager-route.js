@@ -179,6 +179,11 @@ router.put('/technicians/:id', async (req, res) => {
             );
         }
 
+        await query(
+            'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
+            [req.user.id, 'update_technician', `Modification du compte technicien: ${fullName}`, req.ip]
+        );
+
         res.json({ success: true, message: 'Technicien modifié avec succès' });
     } catch (err) {
         console.error('Update technician error:', err);
@@ -197,6 +202,12 @@ router.put('/technicians/:id/toggle', async (req, res) => {
         }
         const newStatus = user.is_active ? 0 : 1;
         await query('UPDATE users SET is_active = $1, updated_at = NOW() WHERE id = $2', [newStatus, req.params.id]);
+
+        await query(
+            'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
+            [req.user.id, 'toggle_technician', `Compte technicien ${user.full_name} ${newStatus ? 'activé' : 'suspendu'}`, req.ip]
+        );
+
         res.json({ success: true, message: `Technicien ${newStatus ? 'activé' : 'désactivé'}` });
     } catch (err) {
         console.error('Toggle technician error:', err);
@@ -206,10 +217,22 @@ router.put('/technicians/:id/toggle', async (req, res) => {
 
 router.delete('/technicians/:id', async (req, res) => {
     try {
+        const user = await queryOne(
+            "SELECT full_name FROM users WHERE id = $1 AND role = 'technician' AND hospital_id = $2",
+            [req.params.id, req.user.hospital_id]
+        );
         await query(
             "DELETE FROM users WHERE id = $1 AND role = 'technician' AND hospital_id = $2",
             [req.params.id, req.user.hospital_id]
         );
+
+        if (user) {
+            await query(
+                'INSERT INTO activity_logs (user_id, action, details, ip_address, created_at) VALUES ($1, $2, $3, $4, NOW())',
+                [req.user.id, 'delete_technician', `Suppression du compte technicien: ${user.full_name}`, req.ip]
+            );
+        }
+
         res.json({ success: true, message: 'Technicien supprimé' });
     } catch (err) {
         console.error('Delete technician error:', err);
@@ -313,6 +336,100 @@ router.post('/send-config/test', async (req, res) => {
 // ===========================================================
 // Crédits SMS/WhatsApp — l'hôpital ne voit que son propre solde (section 7.1)
 // ===========================================================
+
+// ===========================================================
+// Journal d'activité — historique complet des actions de l'équipe de l'hôpital
+// (envois, annulations, gestion des comptes techniciens), paginé et filtrable.
+// ===========================================================
+
+router.get('/activite', async (req, res) => {
+    const hospitalId = req.user.hospital_id;
+    const { action, technicien, search, date_debut, date_fin, page = 1, limit = 20 } = req.query;
+
+    try {
+        let whereClause = 'u.hospital_id = $1';
+        const params = [hospitalId];
+        let paramIndex = 2;
+
+        if (action) {
+            whereClause += ` AND al.action = $${paramIndex}`;
+            params.push(action);
+            paramIndex++;
+        }
+        if (technicien) {
+            whereClause += ` AND al.user_id = $${paramIndex}`;
+            params.push(technicien);
+            paramIndex++;
+        }
+        if (search) {
+            whereClause += ` AND al.details ILIKE $${paramIndex}`;
+            params.push(`%${search}%`);
+            paramIndex++;
+        }
+        if (date_debut) {
+            whereClause += ` AND al.created_at >= $${paramIndex}`;
+            params.push(date_debut);
+            paramIndex++;
+        }
+        if (date_fin) {
+            whereClause += ` AND al.created_at < ($${paramIndex}::date + INTERVAL '1 day')`;
+            params.push(date_fin);
+            paramIndex++;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const countResult = await queryOne(
+            `SELECT COUNT(*) as count FROM activity_logs al JOIN users u ON u.id = al.user_id WHERE ${whereClause}`,
+            params
+        );
+        const total = parseInt(countResult.count);
+
+        const logs = await queryAll(
+            `SELECT al.id, al.action, al.details, al.created_at, u.id as user_id, u.full_name as auteur
+       FROM activity_logs al
+       JOIN users u ON u.id = al.user_id
+       WHERE ${whereClause}
+       ORDER BY al.created_at DESC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+            [...params, parseInt(limit), parseInt(skip)]
+        );
+
+        res.json({
+            success: true,
+            data: {
+                logs,
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total,
+                    pages: Math.ceil(total / limit)
+                }
+            }
+        });
+    } catch (err) {
+        console.error('Activity log error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// GET /api/lab-manager/activite/auteurs — liste des personnes ayant une activité, pour le filtre
+router.get('/activite/auteurs', async (req, res) => {
+    try {
+        const auteurs = await queryAll(
+            `SELECT DISTINCT u.id, u.full_name
+       FROM activity_logs al
+       JOIN users u ON u.id = al.user_id
+       WHERE u.hospital_id = $1
+       ORDER BY u.full_name`,
+            [req.user.hospital_id]
+        );
+        res.json({ success: true, data: auteurs });
+    } catch (err) {
+        console.error('Activity authors error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
 
 router.get('/credits', async (req, res) => {
     try {

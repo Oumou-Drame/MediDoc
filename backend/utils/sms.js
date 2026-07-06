@@ -123,6 +123,67 @@ export async function sendWhatsAppDocument(phone, documentUrl, filename = 'docum
 }
 
 /**
+ * Format phone number for Twilio (E.164, avec +)
+ */
+export function formatPhoneForTwilio(phone) {
+    let formatted = phone.replace(/\s/g, '');
+    if (formatted.startsWith('00221')) {
+        formatted = '+' + formatted.substring(2);
+    } else if (formatted.startsWith('+')) {
+        // déjà au bon format
+    } else if (formatted.startsWith('221')) {
+        formatted = '+' + formatted;
+    } else {
+        formatted = '+221' + formatted;
+    }
+    return formatted;
+}
+
+/**
+ * Send SMS via Twilio (fournisseur essayé en priorité, voir cadrage section 7)
+ */
+export async function sendSMSViaTwilio(phone, message) {
+    try {
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+        if (!accountSid || !authToken || !fromNumber) {
+            return false;
+        }
+
+        const credentials = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+        const body = new URLSearchParams({
+            To: formatPhoneForTwilio(phone),
+            From: fromNumber,
+            Body: message
+        });
+
+        const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Basic ${credentials}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: body.toString()
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.sid) {
+            console.log(`✅ SMS Twilio envoyé à ${phone} (sid: ${result.sid})`);
+            return true;
+        }
+
+        console.error('❌ Erreur Twilio:', result.message || result);
+        return false;
+    } catch (error) {
+        console.error('❌ Erreur SMS Twilio:', error.message);
+        return false;
+    }
+}
+
+/**
  * Format phone number for Termii (international, sans +)
  */
 export function formatPhoneForTermii(phone) {
@@ -179,14 +240,18 @@ export async function sendSMSViaTermii(phone, message) {
 }
 
 /**
- * Send SMS using Termii, fallback to simulation
+ * Send SMS — essaie Twilio en premier (fournisseur en cours d'essai), puis Termii
+ * en repli si Twilio n'est pas configuré, puis simulation si aucun des deux n'est actif.
  */
 export async function sendSMS(phone, message) {
+    const twilioResult = await sendSMSViaTwilio(phone, message);
+    if (twilioResult) return true;
+
     const termiiResult = await sendSMSViaTermii(phone, message);
     if (termiiResult) return true;
 
     console.log(`📱 [SIMULATION SMS] À ${phone}: ${message}`);
-    console.log(`💡 Pour envoyer de vrais SMS, configurez Termii dans .env`);
+    console.log(`💡 Pour envoyer de vrais SMS, configurez Twilio (ou à défaut Termii) dans .env`);
     return true;
 }
 

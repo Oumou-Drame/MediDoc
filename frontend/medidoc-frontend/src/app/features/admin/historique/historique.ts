@@ -86,7 +86,8 @@ export class Historique implements OnInit {
     }
 
     peutAnnuler(r: ResultatMedical): boolean {
-      return r.status !== 'cancelled' && r.status !== 'expired';
+      if (r.status === 'cancelled' || r.status === 'expired') return false;
+      return new Date(r.expires_at).getTime() > Date.now();
     }
 
     resultatAAnnuler: ResultatMedical | null = null;
