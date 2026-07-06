@@ -113,11 +113,13 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
         const resultId = result.id;
         const accessUrl = `${process.env.CLIENT_URL}/access/${accessToken}`;
 
-        const whatsappMessage = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\n🔗 Lien d'accès:\n${accessUrl}\n\n⚠️ Ce lien expire dans 48 heures.\n\nUtilisez le code que vous recevrez par un autre canal pour accéder à vos résultats.`;
-        const smsMessage = `Bonjour ${patient_name},\n\n Votre code d'accès ${hospitalName}: ${accessCode}\n\nUtilisez le lien que vous avez reçu par email pour accéder à vos résultats.\n⚠️ Expire dans 48h. Max 3 tentatives.`;
+        const whatsappMessage = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\nLien d'accès:\n${accessUrl}\n\n Ce lien expire dans 48 heures.\n\nUtilisez le code que vous recevrez par un autre canal pour accéder à vos résultats.`;
+        // Message volontairement court (< 160 caractères GSM-7) pour tenir sur 1 segment SMS :
+        // les comptes Twilio Trial bloquent les envois qui dépassent 1 segment (erreur 30044).
+        const smsMessage = `${hospitalName} - Code d'acces: ${accessCode}. Expire dans 48h (3 tentatives max). Voir email pour le lien.`;
 
         const emailSubject = ` Code d'accès - Résultats médicaux ${hospitalName}`;
-        const emailText = `Bonjour ${patient_name},\n\n Votre code d'accès: ${accessCode}\n\nUtilisez le lien que vous avez reçu via WhatsApp pour accéder à vos résultats.\n\n⚠️ Ce code expire dans 48 heures.\n⚠️ Maximum 3 tentatives d'accès.\n\nNe partagez ce code avec personne.`;
+        const emailText = `Bonjour ${patient_name},\n\n Votre code d'accès: ${accessCode}\n\nUtilisez le lien que vous avez reçu via WhatsApp pour accéder à vos résultats.\n\nCe code expire dans 48 heures.\nMaximum 3 tentatives d'accès.\n\nNe partagez ce code avec personne.`;
         const emailHtml = `
       <h2> ${hospitalName} - Code d'accès</h2>
       <p>Bonjour <strong>${patient_name}</strong>,</p>
@@ -127,21 +129,21 @@ router.post('/', protect, requireTechnician, upload.single('pdf'), async (req, r
         <p style="font-size: 32px; font-weight: 700; color: #065f46; margin: 8px 0; letter-spacing: 6px;">${accessCode}</p>
       </div>
       <p>📌 Utilisez le lien que vous avez reçu via <strong>WhatsApp</strong> pour accéder à vos résultats, puis entrez ce code.</p>
-      <p style="color: #dc2626;">⚠️ Ce code expire dans 48 heures.</p>
-      <p style="color: #dc2626;">⚠️ Maximum 3 tentatives d'accès.</p>
+      <p style="color: #dc2626;"> Ce code expire dans 48 heures.</p>
+      <p style="color: #dc2626;"> Maximum 3 tentatives d'accès.</p>
       <p>Ne partagez ce code avec personne.</p>
       <hr>
       <p style="color: #9ca3af; font-size: 12px;">${hospitalName} via MediDoc - Plateforme sécurisée de résultats médicaux</p>
     `;
 
-        const emailLinkSubject = `🔗 Lien d'accès - Résultats médicaux ${hospitalName}`;
-        const emailLinkText = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\n🔗 Lien d'accès: ${accessUrl}\n\nUtilisez le code que vous recevrez par SMS pour accéder à vos résultats.\n\n⚠️ Ce lien expire dans 48 heures.\n\nNe partagez ce lien avec personne.`;
+        const emailLinkSubject = ` Lien d'accès - Résultats médicaux ${hospitalName}`;
+        const emailLinkText = `Bonjour ${patient_name},\n\nVos résultats médicaux de ${hospitalName} sont disponibles.\n\nLien d'accès: ${accessUrl}\n\nUtilisez le code que vous recevrez par SMS pour accéder à vos résultats.\n\nCe lien expire dans 48 heures.\n\nNe partagez ce lien avec personne.`;
         const emailLinkHtml = `
       <h2> ${hospitalName} - Lien d'accès</h2>
       <p>Bonjour <strong>${patient_name}</strong>,</p>
       <p>Vos résultats médicaux de <strong>${hospitalName}</strong> sont disponibles.</p>
       <div style="background: #f0fdf4; border: 1px solid #a7f3d0; border-radius: 8px; padding: 16px; margin: 16px 0;">
-        <p><strong>🔗 Lien d'accès:</strong></p>
+        <p><strong> Lien d'accès:</strong></p>
         <p><a href="${accessUrl}" style="font-size: 16px; color: #065f46; word-break: break-all;">${accessUrl}</a></p>
       </div>
       <p> Entrez le code que vous recevrez par <strong>SMS</strong> pour consulter vos résultats.</p>

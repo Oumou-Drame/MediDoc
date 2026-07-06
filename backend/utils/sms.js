@@ -146,9 +146,16 @@ export async function sendSMSViaTwilio(phone, message) {
     try {
         const accountSid = process.env.TWILIO_ACCOUNT_SID;
         const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+        const fromNumber = process.env.TWILIO_PHONE_NUMBER ? process.env.TWILIO_PHONE_NUMBER.replace(/\s/g, '') : null;
 
         if (!accountSid || !authToken || !fromNumber) {
+            return false;
+        }
+
+        // Le SID de compte Twilio commence toujours par "AC" (34 caractères). Un SID commençant
+        // par "SK" est une clé API (API Key), pas le Account SID — mauvaise valeur pour cet usage.
+        if (!accountSid.startsWith('AC')) {
+            console.error("❌ TWILIO_ACCOUNT_SID invalide : doit commencer par 'AC' (le Account SID du tableau de bord Twilio), pas par 'SK' (une clé API).");
             return false;
         }
 
@@ -171,7 +178,7 @@ export async function sendSMSViaTwilio(phone, message) {
         const result = await response.json();
 
         if (response.ok && result.sid) {
-            console.log(`✅ SMS Twilio envoyé à ${phone} (sid: ${result.sid})`);
+            console.log(` SMS Twilio envoyé à ${phone} (sid: ${result.sid})`);
             return true;
         }
 
