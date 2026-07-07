@@ -41,7 +41,6 @@
                 <td>{{ r.sent_at ? (r.sent_at | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
                 <td>{{ r.expires_at | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td class="actions-cell">
-                    <a [routerLink]="['/lab-manager/historique', r.id]" class="btn-link">Voir</a>
                     <button *ngIf="peutAnnuler(r)" class="btn-secondary btn-annuler"
                         [disabled]="annulationEnCours === r.id" (click)="demanderAnnulation(r)">
                         {{ annulationEnCours === r.id ? 'Annulation...' : 'Annuler' }}
@@ -49,7 +48,7 @@
                 </td>
             </tr>
             <tr *ngIf="resultats.length === 0">
-                <td colspan="7" class="empty">Aucun résultat trouvé</td>
+                <td colspan="8" class="empty">Aucun résultat trouvé</td>
             </tr>
         </tbody>
     </table>
