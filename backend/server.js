@@ -11,6 +11,8 @@ import historyRoutes from './routes/history-route.js';
 import uploadRoutes from './routes/upload-route.js';
 import patientRoutes from './routes/patient-route.js';
 import whatsappRoutes from './routes/whatsapp-route.js';
+import subscriptionRoutes from './routes/subscription-route.js';
+import paymentRoutes from './routes/payment-route.js';
 import * as whatsapp from './utils/whatsapp.js';
 
 
@@ -45,6 +47,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/patient', patientRoutes);
    
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/payment', paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 

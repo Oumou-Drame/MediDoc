@@ -1,0 +1,458 @@
+.inscription-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0b1121 0%, #111827 50%, #0b1121 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px 24px;
+  background: rgba(11, 17, 33, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.nav-logo {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.nav-back {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.nav-back:hover {
+  color: #fff;
+}
+
+/* Container */
+.inscription-container {
+  flex: 1;
+  max-width: 560px;
+  margin: 100px auto 40px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Progress Bar */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  gap: 0;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.progress-step.active {
+  color: #06b6d4;
+}
+
+.progress-step.done {
+  color: #10b981;
+}
+
+.ps-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 2px solid #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.progress-step.active .ps-number {
+  border-color: #06b6d4;
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+}
+
+.progress-step.done .ps-number {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.progress-line {
+  width: 60px;
+  height: 2px;
+  background: #1e293b;
+  margin: 0 8px;
+  margin-bottom: 28px;
+  transition: background 0.3s;
+}
+
+.progress-line.active {
+  background: #06b6d4;
+}
+
+/* Card */
+.card-inscription {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 40px;
+  backdrop-filter: blur(8px);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.card-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.card-header h2 {
+  color: #fff;
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
+.card-header p {
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #06b6d4;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #475569;
+}
+
+.form-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.field-error {
+  color: #fca5a5;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.input-invalid {
+  border-color: #f87171 !important;
+}
+
+.input-invalid:focus {
+  border-color: #f87171 !important;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #cbd5e1;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+  accent-color: #06b6d4;
+}
+
+.checkbox-label span {
+  line-height: 1.4;
+}
+
+.char-count {
+  text-align: right;
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-submit:hover {
+  opacity: 0.9;
+}
+
+.btn-submit:active {
+  transform: scale(0.98);
+}
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-footer-text {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 24px;
+}
+
+.card-footer-text a {
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.card-footer-text a:hover {
+  text-decoration: underline;
+}
+
+/* Info box */
+.info-box {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.info-box strong {
+  color: #e2e8f0;
+}
+
+.info-box p {
+  margin: 4px 0 0;
+}
+
+/* Form row duo */
+.form-row-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .form-row-duo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Subtle helpers */
+.form-group label {
+  letter-spacing: 0.2px;
+}
+
+.form-group input:hover,
+.form-group textarea:hover {
+  border-color: rgba(255,255,255,0.18);
+}
+
+.btn-submit {
+  box-shadow: 0 10px 25px rgba(6, 182, 212, 0.25);
+}
+
+.btn-submit:disabled {
+  box-shadow: none;
+}
+
+.card-confirmation .btn-submit:hover {
+  background-size: 200% 200%;
+  background-position: right;
+}
+
+/* Confirmation */
+.card-confirmation {
+  text-align: center;
+}
+
+.confirmation-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.card-confirmation h2 {
+  color: #10b981;
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+.card-confirmation p {
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.confirmation-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.ci-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.confirmation-info strong {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.confirmation-info p {
+  color: #94a3b8;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.card-confirmation .btn-submit {
+  display: inline-block;
+  width: auto;
+  padding: 12px 32px;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 24px;
+  margin-top: auto;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #475569;
+  font-size: 13px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.footer-cta {
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.footer-cta:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .card-inscription {
+    padding: 24px;
+  }
+  
+  .progress-line {
+    width: 30px;
+  }
+}

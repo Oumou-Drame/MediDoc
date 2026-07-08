@@ -1,0 +1,141 @@
+<div class="inscription-page">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="nav-name">MediDoc</span>
+      </div>
+      <a routerLink="/" class="nav-back">← Retour à l'accueil</a>
+    </div>
+  </nav>
+
+  <div class="inscription-container">
+    @if (!envoye) {
+      <div class="card-inscription">
+        <div class="card-header">
+          <div class="card-icon">🏥</div>
+          <h2>Inscrire mon établissement</h2>
+          <p>Remplissez ce formulaire pour demander l'accès à MediDoc. Votre demande sera examinée par notre équipe.</p>
+        </div>
+
+        <form (ngSubmit)="envoyerDemande()">
+          <div class="form-row-duo">
+            <div class="form-group">
+              <label>Nom de l'établissement *</label>
+              <input type="text" [(ngModel)]="hospitalName" name="hospitalName" placeholder="Ex: Hôpital Principal de Dakar" [class.input-invalid]="champEstInvalide('hospitalName')">
+              @if (champEstInvalide('hospitalName')) {
+                <div class="field-error">{{ erreurChamp['hospitalName'] }}</div>
+              }
+            </div>
+            <div class="form-group">
+              <label>Numéro d'agrément / licence</label>
+              <input type="text" [(ngModel)]="numeroAgrement" name="numeroAgrement" placeholder="Preuve de validité de l'établissement">
+            </div>
+          </div>
+
+          <div class="form-row-duo">
+            <div class="form-group">
+              <label>Nom du contact (responsable) *</label>
+              <input type="text" [(ngModel)]="contactName" name="contactName" placeholder="Ex: Dr. Awa Ndiaye" [class.input-invalid]="champEstInvalide('contactName')">
+              @if (champEstInvalide('contactName')) {
+                <div class="field-error">{{ erreurChamp['contactName'] }}</div>
+              }
+            </div>
+            <div class="form-group">
+              <label>Email du contact *</label>
+              <input type="email" [(ngModel)]="contactEmail" name="contactEmail" placeholder="Ex: contact@hopital.sn" [class.input-invalid]="champEstInvalide('contactEmail')">
+              @if (champEstInvalide('contactEmail')) {
+                <div class="field-error">{{ erreurChamp['contactEmail'] }}</div>
+              }
+            </div>
+          </div>
+
+          <div class="form-row-duo">
+            <div class="form-group">
+              <label>Téléphone du contact</label>
+              <input type="text" [(ngModel)]="contactPhone" name="contactPhone" placeholder="Ex: +221771234567" [class.input-invalid]="champEstInvalide('contactPhone')">
+              @if (champEstInvalide('contactPhone')) {
+                <div class="field-error">{{ erreurChamp['contactPhone'] }}</div>
+              }
+            </div>
+            <div class="form-group">
+              <label>Adresse de l'établissement</label>
+              <input type="text" [(ngModel)]="address" name="address" placeholder="Ex: 123 Avenue Léopold Sédar Senghor">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Message complémentaire</label>
+            <textarea [(ngModel)]="message" name="message" rows="3" placeholder="Autres informations utiles pour votre demande..." [class.input-invalid]="champEstInvalide('message')"></textarea>
+            <div class="char-count">{{ messageLength }} / {{ maxMessageLength }}</div>
+            @if (champEstInvalide('message')) {
+              <div class="field-error">{{ erreurChamp['message'] }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="accepteConditions" name="accepteConditions">
+              <span>J'accepte que les informations transmises soient utilisées dans le cadre de la validation de l'établissement.</span>
+            </label>
+            @if (champEstInvalide('conditions')) {
+              <div class="field-error">{{ erreurChamp['conditions'] }}</div>
+            }
+          </div>
+
+          <div class="info-box">
+            <strong>🔍 Processus de validation :</strong>
+            <p>Notre équipe vérifiera les informations fournies avant d'activer votre établissement. Vous recevrez un email une fois la demande traitée.</p>
+          </div>
+
+          @if (erreur) {
+            <div class="form-error">{{ erreur }}</div>
+          }
+
+          <button type="submit" class="btn-submit" [disabled]="envoiEnCours">
+            {{ envoiEnCours ? 'Envoi...' : 'Envoyer la demande' }}
+          </button>
+        </form>
+
+        <p class="card-footer-text">
+          Déjà un compte ? <a routerLink="/login">Connectez-vous</a>
+        </p>
+      </div>
+    } @else {
+      <div class="card-inscription card-confirmation">
+        <div class="confirmation-icon">✅</div>
+        <h2>Demande envoyée avec succès !</h2>
+        <p>
+          Merci ! Votre demande d'inscription a bien été reçue. Notre équipe va vérifier
+          les informations fournies avant de valider l'accès de votre établissement.
+        </p>
+        <p><strong>Établissement :</strong> {{ hospitalName }}</p>
+        <p><strong>Contact :</strong> {{ contactName }} ({{ contactEmail }})</p>
+        <div class="confirmation-info">
+          <div class="ci-icon">⏳</div>
+          <div>
+            <strong>Prochaine étape :</strong>
+            <p>Vous recevrez un email dès que votre demande sera traitée par l'administrateur.</p>
+          </div>
+        </div>
+        <a routerLink="/login" class="btn-submit">Se connecter</a>
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span>MediDoc</span>
+      </div>
+      <p>© {{ getCurrentYear() }} MediDoc — Plateforme sécurisée de résultats médicaux</p>
+      <a routerLink="/login" class="footer-cta">Se connecter →</a>
+    </div>
+  </footer>
+</div>

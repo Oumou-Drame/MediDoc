@@ -11,6 +11,7 @@ export interface CurrentUser {
   active_view: ActiveView | null;
   must_change_password?: boolean;
   phone?: string | null;
+  has_chosen_plan?: boolean;
 }
 
 // Rôles "effectifs" d'un utilisateur : un responsable de labo peut cumuler

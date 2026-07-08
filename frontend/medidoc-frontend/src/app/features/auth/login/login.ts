@@ -41,6 +41,12 @@ export class Login {
         this.connexionEnCours = false;
         const user = value.user;
 
+        // Si lab_manager et n'a pas encore choisi de pack → page choix abonnement
+        if (user.role === 'lab_manager' && !user.has_chosen_plan) {
+          this.router.navigateByUrl('/choix-abonnement');
+          return;
+        }
+
         // Compte cumulant responsable de labo + technicien : on respecte la dernière vue choisie.
         const veutVueTechnicien = user.role === 'lab_manager' && user.is_technician && user.active_view === 'technician';
 

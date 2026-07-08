@@ -71,8 +71,8 @@ router.put('/requests/:id/approve', protect, requireAdmin, async (req, res) => {
         }
 
         const hospital = await queryOne(
-            `INSERT INTO hospitals (name, email, phone, status, created_at, updated_at)
-             VALUES ($1, $2, $3, 'active', NOW(), NOW()) RETURNING id`,
+            `INSERT INTO hospitals (name, contact_email, contact_phone, is_active, created_at, updated_at)
+             VALUES ($1, $2, $3, true, NOW(), NOW()) RETURNING id`,
             [reqRow.hospital_name, reqRow.contact_email, reqRow.contact_phone]
         );
 
@@ -147,9 +147,11 @@ router.put('/requests/:id/reject', protect, requireAdmin, async (req, res) => {
 router.get('/', protect, requireAdmin, async (req, res) => {
     try {
         const hospitals = await queryAll(
-            `SELECT h.*,
+            `SELECT h.id, h.name, h.contact_email as email, h.contact_phone as phone,
+              CASE WHEN h.is_active THEN 'active' ELSE 'suspended' END as status,
               (SELECT COUNT(*) FROM users u WHERE u.hospital_id = h.id) as total_users,
-              COALESCE(hc.balance, 0) as credit_balance
+              COALESCE(hc.balance, 0) as credit_balance,
+              h.created_at
        FROM hospitals h
        LEFT JOIN hospital_credits hc ON hc.hospital_id = h.id
        ORDER BY h.created_at DESC`,
@@ -165,7 +167,7 @@ router.get('/', protect, requireAdmin, async (req, res) => {
 // PUT /api/hospitals/:id/suspend
 router.put('/:id/suspend', protect, requireAdmin, async (req, res) => {
     try {
-        await query('UPDATE hospitals SET status = $1, updated_at = NOW() WHERE id = $2', ['suspended', req.params.id]);
+        await query('UPDATE hospitals SET is_active = false, updated_at = NOW() WHERE id = $1', [req.params.id]);
         res.json({ success: true, message: 'Hôpital suspendu' });
     } catch (err) {
         console.error('Suspend hospital error:', err);
@@ -176,7 +178,7 @@ router.put('/:id/suspend', protect, requireAdmin, async (req, res) => {
 // PUT /api/hospitals/:id/activate
 router.put('/:id/activate', protect, requireAdmin, async (req, res) => {
     try {
-        await query('UPDATE hospitals SET status = $1, updated_at = NOW() WHERE id = $2', ['active', req.params.id]);
+        await query('UPDATE hospitals SET is_active = true, updated_at = NOW() WHERE id = $1', [req.params.id]);
         res.json({ success: true, message: 'Hôpital activé' });
     } catch (err) {
         console.error('Activate hospital error:', err);

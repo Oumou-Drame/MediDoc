@@ -1,0 +1,85 @@
+<div class="choix-abonnement-page">
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="nav-name">MediDoc</span>
+      </div>
+      <a routerLink="/login" class="nav-back">← Déconnexion</a>
+    </div>
+  </nav>
+
+  <div class="choix-container">
+    <div class="choix-header">
+      <h1>Choisissez votre pack d'abonnement</h1>
+      <p>Sélectionnez le pack qui correspond le mieux à votre établissement. Vous pourrez changer de pack à tout moment.</p>
+    </div>
+
+    @if (chargement) {
+      <div class="chargement">Chargement des packs...</div>
+    }
+
+    @if (erreur) {
+      <div class="erreur">{{ erreur }}</div>
+    }
+
+    @if (message) {
+      <div class="trace">{{ message }}</div>
+    }
+
+    <div class="plans-grid">
+      @for (plan of plans; track plan.id) {
+        <div class="plan-card" [class.recommande]="plan.id === 2">
+          @if (plan.id === 2) {
+            <div class="badge-recommande">⭐ Recommandé</div>
+          }
+          <div class="plan-header">
+            <h2>{{ plan.name }}</h2>
+            <p class="plan-desc">{{ plan.description }}</p>
+          </div>
+          <div class="plan-price">
+            <span class="price">{{ plan.price === 0 ? 'Gratuit' : plan.price + ' ' + plan.currency }}</span>
+            <span class="period">/ {{ plan.duration_days }} jours</span>
+          </div>
+          <ul class="plan-features">
+            <li [class.disabled]="!plan.features.email">
+              <span class="icon">📧</span> Envoi Email
+            </li>
+            <li [class.disabled]="!plan.features.whatsapp">
+              <span class="icon">📱</span> Envoi WhatsApp
+            </li>
+            <li [class.disabled]="!plan.features.sms">
+              <span class="icon">💬</span> Envoi SMS
+            </li>
+            <li>
+              <span class="icon">👥</span> {{ plan.features.max_technicians === -1 ? 'Techniciens illimités' : plan.features.max_technicians + ' techniciens max' }}
+            </li>
+            <li>
+              <span class="icon">📊</span> Statistiques {{ plan.features.statistics === 'basic' ? 'basiques' : plan.features.statistics === 'advanced' ? 'avancées' : 'temps réel' }}
+            </li>
+            <li>
+              <span class="icon">📅</span> Historique {{ plan.features.history_days === -1 ? 'illimité' : plan.features.history_days + ' jours' }}
+            </li>
+          </ul>
+          <button class="btn-choisir" (click)="choisirPack(plan.id)" [disabled]="choixEnCours">
+            {{ choixEnCours ? 'Chargement...' : 'Choisir ce pack' }}
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="info-section">
+      <h3>🔒 Paiement sécurisé</h3>
+      <p>Pour les packs payants, vous serez redirigé vers notre partenaire de paiement. Votre abonnement sera activé immédiatement après confirmation du paiement.</p>
+      <p><strong>Période d'essai :</strong> Tous les packs payants incluent 7 jours d'essai gratuit.</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© {{ getCurrentYear() }} MediDoc — Plateforme sécurisée de résultats médicaux</p>
+  </footer>
+</div>

@@ -50,6 +50,14 @@ export class AuthService {
     );
   }
 
+  // Vérifie si l'utilisateur doit choisir un pack (première connexion après validation)
+  hasChosenPlan(): Observable<boolean> {
+    return this.getMe().pipe(
+      map((user: any) => user.has_chosen_plan === true),
+      catchError(() => of(false))
+    );
+  }
+
   // Vérifie la connexion en interrogeant le serveur (le cookie est HttpOnly, invisible en JS)
   isLogin(): Observable<boolean> {
     return this.getMe().pipe(

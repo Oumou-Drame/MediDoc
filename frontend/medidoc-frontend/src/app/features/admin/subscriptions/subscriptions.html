@@ -1,0 +1,43 @@
+<div class="subscriptions-page">
+  <div class="page-header">
+    <h1>Abonnements des hôpitaux</h1>
+    <p>Suivi et validation des demandes d'abonnement.</p>
+  </div>
+
+  @if (chargement) {
+    <div class="chargement">Chargement...</div>
+  }
+
+  @if (erreur) {
+    <div class="erreur">{{ erreur }}</div>
+  }
+
+  <div class="subscriptions-list">
+    @for (sub of subscriptions; track sub.id) {
+      <div class="subscription-card">
+        <div class="subscription-info">
+          <h3>{{ sub.hospital_name }}</h3>
+          <p class="sub-detail">Contact: {{ sub.contact_name }} ({{ sub.contact_email }})</p>
+          <div class="sub-meta">
+            <span class="plan-name">{{ sub.plan_name }}</span>
+            <span class="price">{{ sub.price === 0 ? 'Gratuit' : sub.price + ' ' + sub.currency }}</span>
+          </div>
+        </div>
+        <div class="subscription-status">
+          <span class="status-badge" [class]="'status-' + sub.status">
+            {{ getStatusLabel(sub.status) }}
+          </span>
+          <span class="payment-badge" [class]="'payment-' + sub.payment_status">
+            {{ sub.payment_status === 'paid' ? 'Payé' : sub.payment_status === 'pending' ? 'En attente' : sub.payment_status }}
+          </span>
+        </div>
+        @if (sub.status === 'pending') {
+          <div class="subscription-actions">
+            <button class="btn-valider" (click)="validerAbonnement(sub.id)">Valider</button>
+            <button class="btn-rejeter" (click)="rejeterAbonnement(sub.id)">Refuser</button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

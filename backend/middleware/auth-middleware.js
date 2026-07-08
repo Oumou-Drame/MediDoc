@@ -21,7 +21,7 @@ export const protect = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await pool.query(
             `SELECT id, email, full_name, role, phone, hospital_id, is_technician, active_view,
-                    must_change_password, is_active
+                    must_change_password, is_active, has_chosen_plan
              FROM users WHERE id = $1`,
             [decoded.id]
         );

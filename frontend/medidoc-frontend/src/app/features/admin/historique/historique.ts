@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { HistoryService} from '../../../core/services/history-service';
 import { ResultatMedical } from '../models/history';
 import { Pagination } from '../models/history';
-import { RouterLink } from '@angular/router';
 import { ConfirmDialog } from '../../../shared/confirm-dialog/confirm-dialog';
 
 
 @Component({
   selector: 'app-historique',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ConfirmDialog],
+  imports: [CommonModule, FormsModule, ConfirmDialog],
   templateUrl: './historique.html',
   styleUrl: './historique.css',
 })

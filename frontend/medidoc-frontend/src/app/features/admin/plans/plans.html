@@ -1,0 +1,34 @@
+<div class="plans-page">
+  <div class="page-header">
+    <h1>Gestion des packs d'abonnement</h1>
+    <p>Configurez les offres disponibles pour les hôpitaux.</p>
+  </div>
+
+  @if (chargement) {
+    <div class="chargement">Chargement...</div>
+  }
+
+  @if (erreur) {
+    <div class="erreur">{{ erreur }}</div>
+  }
+
+  <div class="plans-list">
+    @for (plan of plans; track plan.id) {
+      <div class="plan-item">
+        <div class="plan-info">
+          <h3>{{ plan.name }}</h3>
+          <p class="plan-desc">{{ plan.description }}</p>
+          <div class="plan-meta">
+            <span class="price">{{ plan.price === 0 ? 'Gratuit' : plan.price + ' ' + plan.currency }}</span>
+            <span class="duration">{{ plan.duration_days }} jours</span>
+          </div>
+        </div>
+        <div class="plan-features">
+          <div class="feature" *ngFor="let feature of ['max_technicians', 'whatsapp', 'email', 'sms', 'monthly_sends', 'statistics', 'history_days', 'support', 'api_access']">
+            <span class="feature-label">{{ getFeatureLabel(feature, getFeatureValue(plan, feature)) }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -77,9 +77,40 @@ router.post('/login', async (req, res) => {
             hospital_id: userData.hospital_id,
             is_technician: userData.is_technician,
             active_view: userData.active_view,
-            must_change_password: userData.must_change_password
+            must_change_password: userData.must_change_password,
+            has_chosen_plan: userData.has_chosen_plan
         }
     });
+});
+
+// POST /api/auth/register-hospital — Crée un compte temporaire pour un hôpital en attente de validation
+router.post('/register-hospital', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email et mot de passe requis' });
+    }
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
+    }
+
+    try {
+        const existing = await queryOne('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
+        if (existing) {
+            return res.status(400).json({ error: 'Un compte existe déjà avec cet email' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await query(
+            `INSERT INTO users (email, password, full_name, role, is_active, must_change_password, created_at, updated_at)
+             VALUES ($1, $2, $3, 'pending_hospital', 0, true, NOW(), NOW())`,
+            [email.toLowerCase(), hashedPassword, email.split('@')[0]]
+        );
+
+        res.json({ success: true, message: 'Compte créé avec succès' });
+    } catch (err) {
+        console.error('Register hospital error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
 });
 
 //  Me // GET /api/auth/me — Récupère les infos de l'utilisateur connecté
