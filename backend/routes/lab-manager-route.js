@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import { protect, requireLabManager } from '../middleware/auth-middleware.js';
 import { queryOne, queryAll, query } from '../config/db.js';
 import { getBalance, getTransactions } from '../utils/credits.js';
-import { testSmtpConnection, explainSmtpError } from '../utils/sms.js';
 
 const router = express.Router();
 
@@ -237,99 +236,6 @@ router.delete('/technicians/:id', async (req, res) => {
     } catch (err) {
         console.error('Delete technician error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
-    }
-});
-
-// ===========================================================
-// Configuration d'envoi propre à l'hôpital (email SMTP + numéro d'envoi SMS/WhatsApp)
-// Le responsable de labo configure uniquement le numéro déjà activé côté plateforme,
-// pas les identifiants techniques du fournisseur (voir cadrage section 3.2 / 7).
-// ===========================================================
-
-router.get('/send-config', async (req, res) => {
-    try {
-        const config = await queryOne('SELECT * FROM hospital_send_config WHERE hospital_id = $1', [req.user.hospital_id]);
-        const safeConfig = config ? { ...config, smtp_pass: config.smtp_pass ? '••••••••' : null } : null;
-        res.json({ success: true, data: safeConfig });
-    } catch (err) {
-        console.error('Get send config error:', err);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-});
-
-router.put('/send-config', async (req, res) => {
-    const { smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_name, sms_whatsapp_sender, clear_email } = req.body;
-    try {
-        const existing = await queryOne('SELECT hospital_id, smtp_pass FROM hospital_send_config WHERE hospital_id = $1', [req.user.hospital_id]);
-
-        let hostToStore, portToStore, userToStore, passwordToStore;
-        if (clear_email) {
-            // Le responsable de labo a désactivé "email personnalisé" : on repasse sur le compte
-            // email de la plateforme (comportement par défaut, voir utils/sms.js getHospitalTransporter).
-            hostToStore = null;
-            portToStore = null;
-            userToStore = null;
-            passwordToStore = null;
-        } else {
-            hostToStore = smtp_host || null;
-            portToStore = smtp_port || null;
-            userToStore = smtp_user || null;
-            // Ne pas écraser le mot de passe SMTP si le champ masqué a été renvoyé tel quel
-            passwordToStore = (smtp_pass && smtp_pass !== '••••••••') ? smtp_pass : (existing ? existing.smtp_pass : null);
-        }
-
-        if (existing) {
-            await query(
-                `UPDATE hospital_send_config
-         SET smtp_host = $1, smtp_port = $2, smtp_user = $3, smtp_pass = $4, smtp_from_name = $5, sms_whatsapp_sender = $6, updated_at = NOW()
-         WHERE hospital_id = $7`,
-                [hostToStore, portToStore, userToStore, passwordToStore, smtp_from_name || null, sms_whatsapp_sender || null, req.user.hospital_id]
-            );
-        } else {
-            await query(
-                `INSERT INTO hospital_send_config (hospital_id, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_name, sms_whatsapp_sender, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-                [req.user.hospital_id, hostToStore, portToStore, userToStore, passwordToStore, smtp_from_name || null, sms_whatsapp_sender || null]
-            );
-        }
-
-        res.json({ success: true, message: "Configuration d'envoi mise à jour" });
-    } catch (err) {
-        console.error('Update send config error:', err);
-        res.status(500).json({ error: 'Erreur serveur' });
-    }
-});
-
-// POST /api/lab-manager/send-config/test — vérifie tout de suite si l'email + mot de passe
-// d'application saisis fonctionnent réellement (sans envoyer de vrai email), pour éviter
-// qu'une config invalide ne soit découverte plus tard via un envoi silencieusement échoué.
-router.post('/send-config/test', async (req, res) => {
-    const { smtp_host, smtp_port, smtp_user, smtp_pass } = req.body;
-    if (!smtp_user) {
-        return res.status(400).json({ error: "L'adresse email est requise pour tester" });
-    }
-
-    // Si le mot de passe masqué (••••••••) a été renvoyé tel quel, on reprend celui déjà enregistré.
-    let passwordToTest = smtp_pass;
-    if (!passwordToTest || passwordToTest === '••••••••') {
-        const existing = await queryOne('SELECT smtp_pass FROM hospital_send_config WHERE hospital_id = $1', [req.user.hospital_id]);
-        passwordToTest = existing?.smtp_pass || null;
-    }
-    if (!passwordToTest) {
-        return res.status(400).json({ error: "Le mot de passe d'application est requis pour tester" });
-    }
-
-    const result = await testSmtpConnection({
-        host: smtp_host || 'smtp.gmail.com',
-        port: smtp_port || 587,
-        user: smtp_user,
-        pass: passwordToTest
-    });
-
-    if (result.success) {
-        res.json({ success: true, message: 'Connexion réussie — cette adresse peut envoyer des emails aux patients' });
-    } else {
-        res.status(400).json({ error: explainSmtpError(result.error) });
     }
 });
 

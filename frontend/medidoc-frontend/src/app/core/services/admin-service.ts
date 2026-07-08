@@ -45,17 +45,19 @@ export class AdminService {
     return this.http.put<any>(`${this.apiUrl}/settings`, payload, { withCredentials: true });
   }
 
-  // Configuration d'envoi propre à l'hôpital (email SMTP + numéro SMS/WhatsApp déjà activé côté plateforme)
-  getSendConfig(): Observable<any> {
-    return this.http.get<any>(`${this.labManagerUrl}/send-config`, { withCredentials: true });
+  // Configuration d'envoi par hôpital (email SMTP + SMS/WhatsApp)
+  // Accessible uniquement à l'admin plateforme (rôle admin).
+  // L'identifiant de l'hôpital ciblé est passé en paramètre.
+  getSendConfig(hospitalId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/send-config/${hospitalId}`, { withCredentials: true });
   }
 
-  updateSendConfig(payload: any): Observable<any> {
-    return this.http.put<any>(`${this.labManagerUrl}/send-config`, payload, { withCredentials: true });
+  updateSendConfig(hospitalId: number, payload: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/send-config/${hospitalId}`, payload, { withCredentials: true });
   }
 
-  testSendConfig(payload: any): Observable<any> {
-    return this.http.post<any>(`${this.labManagerUrl}/send-config/test`, payload, { withCredentials: true });
+  testSendConfig(hospitalId: number, payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/send-config/${hospitalId}/test`, payload, { withCredentials: true });
   }
 
   // Solde de crédits SMS/WhatsApp de l'hôpital

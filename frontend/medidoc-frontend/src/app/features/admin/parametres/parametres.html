@@ -1,7 +1,7 @@
 <div class="page-header">
     <div>
         <div class="page-title">Paramètres plateforme</div>
-        <div class="page-subtitle">Réglages techniques globaux, sans impact sur les hôpitaux individuels</div>
+        <div class="page-subtitle">Réglages techniques globaux et configuration d'envoi par hôpital</div>
     </div>
 </div>
 
@@ -34,5 +34,76 @@
         <button class="btn-primary" (click)="enregistrer()" [disabled]="enregistrement">
             {{ enregistrement ? 'Enregistrement...' : 'Enregistrer' }}
         </button>
+    </div>
+</div>
+
+<div class="card" *ngIf="!chargement">
+    <div class="card-title">Configuration d'envoi par hôpital</div>
+
+    <div class="form-row">
+        <label>Hôpital</label>
+        <select [(ngModel)]="hospitalIdSelectionne" (change)="chargerConfigEnvoi()">
+            <option *ngFor="let h of hopitaux" [value]="h.id">{{ h.name }}</option>
+        </select>
+    </div>
+
+    <div *ngIf="chargementEnvoi">Chargement de la configuration...</div>
+
+    <div *ngIf="!chargementEnvoi">
+        <p class="config-note">
+            Configurez le numéro SMS/WhatsApp activé et l'email d'envoi pour l'hôpital sélectionné.
+        </p>
+
+        <div class="form-row">
+            <label>Numéro d'envoi SMS/WhatsApp</label>
+            <input type="text" [(ngModel)]="smsWhatsappSender" placeholder="Ex: +221771234567">
+        </div>
+
+        <div class="config-separateur">Email de l'hôpital</div>
+
+        <div class="form-row">
+            <label>Nom affiché comme expéditeur</label>
+            <input type="text" [(ngModel)]="smtpFromName" placeholder="Ex: Laboratoire Fann">
+        </div>
+
+        <div class="form-row">
+            <label>Adresse email de l'hôpital</label>
+            <input type="email" [(ngModel)]="smtpUser" placeholder="labo.fann@gmail.com" required>
+        </div>
+
+        <div class="form-row">
+            <label>Mot de passe d'application</label>
+            <input type="password" [(ngModel)]="smtpPass" placeholder="Laisser tel quel pour ne pas le modifier">
+        </div>
+
+        <button type="button" class="btn-link" (click)="avanceOuvert = !avanceOuvert">
+            {{ avanceOuvert ? 'Masquer les options avancées' : "Je n'utilise pas Gmail" }}
+        </button>
+
+        <ng-container *ngIf="avanceOuvert">
+            <div class="form-row">
+                <label>Serveur SMTP</label>
+                <input type="text" [(ngModel)]="smtpHost" placeholder="Ex: smtp.gmail.com">
+            </div>
+            <div class="form-row">
+                <label>Port SMTP</label>
+                <input type="number" [(ngModel)]="smtpPort">
+            </div>
+        </ng-container>
+
+        <div class="test-connexion-row">
+            <button type="button" class="btn-secondary" [disabled]="testEnCours" (click)="testerConnexion()">
+                {{ testEnCours ? 'Test en cours...' : 'Tester la connexion' }}
+            </button>
+            <span class="test-message-ok" *ngIf="testMessage">✓ {{ testMessage }}</span>
+            <span class="test-message-erreur" *ngIf="testErreur">✕ {{ testErreur }}</span>
+        </div>
+
+        <div class="param-actions">
+            <span class="succes" *ngIf="messageSuccesEnvoi">{{ messageSuccesEnvoi }}</span>
+            <button class="btn-primary" [disabled]="enregistrementEnvoi" (click)="enregistrerEnvoi()">
+                {{ enregistrementEnvoi ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+        </div>
     </div>
 </div>

@@ -45,4 +45,5 @@ export class Hopitaux implements OnInit {
       error: (err) => alert(err.error?.error || 'Erreur')
     });
   }
+
 }

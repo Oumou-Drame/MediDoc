@@ -36,3 +36,45 @@
     font-size: 0.85rem;
     font-weight: 600;
 }
+
+.config-note {
+    font-size: 0.8rem;
+    color: #7a9488;
+    margin-bottom: 20px;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+.config-separateur {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a2e25;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 24px 0 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e2ece7;
+}
+
+.test-connexion-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--c-border);
+}
+
+.test-message-ok {
+    font-size: 0.85rem;
+    color: var(--c-accent);
+    font-weight: 600;
+}
+
+.test-message-erreur {
+    font-size: 0.85rem;
+    color: var(--c-danger);
+    font-weight: 600;
+    max-width: 440px;
+}
