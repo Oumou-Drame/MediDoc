@@ -1,6 +1,16 @@
 .inscription-page {
+  --primary: #0f8b5e;
+  --primary-gradient: linear-gradient(135deg, #0f8b5e 0%, #144f37 100%);
+  --bg-page: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --border-soft: rgba(15, 139, 94, 0.12);
+  --border-input: rgba(15, 139, 94, 0.18);
+  --text-dark: #1e293b;
+  --text-muted: #64748b;
+  --text-soft: #94a3b8;
+
   min-height: 100vh;
-  background: linear-gradient(135deg, #0b1121 0%, #111827 50%, #0b1121 100%);
+  background: var(--bg-page);
   display: flex;
   flex-direction: column;
 }
@@ -13,9 +23,9 @@
   right: 0;
   z-index: 100;
   padding: 16px 24px;
-  background: rgba(11, 17, 33, 0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .nav-inner {
@@ -30,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #fff;
+  color: var(--text-dark);
   font-weight: 700;
   font-size: 18px;
 }
@@ -38,7 +48,7 @@
 .nav-logo {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  background: var(--primary-gradient);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -47,14 +57,14 @@
 }
 
 .nav-back {
-  color: #94a3b8;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
 }
 
 .nav-back:hover {
-  color: #fff;
+  color: var(--primary);
 }
 
 /* Container */
@@ -80,66 +90,68 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
   transition: color 0.3s;
 }
 
 .progress-step.active {
-  color: #06b6d4;
+  color: var(--primary);
 }
 
 .progress-step.done {
-  color: #10b981;
+  color: var(--primary);
 }
 
 .ps-number {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #1e293b;
-  border: 2px solid #334155;
+  background: #fff;
+  border: 2px solid var(--border-input);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
+  color: var(--text-muted);
   transition: all 0.3s;
 }
 
 .progress-step.active .ps-number {
-  border-color: #06b6d4;
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
+  border-color: var(--primary);
+  background: rgba(15, 139, 94, 0.12);
+  color: var(--primary);
 }
 
 .progress-step.done .ps-number {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  border-color: var(--primary);
+  background: rgba(15, 139, 94, 0.15);
+  color: var(--primary);
 }
 
 .progress-line {
   width: 60px;
   height: 2px;
-  background: #1e293b;
+  background: var(--border-input);
   margin: 0 8px;
   margin-bottom: 28px;
   transition: background 0.3s;
 }
 
 .progress-line.active {
-  background: #06b6d4;
+  background: var(--primary);
 }
 
 /* Card */
 .card-inscription {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
   border-radius: 16px;
   padding: 40px;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(15, 139, 94, 0.08);
 }
 
 .card-header {
@@ -153,13 +165,13 @@
 }
 
 .card-header h2 {
-  color: #fff;
+  color: var(--text-dark);
   font-size: 22px;
   margin: 0 0 8px;
 }
 
 .card-header p {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 14px;
   margin: 0;
 }
@@ -171,7 +183,7 @@
 
 .form-group label {
   display: block;
-  color: #cbd5e1;
+  color: var(--text-dark);
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 6px;
@@ -181,24 +193,25 @@
 .form-group textarea {
   width: 100%;
   padding: 12px 14px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border-input);
   border-radius: 10px;
-  color: #fff;
+  color: var(--text-dark);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   box-sizing: border-box;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #06b6d4;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 139, 94, 0.12);
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #475569;
+  color: var(--text-soft);
 }
 
 .form-error {
@@ -212,7 +225,7 @@
 }
 
 .field-error {
-  color: #fca5a5;
+  color: #ef4444;
   font-size: 12px;
   margin-top: 6px;
 }
@@ -229,7 +242,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  color: #cbd5e1;
+  color: var(--text-dark);
   font-size: 13px;
   cursor: pointer;
 }
@@ -238,7 +251,7 @@
   margin-top: 4px;
   width: 16px;
   height: 16px;
-  accent-color: #06b6d4;
+  accent-color: var(--primary);
 }
 
 .checkbox-label span {
@@ -247,7 +260,7 @@
 
 .char-count {
   text-align: right;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   margin-top: 6px;
 }
@@ -255,7 +268,7 @@
 .btn-submit {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #06b6d4, #3b82f6);
+  background: var(--primary-gradient);
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -266,7 +279,7 @@
 }
 
 .btn-submit:hover {
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .btn-submit:active {
@@ -280,13 +293,13 @@
 
 .card-footer-text {
   text-align: center;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 13px;
   margin-top: 24px;
 }
 
 .card-footer-text a {
-  color: #06b6d4;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
 }
@@ -297,18 +310,18 @@
 
 /* Info box */
 .info-box {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  background: rgba(15, 139, 94, 0.08);
+  border: 1px solid rgba(15, 139, 94, 0.2);
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 20px;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
 .info-box strong {
-  color: #e2e8f0;
+  color: var(--text-dark);
 }
 
 .info-box p {
@@ -335,11 +348,11 @@
 
 .form-group input:hover,
 .form-group textarea:hover {
-  border-color: rgba(255,255,255,0.18);
+  border-color: rgba(15, 139, 94, 0.35);
 }
 
 .btn-submit {
-  box-shadow: 0 10px 25px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 10px 25px rgba(15, 139, 94, 0.25);
 }
 
 .btn-submit:disabled {
@@ -362,13 +375,13 @@
 }
 
 .card-confirmation h2 {
-  color: #10b981;
+  color: var(--primary);
   font-size: 24px;
   margin: 0 0 12px;
 }
 
 .card-confirmation p {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 14px;
   line-height: 1.6;
   margin: 0 0 8px;
@@ -378,8 +391,8 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.2);
+  background: rgba(15, 139, 94, 0.08);
+  border: 1px solid rgba(15, 139, 94, 0.2);
   border-radius: 10px;
   padding: 16px;
   text-align: left;
@@ -392,12 +405,12 @@
 }
 
 .confirmation-info strong {
-  color: #e2e8f0;
+  color: var(--text-dark);
   font-size: 14px;
 }
 
 .confirmation-info p {
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 13px;
   margin: 4px 0 0;
 }
@@ -412,7 +425,7 @@
 
 /* Footer */
 .footer {
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-soft);
   padding: 24px;
   margin-top: auto;
 }
@@ -423,7 +436,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 13px;
 }
 
@@ -431,12 +444,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
 .footer-cta {
-  color: #06b6d4;
+  color: var(--primary);
   text-decoration: none;
   font-weight: 600;
   font-size: 13px;
@@ -451,7 +464,7 @@
   .card-inscription {
     padding: 24px;
   }
-  
+
   .progress-line {
     width: 30px;
   }
