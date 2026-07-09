@@ -25,6 +25,12 @@ export class Inscription {
   message = '';
   accepteConditions = false;
 
+  // Document de vérification
+  selectedFile: File | null = null;
+  documentType = 'agreement'; // agreement, license, registration, other
+  uploadEnCours = false;
+  requestId: number | null = null;
+
   envoiEnCours = false;
   erreur = '';
   erreurChamp: Record<string, string> = {};
@@ -49,6 +55,53 @@ export class Inscription {
 
   champEstInvalide(nom: string): boolean {
     return !!this.erreurChamp[nom];
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      
+      // Validation du type de fichier
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        this.erreur = 'Seuls les fichiers JPEG, PNG et PDF sont autorisés';
+        this.selectedFile = null;
+        return;
+      }
+
+      // Validation de la taille (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        this.erreur = 'La taille du fichier ne doit pas dépasser 5MB';
+        this.selectedFile = null;
+        return;
+      }
+
+      this.selectedFile = file;
+      this.erreur = '';
+    }
+  }
+
+  uploadDocument() {
+    if (!this.selectedFile || !this.requestId) {
+      return;
+    }
+
+    this.uploadEnCours = true;
+    const formData = new FormData();
+    formData.append('document', this.selectedFile);
+    formData.append('document_type', this.documentType);
+
+    this.http.post<any>(`http://localhost:5000/api/hospitals/request/${this.requestId}/document`, formData).subscribe({
+      next: () => {
+        this.uploadEnCours = false;
+        this.selectedFile = null;
+      },
+      error: (err) => {
+        this.uploadEnCours = false;
+        this.erreur = err.error?.error || "Erreur lors de l'upload du document";
+      }
+    });
   }
 
   envoyerDemande() {
@@ -109,9 +162,16 @@ export class Inscription {
       contact_phone: this.contactPhone || undefined,
       message: messageComplet || undefined
     }).subscribe({
-      next: () => {
+      next: (res) => {
         this.envoiEnCours = false;
-        this.envoye = true;
+        this.requestId = res.request_id;
+        
+        // Si un fichier est sélectionné, l'uploader automatiquement
+        if (this.selectedFile) {
+          this.uploadDocument();
+        } else {
+          this.envoye = true;
+        }
       },
       error: (err) => {
         this.envoiEnCours = false;

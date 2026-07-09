@@ -40,6 +40,15 @@ export class PlatformService {
     return this.http.put<any>(`${this.hospitalsUrl}/requests/${id}/reject`, { reason }, { withCredentials: true });
   }
 
+  // Documents de vérification
+  getRequestDocuments(requestId: number): Observable<any> {
+    return this.http.get<any>(`${this.hospitalsUrl}/request/${requestId}/documents`, { withCredentials: true });
+  }
+
+  verifyDocument(requestId: number, docId: number, status: 'verified' | 'rejected', reason?: string): Observable<any> {
+    return this.http.put<any>(`${this.hospitalsUrl}/request/${requestId}/documents/${docId}/verify`, { status, reason }, { withCredentials: true });
+  }
+
   // Crédits — vue plateforme
   getCreditsOverview(): Observable<any> {
     return this.http.get<any>(`${this.adminUrl}/credits`, { withCredentials: true });

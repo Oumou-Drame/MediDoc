@@ -1,12 +1,49 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { protect, requireAdmin } from '../middleware/auth-middleware.js';
 import { queryOne, queryAll, query } from '../config/db.js';
 import { sendPlatformEmail } from '../utils/platformMailer.js';
 
 const router = express.Router();
 const RESET_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h pour le tout premier mot de passe
+
+// Configuration Multer pour l'upload de documents
+const uploadDir = path.join(process.cwd(), 'uploads', 'hospital-documents');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'hospital-doc-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB max
+    },
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|pdf/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+
+        if (extname && mimetype) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Seuls les fichiers JPEG, PNG et PDF sont autorisés'));
+        }
+    }
+});
 
 // ===========================================================
 // Public — formulaire de demande d'inscription (landing page, section 6)
@@ -21,14 +58,135 @@ router.post('/request', async (req, res) => {
     }
 
     try {
-        await query(
-            `INSERT INTO hospital_requests (hospital_name, contact_name, contact_email, contact_phone, message, status, created_at)
-             VALUES ($1, $2, $3, $4, $5, 'pending', NOW())`,
+        const result = await query(
+            `INSERT INTO hospital_requests (hospital_name, contact_name, contact_email, contact_phone, message, status, document_status, created_at)
+             VALUES ($1, $2, $3, $4, $5, 'pending', 'pending', NOW()) RETURNING id`,
             [hospital_name, contact_name, contact_email.toLowerCase(), contact_phone || null, message || null]
         );
-        res.json({ success: true, message: 'Votre demande a bien été reçue. Notre équipe la vérifiera avant validation.' });
+        res.json({ success: true, message: 'Votre demande a bien été reçue. Notre équipe la vérifiera avant validation.', request_id: result.rows[0].id });
     } catch (err) {
         console.error('Hospital request error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// POST /api/hospitals/request/:id/document — upload d'un document de vérification
+router.post('/request/:id/document', upload.single('document'), async (req, res) => {
+    const { id } = req.params;
+    const { document_type } = req.body;
+
+    if (!req.file) {
+        return res.status(400).json({ error: 'Aucun fichier fourni' });
+    }
+
+    if (!document_type) {
+        return res.status(400).json({ error: 'Type de document requis' });
+    }
+
+    try {
+        const request = await queryOne('SELECT * FROM hospital_requests WHERE id = $1', [id]);
+        if (!request) {
+            return res.status(404).json({ error: 'Demande non trouvée' });
+        }
+
+        await query(
+            `INSERT INTO hospital_documents (hospital_request_id, document_type, file_name, file_path, file_size, mime_type, verification_status)
+             VALUES ($1, $2, $3, $4, $5, $6, 'pending')`,
+            [
+                id,
+                document_type,
+                req.file.originalname,
+                req.file.path,
+                req.file.size,
+                req.file.mimetype
+            ]
+        );
+
+        await query(
+            `UPDATE hospital_requests SET document_status = 'pending' WHERE id = $1`,
+            [id]
+        );
+
+        res.json({ success: true, message: 'Document uploadé avec succès' });
+    } catch (err) {
+        console.error('Document upload error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// GET /api/hospitals/request/:id/documents — récupérer les documents d'une demande
+router.get('/request/:id/documents', protect, requireAdmin, async (req, res) => {
+    try {
+        const documents = await queryAll(
+            `SELECT * FROM hospital_documents WHERE hospital_request_id = $1 ORDER BY upload_date DESC`,
+            [req.params.id]
+        );
+        res.json({ success: true, data: documents });
+    } catch (err) {
+        console.error('Get documents error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// GET /api/hospitals/request/:id/documents/:docId — télécharger un document
+router.get('/request/:id/documents/:docId', protect, requireAdmin, async (req, res) => {
+    try {
+        const document = await queryOne(
+            'SELECT * FROM hospital_documents WHERE id = $1 AND hospital_request_id = $2',
+            [req.params.docId, req.params.id]
+        );
+
+        if (!document) {
+            return res.status(404).json({ error: 'Document non trouvé' });
+        }
+
+        res.download(document.file_path, document.file_name);
+    } catch (err) {
+        console.error('Download document error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// PUT /api/hospitals/request/:id/documents/:docId/verify — vérifier un document
+router.put('/request/:id/documents/:docId/verify', protect, requireAdmin, async (req, res) => {
+    const { status, reason } = req.body; // status: 'verified' or 'rejected'
+
+    if (!status || !['verified', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: 'Statut invalide' });
+    }
+
+    try {
+        await query(
+            `UPDATE hospital_documents 
+             SET verification_status = $1, verified_by = $2, verified_at = NOW(), rejection_reason = $3
+             WHERE id = $4 AND hospital_request_id = $5`,
+            [status, req.user.id, reason || null, req.params.docId, req.params.id]
+        );
+
+        // Mettre à jour le statut de la demande si tous les documents sont vérifiés
+        const allDocs = await queryAll(
+            'SELECT verification_status FROM hospital_documents WHERE hospital_request_id = $1',
+            [req.params.id]
+        );
+
+        const allVerified = allDocs.every(doc => doc.verification_status === 'verified');
+        const anyRejected = allDocs.some(doc => doc.verification_status === 'rejected');
+
+        if (allVerified) {
+            await query(
+                `UPDATE hospital_requests SET document_status = 'verified' WHERE id = $1`,
+                [req.params.id]
+            );
+        } else if (anyRejected) {
+            await query(
+                `UPDATE hospital_requests SET document_status = 'rejected' WHERE id = $1`,
+                [req.params.id]
+            );
+        }
+
+        res.json({ success: true, message: 'Document vérifié' });
+    } catch (err) {
+        console.error('Verify document error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
@@ -63,6 +221,15 @@ router.put('/requests/:id/approve', protect, requireAdmin, async (req, res) => {
         }
         if (reqRow.status !== 'pending') {
             return res.status(400).json({ error: 'Cette demande a déjà été traitée' });
+        }
+
+        // Vérifier si des documents sont requis et leur statut
+        if (reqRow.document_status === 'pending') {
+            return res.status(400).json({ error: 'Les documents doivent être vérifiés avant d\'approuver la demande' });
+        }
+
+        if (reqRow.document_status === 'rejected') {
+            return res.status(400).json({ error: 'Les documents ont été rejetés. Impossible d\'approuver la demande.' });
         }
 
         const existingUser = await queryOne('SELECT id FROM users WHERE email = $1', [reqRow.contact_email]);

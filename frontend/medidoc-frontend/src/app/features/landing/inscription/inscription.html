@@ -79,6 +79,32 @@
           </div>
 
           <div class="form-group">
+            <label>Document de vérification </label>
+            <div class="file-upload-container">
+              <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png,.pdf" id="document-upload" class="file-input">
+              <label for="document-upload" class="file-upload-label">
+                <span class="file-upload-icon">📎</span>
+                <span class="file-upload-text">{{ selectedFile ? selectedFile.name : 'Choisir un fichier (JPEG, PNG, PDF - Max 5MB)' }}</span>
+              </label>
+              @if (selectedFile) {
+                <button type="button" (click)="selectedFile = null" class="file-remove-btn">✕</button>
+              }
+            </div>
+            <div class="form-row-duo">
+              <div class="form-group">
+                <label>Type de document</label>
+                <select [(ngModel)]="documentType" name="documentType" class="form-select">
+                  <option value="agreement">Agrément officiel</option>
+                  <option value="license">Licence d'exercice</option>
+                  <option value="registration">Registre de commerce</option>
+                  <option value="other">Autre</option>
+                </select>
+              </div>
+            </div>
+            <p class="field-hint">Ce document nous aidera à vérifier l'authenticité de votre établissement.</p>
+          </div>
+
+          <div class="form-group">
             <label class="checkbox-label">
               <input type="checkbox" [(ngModel)]="accepteConditions" name="accepteConditions">
               <span>J'accepte que les informations transmises soient utilisées dans le cadre de la validation de l'établissement.</span>

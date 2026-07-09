@@ -10,7 +10,16 @@ interface HospitalRequest {
   contact_phone: string | null;
   message: string | null;
   status: 'pending' | 'approved' | 'rejected';
+  document_status: 'not_required' | 'pending' | 'verified' | 'rejected';
   created_at: string;
+}
+
+interface HospitalDocument {
+  id: number;
+  document_type: string;
+  file_name: string;
+  verification_status: 'pending' | 'verified' | 'rejected';
+  upload_date: string;
 }
 
 @Component({
@@ -26,6 +35,10 @@ export class Demandes implements OnInit {
   chargement = true;
   traitementEnCours: number | null = null;
   requests: HospitalRequest[] = [];
+  selectedRequest: HospitalRequest | null = null;
+  documents: HospitalDocument[] = [];
+  documentsChargement = false;
+  verificationEnCours: number | null = null;
 
   ngOnInit(): void {
     this.charger();
@@ -55,5 +68,63 @@ export class Demandes implements OnInit {
       next: () => { this.traitementEnCours = null; this.charger(); },
       error: (err) => { this.traitementEnCours = null; alert(err.error?.error || 'Erreur lors du refus'); }
     });
+  }
+
+  voirDocuments(r: HospitalRequest) {
+    this.selectedRequest = r;
+    this.documentsChargement = true;
+    this.documents = [];
+    
+    this.platformService.getRequestDocuments(r.id).subscribe({
+      next: (res: any) => {
+        this.documents = res.data;
+        this.documentsChargement = false;
+      },
+      error: () => {
+        this.documentsChargement = false;
+        alert('Erreur lors du chargement des documents');
+      }
+    });
+  }
+
+  fermerDocuments() {
+    this.selectedRequest = null;
+    this.documents = [];
+  }
+
+  verifierDocument(docId: number, status: 'verified' | 'rejected') {
+    const reason = status === 'rejected' ? prompt('Motif du rejet (optionnel) :') || undefined : undefined;
+    this.verificationEnCours = docId;
+    
+    this.platformService.verifyDocument(this.selectedRequest!.id, docId, status, reason).subscribe({
+      next: () => {
+        this.verificationEnCours = null;
+        this.voirDocuments(this.selectedRequest!);
+      },
+      error: (err: any) => {
+        this.verificationEnCours = null;
+        alert(err.error?.error || 'Erreur lors de la vérification');
+      }
+    });
+  }
+
+  telechargerDocument(docId: number) {
+    window.open(`http://localhost:5000/api/hospitals/request/${this.selectedRequest!.id}/documents/${docId}`, '_blank');
+  }
+
+  getDocumentStatusBadge(status: string): string {
+    switch(status) {
+      case 'verified': return '✓ Vérifié';
+      case 'rejected': return '✕ Rejeté';
+      default: return '⏳ En attente';
+    }
+  }
+
+  getDocumentStatusClass(status: string): string {
+    switch(status) {
+      case 'verified': return 'status-verified';
+      case 'rejected': return 'status-rejected';
+      default: return 'status-pending';
+    }
   }
 }
