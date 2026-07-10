@@ -74,11 +74,17 @@ BEGIN
   END IF;
 END $$;
 
--- Paramètres par défaut
-INSERT INTO settings (setting_key, setting_value) VALUES
-('whatsapp_enabled', 'true'),
-('sms_enabled', 'true'),
-('email_enabled', 'true'),
-('code_expiration_hours', '48'),
-('max_file_size_mb', '50')
-ON CONFLICT (setting_key) DO NOTHING;
+-- Paramètres par défaut (idempotent, quel que soit l'état des contraintes
+-- d'unicité de la table settings au moment de l'exécution)
+INSERT INTO settings (setting_key, setting_value)
+SELECT v.k, v.val
+FROM (VALUES
+  ('whatsapp_enabled', 'true'),
+  ('sms_enabled', 'true'),
+  ('email_enabled', 'true'),
+  ('code_expiration_hours', '48'),
+  ('max_file_size_mb', '50')
+) AS v(k, val)
+WHERE NOT EXISTS (
+  SELECT 1 FROM settings s WHERE s.setting_key = v.k
+);
