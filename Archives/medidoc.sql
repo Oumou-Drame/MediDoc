@@ -80,4 +80,5 @@ INSERT INTO settings (setting_key, setting_value) VALUES
 ('sms_enabled', 'true'),
 ('email_enabled', 'true'),
 ('code_expiration_hours', '48'),
-('max_file_size_mb', '50');
+('max_file_size_mb', '50')
+ON CONFLICT (setting_key) DO NOTHING;
