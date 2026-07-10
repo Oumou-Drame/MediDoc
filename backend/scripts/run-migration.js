@@ -23,11 +23,25 @@ if (!fs.existsSync(filePath)) {
 }
 
 const sql = fs.readFileSync(filePath, 'utf8');
+const migrationName = path.basename(filePath);
 
 try {
-    console.log(`Exécution de ${fileArg}...`);
-    await pool.query(sql);
-    console.log('Migration exécutée avec succès.');
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            filename VARCHAR(255) PRIMARY KEY,
+            applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    const already = await pool.query('SELECT 1 FROM schema_migrations WHERE filename = $1', [migrationName]);
+    if (already.rows.length > 0) {
+        console.log(`${migrationName} déjà appliquée, ignorée.`);
+    } else {
+        console.log(`Exécution de ${fileArg}...`);
+        await pool.query(sql);
+        await pool.query('INSERT INTO schema_migrations (filename) VALUES ($1)', [migrationName]);
+        console.log('Migration exécutée avec succès.');
+    }
 } catch (err) {
     console.error('Erreur lors de l\'exécution de la migration :', err.message);
     process.exitCode = 1;
