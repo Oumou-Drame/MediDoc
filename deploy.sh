@@ -143,9 +143,6 @@ TWILIO_PHONE_NUMBER=
 PAYSTACK_SECRET_KEY=
 EOF
 
-echo ">>> Initialisation du schéma de base..."
-node scripts/run-migration.js ../Archives/medidoc.sql
-
 echo ">>> Exécution des migrations..."
 for f in $(ls migrations/*.sql | sort); do
     echo "  -> $f"
