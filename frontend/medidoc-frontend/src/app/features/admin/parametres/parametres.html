@@ -37,73 +37,57 @@
     </div>
 </div>
 
-<div class="card" *ngIf="!chargement">
-    <div class="card-title">Configuration d'envoi par hôpital</div>
+<div class="card" *ngIf="!chargementSmtpPlateforme">
+    <div class="card-title">Configuration SMTP plateforme</div>
+    <p class="config-note">
+        Ce SMTP sert uniquement aux <strong>emails système</strong> envoyés par MediDoc lui-même :
+        demande d'inscription approuvée ou refusée, mot de passe oublié. Il est totalement
+        indépendant de la configuration d'envoi par hôpital ci-dessous, qui sert à envoyer les
+        résultats aux patients.
+    </p>
 
     <div class="form-row">
-        <label>Hôpital</label>
-        <select [(ngModel)]="hospitalIdSelectionne" (change)="chargerConfigEnvoi()">
-            <option *ngFor="let h of hopitaux" [value]="h.id">{{ h.name }}</option>
-        </select>
+        <label>Nom affiché comme expéditeur</label>
+        <input type="text" [(ngModel)]="smtpPlateformeFromName" placeholder="Ex: MediDoc">
     </div>
 
-    <div *ngIf="chargementEnvoi">Chargement de la configuration...</div>
+    <div class="form-row">
+        <label>Adresse email d'envoi</label>
+        <input type="email" [(ngModel)]="smtpPlateformeUser" placeholder="Ex: contact@medidoc.sn" required>
+    </div>
 
-    <div *ngIf="!chargementEnvoi">
-        <p class="config-note">
-            Configurez le numéro SMS/WhatsApp activé et l'email d'envoi pour l'hôpital sélectionné.
-        </p>
+    <div class="form-row">
+        <label>Mot de passe d'application</label>
+        <input type="password" [(ngModel)]="smtpPlateformePass" placeholder="Laisser tel quel pour ne pas le modifier">
+    </div>
 
+    <button type="button" class="btn-link" (click)="avanceSmtpPlateformeOuvert = !avanceSmtpPlateformeOuvert">
+        {{ avanceSmtpPlateformeOuvert ? 'Masquer les options avancées' : "Je n'utilise pas Gmail" }}
+    </button>
+
+    <ng-container *ngIf="avanceSmtpPlateformeOuvert">
         <div class="form-row">
-            <label>Numéro d'envoi SMS/WhatsApp</label>
-            <input type="text" [(ngModel)]="smsWhatsappSender" placeholder="Ex: +221771234567">
+            <label>Serveur SMTP</label>
+            <input type="text" [(ngModel)]="smtpPlateformeHost" placeholder="Ex: smtp.gmail.com">
         </div>
-
-        <div class="config-separateur">Email de l'hôpital</div>
-
         <div class="form-row">
-            <label>Nom affiché comme expéditeur</label>
-            <input type="text" [(ngModel)]="smtpFromName" placeholder="Ex: Laboratoire Fann">
+            <label>Port SMTP</label>
+            <input type="number" [(ngModel)]="smtpPlateformePort">
         </div>
+    </ng-container>
 
-        <div class="form-row">
-            <label>Adresse email de l'hôpital</label>
-            <input type="email" [(ngModel)]="smtpUser" placeholder="labo.fann@gmail.com" required>
-        </div>
-
-        <div class="form-row">
-            <label>Mot de passe d'application</label>
-            <input type="password" [(ngModel)]="smtpPass" placeholder="Laisser tel quel pour ne pas le modifier">
-        </div>
-
-        <button type="button" class="btn-link" (click)="avanceOuvert = !avanceOuvert">
-            {{ avanceOuvert ? 'Masquer les options avancées' : "Je n'utilise pas Gmail" }}
+    <div class="test-connexion-row">
+        <button type="button" class="btn-secondary" [disabled]="testSmtpPlateformeEnCours" (click)="testerConnexionSmtpPlateforme()">
+            {{ testSmtpPlateformeEnCours ? 'Test en cours...' : 'Tester la connexion' }}
         </button>
+        <span class="test-message-ok" *ngIf="testSmtpPlateformeMessage">✓ {{ testSmtpPlateformeMessage }}</span>
+        <span class="test-message-erreur" *ngIf="testSmtpPlateformeErreur">✕ {{ testSmtpPlateformeErreur }}</span>
+    </div>
 
-        <ng-container *ngIf="avanceOuvert">
-            <div class="form-row">
-                <label>Serveur SMTP</label>
-                <input type="text" [(ngModel)]="smtpHost" placeholder="Ex: smtp.gmail.com">
-            </div>
-            <div class="form-row">
-                <label>Port SMTP</label>
-                <input type="number" [(ngModel)]="smtpPort">
-            </div>
-        </ng-container>
-
-        <div class="test-connexion-row">
-            <button type="button" class="btn-secondary" [disabled]="testEnCours" (click)="testerConnexion()">
-                {{ testEnCours ? 'Test en cours...' : 'Tester la connexion' }}
-            </button>
-            <span class="test-message-ok" *ngIf="testMessage">✓ {{ testMessage }}</span>
-            <span class="test-message-erreur" *ngIf="testErreur">✕ {{ testErreur }}</span>
-        </div>
-
-        <div class="param-actions">
-            <span class="succes" *ngIf="messageSuccesEnvoi">{{ messageSuccesEnvoi }}</span>
-            <button class="btn-primary" [disabled]="enregistrementEnvoi" (click)="enregistrerEnvoi()">
-                {{ enregistrementEnvoi ? 'Enregistrement...' : 'Enregistrer' }}
-            </button>
-        </div>
+    <div class="param-actions">
+        <span class="succes" *ngIf="messageSuccesSmtpPlateforme">{{ messageSuccesSmtpPlateforme }}</span>
+        <button class="btn-primary" [disabled]="enregistrementSmtpPlateforme" (click)="enregistrerSmtpPlateforme()">
+            {{ enregistrementSmtpPlateforme ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
     </div>
 </div>

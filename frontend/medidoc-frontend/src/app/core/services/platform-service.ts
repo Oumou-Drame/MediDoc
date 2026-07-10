@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 // Service "niveau plateforme" (rôle admin) : hôpitaux, demandes d'inscription, crédits globaux.
 // Volontairement séparé d'AdminService (qui gère les paramètres techniques globaux) et de
@@ -10,8 +11,8 @@ import { Observable } from 'rxjs';
 })
 export class PlatformService {
   private http: HttpClient = inject(HttpClient);
-  private hospitalsUrl = 'http://localhost:5000/api/hospitals';
-  private adminUrl = 'http://localhost:5000/api/admin';
+  private hospitalsUrl = `${environment.apiUrl}/hospitals`;
+  private adminUrl = `${environment.apiUrl}/admin`;
 
   // Hôpitaux
   getHospitals(): Observable<any> {
@@ -30,6 +31,10 @@ export class PlatformService {
   getRequests(status?: string): Observable<any> {
     const qs = status ? `?status=${status}` : '';
     return this.http.get<any>(`${this.hospitalsUrl}/requests${qs}`, { withCredentials: true });
+  }
+
+  getRequest(id: number): Observable<any> {
+    return this.http.get<any>(`${this.hospitalsUrl}/requests/${id}`, { withCredentials: true });
   }
 
   approveRequest(id: number): Observable<any> {

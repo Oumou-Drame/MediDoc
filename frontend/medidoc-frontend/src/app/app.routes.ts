@@ -15,7 +15,9 @@ import { HistoriqueDetail } from './features/admin/historique-detail/historique-
 import { Parametres } from './features/admin/parametres/parametres';
 import { Hopitaux } from './features/admin/hopitaux/hopitaux';
 import { Demandes } from './features/admin/demandes/demandes';
+import { DemandesDetail } from './features/admin/demandes-detail/demandes-detail';
 import { CreditsPlateforme } from './features/admin/credits-plateforme/credits-plateforme';
+import { ResponsablesLabo } from './features/admin/responsables-labo/responsables-labo';
 import { Plans } from './features/admin/plans/plans';
 import { Subscriptions } from './features/admin/subscriptions/subscriptions';
 import { Credits } from './features/lab-manager/credits/credits';
@@ -44,6 +46,8 @@ export const routes: Routes = [
         children: [
             { path: 'hopitaux', component: Hopitaux },
             { path: 'demandes', component: Demandes },
+            { path: 'demandes/:id', component: DemandesDetail },
+            { path: 'responsables-labo', component: ResponsablesLabo },
             { path: 'credits', component: CreditsPlateforme },
             { path: 'plans', component: Plans },
             { path: 'subscriptions', component: Subscriptions },

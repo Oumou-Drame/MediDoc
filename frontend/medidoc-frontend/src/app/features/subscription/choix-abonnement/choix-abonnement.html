@@ -46,14 +46,11 @@
             <span class="period">/ {{ plan.duration_days }} jours</span>
           </div>
           <ul class="plan-features">
-            <li [class.disabled]="!plan.features.email">
-              <span class="icon">📧</span> Envoi Email
+            <li>
+              <span class="icon">📧</span> Email illimité
             </li>
-            <li [class.disabled]="!plan.features.whatsapp">
-              <span class="icon">📱</span> Envoi WhatsApp
-            </li>
-            <li [class.disabled]="!plan.features.sms">
-              <span class="icon">💬</span> Envoi SMS
+            <li>
+              <span class="icon">📱💬</span> {{ plan.features.monthly_sends === -1 ? 'SMS + WhatsApp illimités' : plan.features.monthly_sends + ' SMS + WhatsApp / mois' }}
             </li>
             <li>
               <span class="icon">👥</span> {{ plan.features.max_technicians === -1 ? 'Techniciens illimités' : plan.features.max_technicians + ' techniciens max' }}

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     hospital_id INTEGER NOT NULL REFERENCES hospitals(id) ON DELETE CASCADE,
     plan_id INTEGER NOT NULL REFERENCES subscription_plans(id),
     user_id INTEGER NOT NULL REFERENCES users(id),
+    
     reference VARCHAR(255) UNIQUE NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     currency VARCHAR(10) NOT NULL DEFAULT 'XOF',

@@ -51,17 +51,62 @@ const upload = multer({
 
 // POST /api/hospitals/request — un hôpital intéressé soumet une demande
 router.post('/request', async (req, res) => {
-    const { hospital_name, contact_name, contact_email, contact_phone, message } = req.body;
+    const { hospital_name, contact_name, contact_email, contact_phone, address, numero_agrement, message } = req.body;
 
-    if (!hospital_name || !contact_name || !contact_email) {
-        return res.status(400).json({ error: "Nom de l'établissement, contact et email sont requis" });
+    if (!hospital_name || !contact_name || !contact_email || !numero_agrement) {
+        return res.status(400).json({ error: "Nom de l'établissement, numéro d'agrément, contact et email sont requis" });
     }
 
     try {
+        // Un établissement déjà inscrit (ou déjà en attente de validation) ne doit pas pouvoir être
+        // réinscrit, même si le demandeur utilise un email de contact différent — la vérification se
+        // fait sur le nom de l'établissement, jamais sur l'email (consigne du maître de stage).
+        const nomNormalise = hospital_name.trim().toLowerCase();
+
+        const dejaInscrit = await queryOne(
+            `SELECT id FROM hospitals WHERE LOWER(TRIM(name)) = $1`,
+            [nomNormalise]
+        );
+        if (dejaInscrit) {
+            return res.status(400).json({ error: 'Cet établissement est déjà inscrit sur la plateforme.' });
+        }
+
+        const dejaEnAttente = await queryOne(
+            `SELECT id FROM hospital_requests WHERE LOWER(TRIM(hospital_name)) = $1 AND status = 'pending'`,
+            [nomNormalise]
+        );
+        if (dejaEnAttente) {
+            return res.status(400).json({ error: 'Une demande est déjà en attente de validation pour cet établissement.' });
+        }
+
+        // Vérification par numéro d'agrément : détecte les doublons même quand le nom diffère
+        // (ex: sigle "HOGYP" soumis une fois, puis nom complet "Hôpital Général Idrissa Pouye"
+        // une autre fois) — le numéro d'agrément, lui, ne change pas selon la façon dont on tape
+        // le nom de l'établissement.
+        if (numero_agrement) {
+            const agrementNormalise = numero_agrement.trim().toLowerCase();
+
+            const agrementDejaInscrit = await queryOne(
+                `SELECT id FROM hospitals WHERE LOWER(TRIM(numero_agrement)) = $1`,
+                [agrementNormalise]
+            );
+            if (agrementDejaInscrit) {
+                return res.status(400).json({ error: 'Un établissement avec ce numéro d\'agrément est déjà inscrit sur la plateforme.' });
+            }
+
+            const agrementDejaEnAttente = await queryOne(
+                `SELECT id FROM hospital_requests WHERE LOWER(TRIM(numero_agrement)) = $1 AND status = 'pending'`,
+                [agrementNormalise]
+            );
+            if (agrementDejaEnAttente) {
+                return res.status(400).json({ error: 'Une demande est déjà en attente de validation pour ce numéro d\'agrément.' });
+            }
+        }
+
         const result = await query(
-            `INSERT INTO hospital_requests (hospital_name, contact_name, contact_email, contact_phone, message, status, document_status, created_at)
-             VALUES ($1, $2, $3, $4, $5, 'pending', 'pending', NOW()) RETURNING id`,
-            [hospital_name, contact_name, contact_email.toLowerCase(), contact_phone || null, message || null]
+            `INSERT INTO hospital_requests (hospital_name, contact_name, contact_email, contact_phone, address, numero_agrement, message, status, document_status, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', 'pending', NOW()) RETURNING id`,
+            [hospital_name, contact_name, contact_email.toLowerCase(), contact_phone || null, address || null, numero_agrement || null, message || null]
         );
         res.json({ success: true, message: 'Votre demande a bien été reçue. Notre équipe la vérifiera avant validation.', request_id: result.rows[0].id });
     } catch (err) {
@@ -147,6 +192,28 @@ router.get('/request/:id/documents/:docId', protect, requireAdmin, async (req, r
     }
 });
 
+// GET /api/hospitals/request/:id/documents/:docId/view — visualiser le document dans la page
+// (Content-Disposition: inline, contrairement à la route de téléchargement ci-dessus)
+router.get('/request/:id/documents/:docId/view', protect, requireAdmin, async (req, res) => {
+    try {
+        const document = await queryOne(
+            'SELECT * FROM hospital_documents WHERE id = $1 AND hospital_request_id = $2',
+            [req.params.docId, req.params.id]
+        );
+
+        if (!document) {
+            return res.status(404).json({ error: 'Document non trouvé' });
+        }
+
+        res.setHeader('Content-Type', document.mime_type);
+        res.setHeader('Content-Disposition', `inline; filename="${document.file_name}"`);
+        res.sendFile(path.resolve(document.file_path));
+    } catch (err) {
+        console.error('View document error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
 // PUT /api/hospitals/request/:id/documents/:docId/verify — vérifier un document
 router.put('/request/:id/documents/:docId/verify', protect, requireAdmin, async (req, res) => {
     const { status, reason } = req.body; // status: 'verified' or 'rejected'
@@ -212,6 +279,20 @@ router.get('/requests', protect, requireAdmin, async (req, res) => {
     }
 });
 
+// GET /api/hospitals/requests/:id — détail d'une demande (page dédiée admin)
+router.get('/requests/:id', protect, requireAdmin, async (req, res) => {
+    try {
+        const reqRow = await queryOne('SELECT * FROM hospital_requests WHERE id = $1', [req.params.id]);
+        if (!reqRow) {
+            return res.status(404).json({ error: 'Demande non trouvée' });
+        }
+        res.json({ success: true, data: reqRow });
+    } catch (err) {
+        console.error('Get hospital request error:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
 // PUT /api/hospitals/requests/:id/approve — crée l'hôpital + le premier compte responsable de labo
 router.put('/requests/:id/approve', protect, requireAdmin, async (req, res) => {
     try {
@@ -238,9 +319,9 @@ router.put('/requests/:id/approve', protect, requireAdmin, async (req, res) => {
         }
 
         const hospital = await queryOne(
-            `INSERT INTO hospitals (name, contact_email, contact_phone, is_active, created_at, updated_at)
-             VALUES ($1, $2, $3, true, NOW(), NOW()) RETURNING id`,
-            [reqRow.hospital_name, reqRow.contact_email, reqRow.contact_phone]
+            `INSERT INTO hospitals (name, email, phone, address, numero_agrement, status, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, 'active', NOW(), NOW()) RETURNING id`,
+            [reqRow.hospital_name, reqRow.contact_email, reqRow.contact_phone, reqRow.address || null, reqRow.numero_agrement || null]
         );
 
         await query('INSERT INTO hospital_credits (hospital_id, balance) VALUES ($1, 0)', [hospital.id]);
@@ -303,6 +384,20 @@ router.put('/requests/:id/reject', protect, requireAdmin, async (req, res) => {
             [req.user.id, reason || null, reqRow.id]
         );
 
+        await sendPlatformEmail(
+            reqRow.contact_email,
+            'MediDoc - Votre demande d\'inscription n\'a pas été retenue',
+            `Bonjour ${reqRow.contact_name},\n\nNous vous remercions pour votre demande d'inscription de "${reqRow.hospital_name}" sur MediDoc.\n\nAprès examen, nous ne sommes pas en mesure de valider votre établissement pour le moment.` +
+            (reason ? `\n\nMotif : ${reason}` : '') +
+            `\n\nSi vous pensez qu'il s'agit d'une erreur ou souhaitez soumettre une nouvelle demande avec des informations complémentaires, n'hésitez pas à nous recontacter.`,
+            `<h2>MediDoc - Demande non retenue</h2>
+             <p>Bonjour <strong>${reqRow.contact_name}</strong>,</p>
+             <p>Nous vous remercions pour votre demande d'inscription de "<strong>${reqRow.hospital_name}</strong>" sur MediDoc.</p>
+             <p>Après examen, nous ne sommes pas en mesure de valider votre établissement pour le moment.</p>
+             ${reason ? `<p><strong>Motif :</strong> ${reason}</p>` : ''}
+             <p>Si vous pensez qu'il s'agit d'une erreur ou souhaitez soumettre une nouvelle demande avec des informations complémentaires, n'hésitez pas à nous recontacter.</p>`
+        );
+
         res.json({ success: true, message: 'Demande refusée' });
     } catch (err) {
         console.error('Reject hospital request error:', err);
@@ -314,8 +409,7 @@ router.put('/requests/:id/reject', protect, requireAdmin, async (req, res) => {
 router.get('/', protect, requireAdmin, async (req, res) => {
     try {
         const hospitals = await queryAll(
-            `SELECT h.id, h.name, h.contact_email as email, h.contact_phone as phone,
-              CASE WHEN h.is_active THEN 'active' ELSE 'suspended' END as status,
+            `SELECT h.id, h.name, h.email, h.phone, h.status,
               (SELECT COUNT(*) FROM users u WHERE u.hospital_id = h.id) as total_users,
               COALESCE(hc.balance, 0) as credit_balance,
               h.created_at
@@ -334,7 +428,7 @@ router.get('/', protect, requireAdmin, async (req, res) => {
 // PUT /api/hospitals/:id/suspend
 router.put('/:id/suspend', protect, requireAdmin, async (req, res) => {
     try {
-        await query('UPDATE hospitals SET is_active = false, updated_at = NOW() WHERE id = $1', [req.params.id]);
+        await query(`UPDATE hospitals SET status = 'suspended', updated_at = NOW() WHERE id = $1`, [req.params.id]);
         res.json({ success: true, message: 'Hôpital suspendu' });
     } catch (err) {
         console.error('Suspend hospital error:', err);
@@ -345,7 +439,7 @@ router.put('/:id/suspend', protect, requireAdmin, async (req, res) => {
 // PUT /api/hospitals/:id/activate
 router.put('/:id/activate', protect, requireAdmin, async (req, res) => {
     try {
-        await query('UPDATE hospitals SET is_active = true, updated_at = NOW() WHERE id = $1', [req.params.id]);
+        await query(`UPDATE hospitals SET status = 'active', updated_at = NOW() WHERE id = $1`, [req.params.id]);
         res.json({ success: true, message: 'Hôpital activé' });
     } catch (err) {
         console.error('Activate hospital error:', err);

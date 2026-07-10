@@ -14,6 +14,7 @@
       <div class="nav-links">
         <a href="#features">Fonctionnalités</a>
         <a href="#guide">Guide</a>
+        <a href="#offres">Offres</a>
         <a routerLink="/inscription">Inscription</a>
       </div>
       <a routerLink="/login" class="nav-cta">
@@ -264,6 +265,46 @@
     </div>
   </section>
 
+
+  <!-- ===== OFFRES ===== -->
+  <section class="pricing-section" id="offres">
+    <div class="container">
+      <div class="section-tag pricing-tag">Nos offres</div>
+      <h2 class="section-heading center">Une offre pour chaque taille d'établissement</h2>
+      <p class="section-sub center">Email illimité sur tous les paliers. Tarifs en FCFA, sans engagement.</p>
+
+      @if (chargementPlans) {
+        <div class="pricing-loading">Chargement des offres...</div>
+      }
+
+      @if (!chargementPlans && plans.length > 0) {
+      <div class="pricing-grid">
+        @for (plan of plans; track plan.id) {
+          <div class="price-card" [class.recommande]="plan.name === 'Standard'">
+            @if (plan.name === 'Standard') {
+              <div class="price-badge">⭐ Recommandé</div>
+            }
+            <h3 class="price-name">{{ plan.name }}</h3>
+            <p class="price-desc">{{ plan.description }}</p>
+            <div class="price-amount">
+              <span class="price-num">{{ plan.price | number }}</span>
+              <span class="price-unit">FCFA / mois</span>
+            </div>
+            <ul class="price-features">
+              <li>📧 Email illimité</li>
+              <li>📱💬 {{ plan.features.monthly_sends === -1 ? 'SMS + WhatsApp illimités' : plan.features.monthly_sends + ' SMS + WhatsApp / mois' }}</li>
+              <li>👥 {{ plan.features.max_technicians === -1 ? 'Techniciens illimités' : plan.features.max_technicians + ' techniciens max' }}</li>
+              <li>📅 Historique {{ plan.features.history_days === -1 ? 'illimité' : plan.features.history_days + ' jours' }}</li>
+              <li>🎧 Support {{ plan.features.support === 'standard' ? 'standard' : plan.features.support === 'priority' ? 'prioritaire' : 'dédié' }}</li>
+            </ul>
+          </div>
+        }
+      </div>
+      }
+
+      <p class="pricing-note">Le pack se choisit après validation de votre inscription par notre équipe.</p>
+    </div>
+  </section>
 
   <!-- ===== CTA ===== -->
   <section class="cta-section" id="cta">

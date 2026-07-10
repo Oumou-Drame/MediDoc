@@ -1,0 +1,95 @@
+<div class="card" *ngIf="chargement">Chargement...</div>
+<div class="card" *ngIf="erreur">{{ erreur }}</div>
+
+<div class="card" *ngIf="demande">
+    <button class="btn-secondary" (click)="retour()">← Retour aux demandes</button>
+
+    <h2 class="detail-titre">{{ demande.hospital_name }}</h2>
+    <span class="badge" [ngClass]="demande.document_status === 'verified' ? 'badge-delivered' : demande.document_status === 'rejected' ? 'badge-expired' : 'badge-pending'"
+        *ngIf="demande.document_status !== 'not_required'">
+        {{ demande.document_status === 'verified' ? 'Documents vérifiés' : demande.document_status === 'rejected' ? 'Documents rejetés' : 'Documents en attente' }}
+    </span>
+
+    <div class="detail-grid">
+        <div><span class="detail-label">Contact</span><span>{{ demande.contact_name }}</span></div>
+        <div><span class="detail-label">Email</span><span>{{ demande.contact_email }}</span></div>
+        <div *ngIf="demande.contact_phone"><span class="detail-label">Téléphone</span><span>{{ demande.contact_phone }}</span></div>
+        <div *ngIf="demande.address"><span class="detail-label">Adresse</span><span>{{ demande.address }}</span></div>
+        <div *ngIf="demande.numero_agrement"><span class="detail-label">N° agrément</span><span>{{ demande.numero_agrement }}</span></div>
+        <div><span class="detail-label">Reçue le</span><span>{{ demande.created_at | date:'dd/MM/yyyy à HH:mm' }}</span></div>
+    </div>
+
+    <div class="detail-message" *ngIf="demande.message">
+        <span class="detail-label">Message</span>
+        <p>{{ demande.message }}</p>
+    </div>
+
+    <div class="documents-section" *ngIf="demande.document_status !== 'not_required'">
+        <div class="card-title">Documents de vérification</div>
+
+        <div *ngIf="documentsChargement" class="loading">Chargement des documents...</div>
+        <div *ngIf="!documentsChargement && documents.length === 0" class="empty">Aucun document fourni</div>
+
+        <div class="documents-list" *ngIf="!documentsChargement && documents.length > 0">
+            <div class="document-item" *ngFor="let doc of documents">
+                <div class="document-info">
+                    <div class="document-name">{{ doc.file_name }}</div>
+                    <div class="document-type">{{ doc.document_type }} — uploadé le {{ doc.upload_date | date:'dd/MM/yyyy' }}</div>
+                    <span class="document-status" [class]="getDocumentStatusClass(doc.verification_status)">
+                        {{ getDocumentStatusBadge(doc.verification_status) }}
+                    </span>
+                </div>
+
+                <div class="document-preview">
+                    <img *ngIf="estImage(doc)" [src]="documentViewUrl(doc)" [alt]="doc.file_name">
+                    <iframe *ngIf="estPdf(doc)" [src]="documentViewUrlSafe(doc)" [title]="doc.file_name"></iframe>
+                    <div class="document-preview-fallback" *ngIf="!estImage(doc) && !estPdf(doc)">
+                        Aperçu non disponible pour ce type de fichier.
+                    </div>
+                </div>
+
+                <div class="document-actions">
+                    <button class="btn-download" (click)="telechargerDocument(doc.id)">Télécharger</button>
+                    <div class="verification-actions" *ngIf="doc.verification_status === 'pending'">
+                        <button class="btn-verify" [disabled]="verificationEnCours === doc.id" (click)="verifierDocument(doc.id, 'verified')">✓ Vérifier</button>
+                        <button class="btn-reject" [disabled]="verificationEnCours === doc.id" (click)="verifierDocument(doc.id, 'rejected')">✕ Rejeter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="erreur-msg" *ngIf="erreurAction">{{ erreurAction }}</div>
+
+    <div class="detail-actions" *ngIf="demande.status === 'pending'">
+        <button class="btn-secondary btn-refuser" [disabled]="traitementEnCours" (click)="demanderRefus()">Refuser</button>
+        <button class="btn-primary" [disabled]="traitementEnCours" (click)="demanderValidation()">Valider</button>
+    </div>
+</div>
+
+<app-confirm-dialog
+    [visible]="confirmationValidationVisible"
+    titre="Valider la demande ?"
+    [message]="demande ? ('Un hôpital et un compte responsable de labo seront créés automatiquement pour \'' + demande.hospital_name + '\'.') : ''"
+    texteConfirmer="Oui, valider"
+    texteAnnuler="Annuler"
+    [danger]="false"
+    [enCours]="traitementEnCours"
+    (confirmer)="confirmerValidation()"
+    (annulerAction)="fermerConfirmationValidation()">
+</app-confirm-dialog>
+
+<app-confirm-dialog
+    [visible]="confirmationRefusVisible"
+    titre="Refuser la demande ?"
+    [message]="demande ? ('La demande de \'' + demande.hospital_name + '\' sera refusée.') : ''"
+    texteConfirmer="Oui, refuser"
+    texteAnnuler="Annuler"
+    [danger]="true"
+    [enCours]="traitementEnCours"
+    [avecChamp]="true"
+    labelChamp="Motif du refus (optionnel)"
+    [(champValeur)]="motifRefus"
+    (confirmer)="confirmerRefus()"
+    (annulerAction)="fermerConfirmationRefus()">
+</app-confirm-dialog>

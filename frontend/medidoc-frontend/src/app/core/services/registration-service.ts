@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface HospitalRequestPayload {
   hospital_name: string;
@@ -15,7 +16,7 @@ export interface HospitalRequestPayload {
 })
 export class RegistrationService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/hospitals';
+  private apiUrl = `${environment.apiUrl}/hospitals`;
 
   submitRequest(payload: HospitalRequestPayload): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/request`, payload);

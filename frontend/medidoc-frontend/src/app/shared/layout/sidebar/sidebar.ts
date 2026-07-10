@@ -15,8 +15,9 @@ interface NavItem {
 // dont le contenu s'adapte au rôle et au mode de vue choisi pour les comptes à double capacité").
 const NAV_BY_ROLE: Record<string, NavItem[]> = {
   admin: [
-    { label: 'Hôpitaux', route: '/admin/hopitaux', icon: 'hospitals' },
+    { label: 'Structures de santé', route: '/admin/hopitaux', icon: 'hospitals' },
     { label: "Demandes d'inscription", route: '/admin/demandes', icon: 'requests' },
+    { label: 'Responsables de labo', route: '/admin/responsables-labo', icon: 'accounts' },
     { label: 'Crédits', route: '/admin/credits', icon: 'credits' },
     { label: 'Paramètres plateforme', route: '/admin/parametres', icon: 'settings' },
   ],

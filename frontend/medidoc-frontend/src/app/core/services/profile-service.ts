@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ActiveView } from '../models/user';
+import { environment } from '../../../environments/environment';
 
 export interface ProfileData {
   id: number;
@@ -22,7 +23,7 @@ export interface ProfileData {
 })
 export class ProfileService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/profile';
+  private apiUrl = `${environment.apiUrl}/profile`;
 
   getProfile(): Observable<{ success: boolean; data: ProfileData }> {
     return this.http.get<any>(this.apiUrl, { withCredentials: true });

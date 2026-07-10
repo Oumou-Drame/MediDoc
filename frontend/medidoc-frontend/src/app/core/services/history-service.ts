@@ -2,12 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HistoryResponse,ResultatMedical } from '../../features/admin/models/history';
+import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
 export class HistoryService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/history';
+  private apiUrl = `${environment.apiUrl}/history`;
 
   getHistory(params: { status?: string; search?: string; page?: number; limit?: number }): Observable<HistoryResponse> {
     const qs = new URLSearchParams();

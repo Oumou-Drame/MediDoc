@@ -65,6 +65,36 @@
   margin-bottom: 24px;
 }
 
+.cd-champ {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.cd-champ-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #5c6d64;
+  margin-bottom: 6px;
+}
+
+.cd-champ-textarea {
+  width: 100%;
+  border: 1px solid #dcded9;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.cd-champ-textarea:focus {
+  outline: none;
+  border-color: var(--c-accent, #1e8c5a);
+  box-shadow: 0 0 0 3px var(--c-accent-soft, #e1f5ee);
+}
+
 .cd-actions {
   display: flex;
   gap: 10px;

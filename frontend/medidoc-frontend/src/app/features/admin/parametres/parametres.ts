@@ -2,12 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../core/services/admin-service';
-import { PlatformService } from '../../../core/services/platform-service';
-
-interface Hospital {
-  id: number;
-  name: string;
-}
 
 @Component({
   selector: 'app-parametres',
@@ -18,7 +12,6 @@ interface Hospital {
 })
 export class Parametres implements OnInit {
   private adminService = inject(AdminService);
-  private platformService = inject(PlatformService);
 
   whatsappActif = true;
   smsActif = true;
@@ -30,26 +23,22 @@ export class Parametres implements OnInit {
   enregistrement = false;
   messageSucces = '';
 
-  // Configuration d'envoi par hôpital
-  hopitaux: Hospital[] = [];
-  hospitalIdSelectionne: number | null = null;
+  // Configuration SMTP plateforme (emails système : demande approuvée/refusée, mot de passe oublié,
+  // et par défaut aussi les envois de résultats aux patients — plus de config par hôpital séparée).
+  chargementSmtpPlateforme = true;
+  smtpPlateformeHost = '';
+  smtpPlateformePort = 587;
+  smtpPlateformeUser = '';
+  smtpPlateformePass = '';
+  smtpPlateformeFromName = '';
+  avanceSmtpPlateformeOuvert = false;
 
-  smtpHost = '';
-  smtpPort = 587;
-  smtpUser = '';
-  smtpPass = '';
-  smtpFromName = '';
-  smsWhatsappSender = '';
+  enregistrementSmtpPlateforme = false;
+  messageSuccesSmtpPlateforme = '';
 
-  avanceOuvert = false;
-
-  chargementEnvoi = false;
-  enregistrementEnvoi = false;
-  messageSuccesEnvoi = '';
-
-  testEnCours = false;
-  testMessage = '';
-  testErreur = '';
+  testSmtpPlateformeEnCours = false;
+  testSmtpPlateformeMessage = '';
+  testSmtpPlateformeErreur = '';
 
   ngOnInit(): void {
     this.adminService.getSettings().subscribe({
@@ -65,47 +54,55 @@ export class Parametres implements OnInit {
       error: () => { this.chargement = false; }
     });
 
-    this.platformService.getHospitals().subscribe({
+    this.chargerSmtpPlateforme();
+  }
+
+  chargerSmtpPlateforme() {
+    this.chargementSmtpPlateforme = true;
+    this.adminService.getPlatformSmtpConfig().subscribe({
       next: (res) => {
-        this.hopitaux = res.data || [];
-        if (this.hopitaux.length > 0) {
-          this.hospitalIdSelectionne = this.hopitaux[0].id;
-          this.chargerConfigEnvoi();
-        }
+        const d = res.data;
+        this.smtpPlateformeHost = d.smtp_host || '';
+        this.smtpPlateformePort = d.smtp_port || 587;
+        this.smtpPlateformeUser = d.smtp_user || '';
+        this.smtpPlateformePass = d.smtp_pass || '';
+        this.smtpPlateformeFromName = d.smtp_from_name || 'MediDoc';
+        this.avanceSmtpPlateformeOuvert = !!(d.smtp_host && d.smtp_host !== 'smtp.gmail.com');
+        this.chargementSmtpPlateforme = false;
       },
-      error: () => {}
+      error: () => { this.chargementSmtpPlateforme = false; }
     });
   }
 
-  chargerConfigEnvoi() {
-    if (!this.hospitalIdSelectionne) return;
-    this.chargementEnvoi = true;
-    this.testMessage = '';
-    this.testErreur = '';
-    this.messageSuccesEnvoi = '';
-    this.adminService.getSendConfig(this.hospitalIdSelectionne).subscribe({
-      next: (res) => {
-        const d = res.data;
-        if (d) {
-          this.smtpHost = d.smtp_host || '';
-          this.smtpPort = d.smtp_port || 587;
-          this.smtpUser = d.smtp_user || '';
-          this.smtpPass = d.smtp_pass || '';
-          this.smtpFromName = d.smtp_from_name || '';
-          this.smsWhatsappSender = d.sms_whatsapp_sender || '';
-          this.avanceOuvert = !!(d.smtp_host && d.smtp_host !== 'smtp.gmail.com');
-        } else {
-          this.smtpHost = '';
-          this.smtpPort = 587;
-          this.smtpUser = '';
-          this.smtpPass = '';
-          this.smtpFromName = '';
-          this.smsWhatsappSender = '';
-          this.avanceOuvert = false;
-        }
-        this.chargementEnvoi = false;
-      },
-      error: () => { this.chargementEnvoi = false; }
+  enregistrerSmtpPlateforme() {
+    this.enregistrementSmtpPlateforme = true;
+    this.messageSuccesSmtpPlateforme = '';
+    this.testSmtpPlateformeMessage = '';
+    this.testSmtpPlateformeErreur = '';
+    this.adminService.updatePlatformSmtpConfig({
+      smtp_host: this.smtpPlateformeHost || 'smtp.gmail.com',
+      smtp_port: this.smtpPlateformePort || 587,
+      smtp_user: this.smtpPlateformeUser,
+      smtp_pass: this.smtpPlateformePass,
+      smtp_from_name: this.smtpPlateformeFromName
+    }).subscribe({
+      next: () => { this.enregistrementSmtpPlateforme = false; this.messageSuccesSmtpPlateforme = 'Configuration SMTP plateforme enregistrée'; },
+      error: (err) => { this.enregistrementSmtpPlateforme = false; alert(err.error?.error || "Erreur lors de l'enregistrement"); }
+    });
+  }
+
+  testerConnexionSmtpPlateforme() {
+    this.testSmtpPlateformeEnCours = true;
+    this.testSmtpPlateformeMessage = '';
+    this.testSmtpPlateformeErreur = '';
+    this.adminService.testPlatformSmtpConfig({
+      smtp_host: this.smtpPlateformeHost || 'smtp.gmail.com',
+      smtp_port: this.smtpPlateformePort || 587,
+      smtp_user: this.smtpPlateformeUser,
+      smtp_pass: this.smtpPlateformePass
+    }).subscribe({
+      next: (res) => { this.testSmtpPlateformeEnCours = false; this.testSmtpPlateformeMessage = res.message || 'Connexion réussie'; },
+      error: (err) => { this.testSmtpPlateformeEnCours = false; this.testSmtpPlateformeErreur = err.error?.error || 'Échec du test de connexion'; }
     });
   }
 
@@ -121,41 +118,6 @@ export class Parametres implements OnInit {
     }).subscribe({
       next: () => { this.enregistrement = false; this.messageSucces = 'Paramètres enregistrés avec succès'; },
       error: (err) => { this.enregistrement = false; alert(err.error?.error || "Erreur lors de l'enregistrement"); }
-    });
-  }
-
-  enregistrerEnvoi() {
-    if (!this.hospitalIdSelectionne) return;
-    this.enregistrementEnvoi = true;
-    this.messageSuccesEnvoi = '';
-    this.testMessage = '';
-    this.testErreur = '';
-    this.adminService.updateSendConfig(this.hospitalIdSelectionne, {
-      smtp_host: this.smtpHost || 'smtp.gmail.com',
-      smtp_port: this.smtpPort || 587,
-      smtp_user: this.smtpUser,
-      smtp_pass: this.smtpPass,
-      smtp_from_name: this.smtpFromName,
-      sms_whatsapp_sender: this.smsWhatsappSender
-    }).subscribe({
-      next: () => { this.enregistrementEnvoi = false; this.messageSuccesEnvoi = "Configuration d'envoi enregistrée"; },
-      error: (err) => { this.enregistrementEnvoi = false; alert(err.error?.error || "Erreur lors de l'enregistrement"); }
-    });
-  }
-
-  testerConnexion() {
-    if (!this.hospitalIdSelectionne) return;
-    this.testEnCours = true;
-    this.testMessage = '';
-    this.testErreur = '';
-    this.adminService.testSendConfig(this.hospitalIdSelectionne, {
-      smtp_host: this.smtpHost || 'smtp.gmail.com',
-      smtp_port: this.smtpPort || 587,
-      smtp_user: this.smtpUser,
-      smtp_pass: this.smtpPass
-    }).subscribe({
-      next: (res) => { this.testEnCours = false; this.testMessage = res.message || 'Connexion réussie'; },
-      error: (err) => { this.testEnCours = false; this.testErreur = err.error?.error || 'Échec du test de connexion'; }
     });
   }
 }

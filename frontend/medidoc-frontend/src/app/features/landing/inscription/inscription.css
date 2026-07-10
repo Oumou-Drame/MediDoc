@@ -70,7 +70,7 @@
 /* Container */
 .inscription-container {
   flex: 1;
-  max-width: 560px;
+  max-width: 620px;
   margin: 100px auto 40px;
   padding: 0 20px;
   width: 100%;
@@ -81,8 +81,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 40px;
+  margin-bottom: 4px;
   gap: 0;
+}
+
+.etape-compteur {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 32px;
 }
 
 .progress-step {
@@ -160,13 +170,23 @@
 }
 
 .card-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  background: var(--primary-gradient);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(15, 139, 94, 0.25);
 }
 
 .card-header h2 {
   color: var(--text-dark);
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   margin: 0 0 8px;
 }
 
@@ -333,6 +353,47 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.form-actions-duo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.form-actions-duo .btn-submit {
+  width: 100%;
+}
+
+.btn-back {
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px solid var(--border-input);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .form-actions-duo {
+    grid-template-columns: 1fr;
+    flex-direction: column-reverse;
+  }
 }
 
 @media (max-width: 640px) {

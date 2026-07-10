@@ -13,6 +13,12 @@
     <div class="cd-titre">{{ titre }}</div>
     <div class="cd-message">{{ message }}</div>
 
+    <div class="cd-champ" *ngIf="avecChamp">
+      <label class="cd-champ-label" *ngIf="labelChamp">{{ labelChamp }}</label>
+      <textarea class="cd-champ-textarea" rows="3" [ngModel]="champValeur"
+        (ngModelChange)="surChangementChamp($event)"></textarea>
+    </div>
+
     <div class="cd-actions">
       <button type="button" class="cd-btn cd-btn--annuler" (click)="annulerAction.emit()" [disabled]="enCours">
         {{ texteAnnuler }}

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-inscription',
@@ -36,6 +37,10 @@ export class Inscription {
   erreurChamp: Record<string, string> = {};
   envoye = false;
 
+  // Formulaire en 2 étapes : établissement/contact, puis document + conditions.
+  // Rend le formulaire moins intimidant qu'une longue page unique.
+  etapeCourante = 1;
+
   validerEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
@@ -55,6 +60,56 @@ export class Inscription {
 
   champEstInvalide(nom: string): boolean {
     return !!this.erreurChamp[nom];
+  }
+
+  // Valide uniquement les champs de l'étape 1 (établissement + contact) avant de passer à l'étape 2.
+  validerEtape1(): boolean {
+    this.erreur = '';
+    this.erreurChamp = {};
+
+    const champsRequis = [
+      { nom: 'hospitalName', valeur: this.hospitalName.trim(), libelle: "Nom de l'établissement" },
+      { nom: 'numeroAgrement', valeur: this.numeroAgrement.trim(), libelle: "Numéro d'agrément / licence" },
+      { nom: 'contactName', valeur: this.contactName.trim(), libelle: 'Nom du contact' },
+      { nom: 'contactEmail', valeur: this.contactEmail.trim(), libelle: 'Email du contact' }
+    ];
+
+    let erreursTrouvees = false;
+
+    for (const champ of champsRequis) {
+      if (!champ.valeur) {
+        this.erreurChamp[champ.nom] = `${champ.libelle} est requis`;
+        erreursTrouvees = true;
+      }
+    }
+
+    if (!erreursTrouvees && !this.validerEmail(this.contactEmail)) {
+      this.erreurChamp['contactEmail'] = 'Email invalide';
+      erreursTrouvees = true;
+    }
+
+    if (!erreursTrouvees && !this.validerTelephone(this.contactPhone)) {
+      this.erreurChamp['contactPhone'] = 'Numéro de téléphone invalide';
+      erreursTrouvees = true;
+    }
+
+    if (erreursTrouvees) {
+      this.erreur = "Veuillez corriger les erreurs dans le formulaire";
+      return false;
+    }
+    return true;
+  }
+
+  etapeSuivante() {
+    if (this.validerEtape1()) {
+      this.etapeCourante = 2;
+    }
+  }
+
+  etapePrecedente() {
+    this.erreur = '';
+    this.erreurChamp = {};
+    this.etapeCourante = 1;
   }
 
   onFileSelected(event: Event) {
@@ -92,7 +147,7 @@ export class Inscription {
     formData.append('document', this.selectedFile);
     formData.append('document_type', this.documentType);
 
-    this.http.post<any>(`http://localhost:5000/api/hospitals/request/${this.requestId}/document`, formData).subscribe({
+    this.http.post<any>(`${environment.apiUrl}/hospitals/request/${this.requestId}/document`, formData).subscribe({
       next: () => {
         this.uploadEnCours = false;
         this.selectedFile = null;
@@ -110,6 +165,7 @@ export class Inscription {
 
     const champsRequis = [
       { nom: 'hospitalName', valeur: this.hospitalName.trim(), libelle: "Nom de l'établissement" },
+      { nom: 'numeroAgrement', valeur: this.numeroAgrement.trim(), libelle: "Numéro d'agrément / licence" },
       { nom: 'contactName', valeur: this.contactName.trim(), libelle: 'Nom du contact' },
       { nom: 'contactEmail', valeur: this.contactEmail.trim(), libelle: 'Email du contact' }
     ];
@@ -148,19 +204,15 @@ export class Inscription {
       return;
     }
 
-    const messageComplet = [
-      this.address ? `Adresse: ${this.address}` : '',
-      this.numeroAgrement ? `N° agrément: ${this.numeroAgrement}` : '',
-      this.message || ''
-    ].filter(Boolean).join(' | ');
-
     this.envoiEnCours = true;
-    this.http.post<any>('http://localhost:5000/api/hospitals/request', {
+    this.http.post<any>(`${environment.apiUrl}/hospitals/request`, {
       hospital_name: this.hospitalName,
       contact_name: this.contactName,
       contact_email: this.contactEmail.toLowerCase(),
       contact_phone: this.contactPhone || undefined,
-      message: messageComplet || undefined
+      address: this.address || undefined,
+      numero_agrement: this.numeroAgrement || undefined,
+      message: this.message || undefined
     }).subscribe({
       next: (res) => {
         this.envoiEnCours = false;

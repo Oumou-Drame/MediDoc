@@ -22,7 +22,7 @@ export class Subscriptions implements OnInit {
 
   chargerSubscriptions() {
     this.chargement = true;
-    this.subscriptionService['http'].get<any>('http://localhost:5000/api/subscription/admin/subscriptions', { withCredentials: true }).subscribe({
+    this.subscriptionService.getAdminSubscriptions().subscribe({
       next: (res) => {
         this.subscriptions = res.data;
         this.chargement = false;
@@ -35,7 +35,7 @@ export class Subscriptions implements OnInit {
   }
 
   validerAbonnement(id: number) {
-    this.subscriptionService['http'].put<any>(`http://localhost:5000/api/subscription/admin/subscriptions/${id}/validate`, { transaction_id: 'MANUAL-' + Date.now() }, { withCredentials: true }).subscribe({
+    this.subscriptionService.validateSubscription(id).subscribe({
       next: () => {
         this.chargerSubscriptions();
       },
@@ -44,7 +44,7 @@ export class Subscriptions implements OnInit {
   }
 
   rejeterAbonnement(id: number) {
-    this.subscriptionService['http'].put<any>(`http://localhost:5000/api/subscription/admin/subscriptions/${id}/reject`, {}, { withCredentials: true }).subscribe({
+    this.subscriptionService.rejectSubscription(id).subscribe({
       next: () => {
         this.chargerSubscriptions();
       },

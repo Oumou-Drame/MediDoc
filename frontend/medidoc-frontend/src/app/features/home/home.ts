@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RegistrationService } from '../../core/services/registration-service';
+import { SubscriptionService, SubscriptionPlan } from '../../core/services/subscription-service';
 
 @Component({
   selector: 'app-home',
@@ -13,10 +14,16 @@ import { RegistrationService } from '../../core/services/registration-service';
 })
 export class Home implements OnInit, OnDestroy {
   private registrationService = inject(RegistrationService);
+  private subscriptionService = inject(SubscriptionService);
 
   scrolled = false;
   activeStep = 0;
   private stepInterval: any;
+
+  // Offres affichées en lecture seule (page publique) — les prix/quotas viennent
+  // de la même source que la page de choix de pack post-inscription.
+  plans: SubscriptionPlan[] = [];
+  chargementPlans = true;
 
   particles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
 
@@ -47,6 +54,11 @@ export class Home implements OnInit, OnDestroy {
     this.stepInterval = setInterval(() => {
       this.activeStep = (this.activeStep + 1) % this.steps.length;
     }, 3200);
+
+    this.subscriptionService.getPlans().subscribe({
+      next: (res) => { this.plans = res.data; this.chargementPlans = false; },
+      error: () => { this.chargementPlans = false; }
+    });
   }
 
   ngOnDestroy() {
