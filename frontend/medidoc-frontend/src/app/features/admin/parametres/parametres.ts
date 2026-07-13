@@ -143,6 +143,39 @@ export class Parametres implements OnInit {
     });
   }
 
+  effacerConfig() {
+    if (!this.hospitalIdSelectionne) return;
+    if (!confirm('Voulez-vous vraiment effacer la configuration d\'envoi pour cet hôpital ?')) {
+      return;
+    }
+    this.enregistrementEnvoi = true;
+    this.messageSuccesEnvoi = '';
+    this.testMessage = '';
+    this.testErreur = '';
+    this.adminService.updateSendConfig(this.hospitalIdSelectionne, {
+      smtp_host: null,
+      smtp_port: null,
+      smtp_user: null,
+      smtp_pass: null,
+      smtp_from_name: null,
+      sms_whatsapp_sender: null,
+      clear_email: true
+    }).subscribe({
+      next: () => {
+        this.enregistrementEnvoi = false;
+        this.messageSuccesEnvoi = "Configuration effacée";
+        this.smtpHost = '';
+        this.smtpPort = 587;
+        this.smtpUser = '';
+        this.smtpPass = '';
+        this.smtpFromName = '';
+        this.smsWhatsappSender = '';
+        this.avanceOuvert = false;
+      },
+      error: (err) => { this.enregistrementEnvoi = false; alert(err.error?.error || "Erreur lors de l'effacement"); }
+    });
+  }
+
   testerConnexion() {
     if (!this.hospitalIdSelectionne) return;
     this.testEnCours = true;

@@ -37,73 +37,104 @@
     </div>
 </div>
 
-<div class="card" *ngIf="!chargement">
+<div class="card send-config-card" *ngIf="!chargement">
     <div class="card-title">Configuration d'envoi par hôpital</div>
 
-    <div class="form-row">
+    <div class="config-hospital-select">
         <label>Hôpital</label>
         <select [(ngModel)]="hospitalIdSelectionne" (change)="chargerConfigEnvoi()">
             <option *ngFor="let h of hopitaux" [value]="h.id">{{ h.name }}</option>
         </select>
     </div>
 
-    <div *ngIf="chargementEnvoi">Chargement de la configuration...</div>
+    <div *ngIf="chargementEnvoi">
+        <div class="loading-state">Chargement de la configuration...</div>
+    </div>
 
     <div *ngIf="!chargementEnvoi">
-        <p class="config-note">
-            Configurez le numéro SMS/WhatsApp activé et l'email d'envoi pour l'hôpital sélectionné.
-        </p>
-
-        <div class="form-row">
-            <label>Numéro d'envoi SMS/WhatsApp</label>
-            <input type="text" [(ngModel)]="smsWhatsappSender" placeholder="Ex: +221771234567">
-        </div>
-
-        <div class="config-separateur">Email de l'hôpital</div>
-
-        <div class="form-row">
-            <label>Nom affiché comme expéditeur</label>
-            <input type="text" [(ngModel)]="smtpFromName" placeholder="Ex: Laboratoire Fann">
-        </div>
-
-        <div class="form-row">
-            <label>Adresse email de l'hôpital</label>
-            <input type="email" [(ngModel)]="smtpUser" placeholder="labo.fann@gmail.com" required>
-        </div>
-
-        <div class="form-row">
-            <label>Mot de passe d'application</label>
-            <input type="password" [(ngModel)]="smtpPass" placeholder="Laisser tel quel pour ne pas le modifier">
-        </div>
-
-        <button type="button" class="btn-link" (click)="avanceOuvert = !avanceOuvert">
-            {{ avanceOuvert ? 'Masquer les options avancées' : "Je n'utilise pas Gmail" }}
-        </button>
-
-        <ng-container *ngIf="avanceOuvert">
-            <div class="form-row">
-                <label>Serveur SMTP</label>
-                <input type="text" [(ngModel)]="smtpHost" placeholder="Ex: smtp.gmail.com">
+        <div class="config-header">
+            <p class="config-note">
+                Configurez le numéro SMS/WhatsApp activé et l'email d'envoi pour l'hôpital sélectionné.
+            </p>
+            <div class="config-status" *ngIf="smsWhatsappSender || smtpUser">
+                <span class="status-badge status-active">● Configuration active</span>
             </div>
-            <div class="form-row">
-                <label>Port SMTP</label>
-                <input type="number" [(ngModel)]="smtpPort">
+            <div class="config-status" *ngIf="!smsWhatsappSender && !smtpUser">
+                <span class="status-badge status-inactive">● Configuration vide</span>
             </div>
-        </ng-container>
-
-        <div class="test-connexion-row">
-            <button type="button" class="btn-secondary" [disabled]="testEnCours" (click)="testerConnexion()">
-                {{ testEnCours ? 'Test en cours...' : 'Tester la connexion' }}
-            </button>
-            <span class="test-message-ok" *ngIf="testMessage">✓ {{ testMessage }}</span>
-            <span class="test-message-erreur" *ngIf="testErreur">✕ {{ testErreur }}</span>
         </div>
 
-        <div class="param-actions">
-            <span class="succes" *ngIf="messageSuccesEnvoi">{{ messageSuccesEnvoi }}</span>
-            <button class="btn-primary" [disabled]="enregistrementEnvoi" (click)="enregistrerEnvoi()">
-                {{ enregistrementEnvoi ? 'Enregistrement...' : 'Enregistrer' }}
-            </button>
+        <div class="form-section sms-section">
+            <h3>SMS / WhatsApp</h3>
+            <div class="form-row">
+                <label>Numéro d'envoi <span class="required">*</span></label>
+                <input type="text" [(ngModel)]="smsWhatsappSender" placeholder="Ex: +221771234567" [class.invalid]="enregistrementEnvoi && !smsWhatsappSender">
+                <span class="field-hint">Numéro utilisé pour envoyer les SMS et messages WhatsApp aux patients</span>
+            </div>
+        </div>
+
+        <div class="config-separateur"></div>
+
+        <div class="form-section email-section">
+            <h3>Email SMTP</h3>
+
+            <div class="form-row">
+                <label>Nom affiché comme expéditeur</label>
+                <input type="text" [(ngModel)]="smtpFromName" placeholder="Ex: Laboratoire Fann">
+            </div>
+
+            <div class="form-row">
+                <label>Adresse email <span class="required">*</span></label>
+                <input type="email" [(ngModel)]="smtpUser" placeholder="labo.fann@gmail.com" [class.invalid]="enregistrementEnvoi && !smtpUser">
+                <span class="field-hint">Adresse Gmail ou SMTP qui enverra les résultats aux patients</span>
+            </div>
+
+            <div class="form-row">
+                <label>Mot de passe d'application</label>
+                <input type="password" [(ngModel)]="smtpPass" placeholder="Laisser vide pour ne pas modifier">
+                <span class="field-hint">Mot de passe d'application Google ou mot de passe SMTP</span>
+            </div>
+
+            <div class="advanced-options">
+                <button type="button" class="btn-link" (click)="avanceOuvert = !avanceOuvert">
+                    {{ avanceOuvert ? 'Masquer les options avancées' : "Utiliser un serveur SMTP personnalisé (non Gmail)" }}
+                </button>
+
+                <ng-container *ngIf="avanceOuvert">
+                    <div class="advanced-fields">
+                        <div class="form-row">
+                            <label>Serveur SMTP</label>
+                            <input type="text" [(ngModel)]="smtpHost" placeholder="Ex: smtp.gmail.com">
+                        </div>
+                        <div class="form-row">
+                            <label>Port SMTP</label>
+                            <input type="number" [(ngModel)]="smtpPort">
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+
+            <div class="test-connexion-row">
+                <button type="button" class="btn-secondary" [disabled]="testEnCours || !smtpUser" (click)="testerConnexion()">
+                    {{ testEnCours ? 'Test en cours...' : 'Tester la connexion' }}
+                </button>
+                <span class="test-message-ok" *ngIf="testMessage">✓ {{ testMessage }}</span>
+                <span class="test-message-erreur" *ngIf="testErreur">✕ {{ testErreur }}</span>
+            </div>
+        </div>
+
+        <div class="config-footer">
+            <div class="param-actions">
+                <span class="succes" *ngIf="messageSuccesEnvoi">{{ messageSuccesEnvoi }}</span>
+                <div class="action-buttons">
+                    <button class="btn-link-danger" type="button" *ngIf="smsWhatsappSender || smtpUser" (click)="effacerConfig()">
+                        Effacer la configuration
+                    </button>
+                    <button class="btn-primary" [disabled]="enregistrementEnvoi" (click)="enregistrerEnvoi()">
+                        {{ enregistrementEnvoi ? 'Enregistrement...' : 'Enregistrer' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -49,15 +49,15 @@ export class AdminService {
   // Accessible uniquement à l'admin plateforme (rôle admin).
   // L'identifiant de l'hôpital ciblé est passé en paramètre.
   getSendConfig(hospitalId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/send-config/${hospitalId}`, { withCredentials: true });
+    return this.http.get<any>(`${this.apiUrl}/hospitals/${hospitalId}/send-config`, { withCredentials: true });
   }
 
   updateSendConfig(hospitalId: number, payload: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/send-config/${hospitalId}`, payload, { withCredentials: true });
+    return this.http.put<any>(`${this.apiUrl}/hospitals/${hospitalId}/send-config`, payload, { withCredentials: true });
   }
 
   testSendConfig(hospitalId: number, payload: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/send-config/${hospitalId}/test`, payload, { withCredentials: true });
+    return this.http.post<any>(`${this.apiUrl}/hospitals/${hospitalId}/send-config/test`, payload, { withCredentials: true });
   }
 
   // Solde de crédits SMS/WhatsApp de l'hôpital
