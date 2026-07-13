@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PatientAccessService } from '../../../core/services/patient-access-service';
 import { PatientInfo, VerifyResponse } from '../models/patient-access';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-access-patient',
@@ -53,6 +54,6 @@ export class AccessPatient implements OnInit {
 
   get urlTelechargement(): string {
     if (!this.resultat) return '';
-    return `http://localhost:5000${this.resultat.download_url}`;
+    return `${environment.apiOrigin}${this.resultat.download_url}`;
   }
 }

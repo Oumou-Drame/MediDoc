@@ -101,65 +101,79 @@ router.post('/credits/:hospitalId/allocate', protect, requireAdmin, async (req, 
 });
 
 // ===========================================================
-// Configuration d'envoi par hôpital (section 7)
-// L'admin configure le numéro SMS/WhatsApp activé + peut définir un SMTP personnalisé par hôpital.
+// Configuration SMTP plateforme (emails système : demande approuvée/refusée,
+// mot de passe oublié). À NE PAS CONFONDRE avec la configuration d'envoi par
+// hôpital ci-dessus (hospital_send_config), qui sert aux envois de résultats aux
+// patients. Stockée dans `settings` (hospital_id IS NULL, clés platform_smtp_*).
 // ===========================================================
 
-// GET /api/admin/hospitals/:hospitalId/send-config — config d'envoi d'un hôpital
-router.get('/hospitals/:hospitalId/send-config', protect, requireAdmin, async (req, res) => {
+const PLATFORM_SMTP_KEYS = ['platform_smtp_host', 'platform_smtp_port', 'platform_smtp_user', 'platform_smtp_pass', 'platform_smtp_from_name'];
+
+// GET /api/admin/platform-smtp-config — config SMTP plateforme (mot de passe masqué)
+router.get('/platform-smtp-config', protect, requireAdmin, async (req, res) => {
     try {
-        const config = await queryOne('SELECT * FROM hospital_send_config WHERE hospital_id = $1', [req.params.hospitalId]);
-        const safeConfig = config ? { ...config, smtp_pass: config.smtp_pass ? '••••••••' : null } : null;
-        res.json({ success: true, data: safeConfig });
+        const rows = await queryAll(
+            `SELECT setting_key, setting_value FROM settings WHERE hospital_id IS NULL AND setting_key = ANY($1)`,
+            [PLATFORM_SMTP_KEYS]
+        );
+        const map = {};
+        rows.forEach(r => { map[r.setting_key] = r.setting_value; });
+
+        res.json({
+            success: true,
+            data: {
+                smtp_host: map.platform_smtp_host || '',
+                smtp_port: map.platform_smtp_port ? parseInt(map.platform_smtp_port) : 587,
+                smtp_user: map.platform_smtp_user || '',
+                smtp_pass: map.platform_smtp_pass ? '••••••••' : '',
+                smtp_from_name: map.platform_smtp_from_name || 'MediDoc'
+            }
+        });
     } catch (err) {
-        console.error('Get send config error:', err);
+        console.error('Get platform SMTP config error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
 
-// PUT /api/admin/hospitals/:hospitalId/send-config — modifier la config d'envoi d'un hôpital
-router.put('/hospitals/:hospitalId/send-config', protect, requireAdmin, async (req, res) => {
-    const { smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_name, sms_whatsapp_sender, clear_email } = req.body;
+// PUT /api/admin/platform-smtp-config — modifier la config SMTP plateforme
+router.put('/platform-smtp-config', protect, requireAdmin, async (req, res) => {
+    const { smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_name } = req.body;
+    if (!smtp_user) {
+        return res.status(400).json({ error: "L'adresse email est requise" });
+    }
     try {
-        const existing = await queryOne('SELECT hospital_id, smtp_pass FROM hospital_send_config WHERE hospital_id = $1', [req.params.hospitalId]);
+        const existingPassRow = await queryOne(
+            `SELECT setting_value FROM settings WHERE hospital_id IS NULL AND setting_key = 'platform_smtp_pass'`,
+            []
+        );
+        const passwordToStore = (smtp_pass && smtp_pass !== '••••••••') ? smtp_pass : (existingPassRow?.setting_value || null);
 
-        let hostToStore, portToStore, userToStore, passwordToStore;
-        if (clear_email) {
-            hostToStore = null;
-            portToStore = null;
-            userToStore = null;
-            passwordToStore = null;
-        } else {
-            hostToStore = smtp_host || null;
-            portToStore = smtp_port || null;
-            userToStore = smtp_user || null;
-            passwordToStore = (smtp_pass && smtp_pass !== '••••••••') ? smtp_pass : (existing ? existing.smtp_pass : null);
+        const valeurs = {
+            platform_smtp_host: smtp_host || 'smtp.gmail.com',
+            platform_smtp_port: String(smtp_port || 587),
+            platform_smtp_user: smtp_user,
+            platform_smtp_from_name: smtp_from_name || 'MediDoc',
+            ...(passwordToStore ? { platform_smtp_pass: passwordToStore } : {})
+        };
+
+        for (const [key, value] of Object.entries(valeurs)) {
+            const existing = await queryOne('SELECT id FROM settings WHERE setting_key = $1 AND hospital_id IS NULL', [key]);
+            if (existing) {
+                await query('UPDATE settings SET setting_value = $1, updated_at = NOW() WHERE id = $2', [String(value), existing.id]);
+            } else {
+                await query('INSERT INTO settings (setting_key, setting_value, hospital_id, updated_at) VALUES ($1, $2, NULL, NOW())', [key, String(value)]);
+            }
         }
 
-        if (existing) {
-            await query(
-                `UPDATE hospital_send_config
-         SET smtp_host = $1, smtp_port = $2, smtp_user = $3, smtp_pass = $4, smtp_from_name = $5, sms_whatsapp_sender = $6, updated_at = NOW()
-         WHERE hospital_id = $7`,
-                [hostToStore, portToStore, userToStore, passwordToStore, smtp_from_name || null, sms_whatsapp_sender || null, req.params.hospitalId]
-            );
-        } else {
-            await query(
-                `INSERT INTO hospital_send_config (hospital_id, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from_name, sms_whatsapp_sender, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-                [req.params.hospitalId, hostToStore, portToStore, userToStore, passwordToStore, smtp_from_name || null, sms_whatsapp_sender || null]
-            );
-        }
-
-        res.json({ success: true, message: "Configuration d'envoi mise à jour" });
+        res.json({ success: true, message: 'Configuration SMTP plateforme mise à jour' });
     } catch (err) {
-        console.error('Update send config error:', err);
+        console.error('Update platform SMTP config error:', err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
 
-// POST /api/admin/hospitals/:hospitalId/send-config/test — tester la config SMTP d'un hôpital
-router.post('/hospitals/:hospitalId/send-config/test', protect, requireAdmin, async (req, res) => {
+// POST /api/admin/platform-smtp-config/test — tester la config SMTP plateforme
+router.post('/platform-smtp-config/test', protect, requireAdmin, async (req, res) => {
     const { smtp_host, smtp_port, smtp_user, smtp_pass } = req.body;
     if (!smtp_user) {
         return res.status(400).json({ error: "L'adresse email est requise pour tester" });
@@ -167,8 +181,11 @@ router.post('/hospitals/:hospitalId/send-config/test', protect, requireAdmin, as
 
     let passwordToTest = smtp_pass;
     if (!passwordToTest || passwordToTest === '••••••••') {
-        const existing = await queryOne('SELECT smtp_pass FROM hospital_send_config WHERE hospital_id = $1', [req.params.hospitalId]);
-        passwordToTest = existing?.smtp_pass || null;
+        const existing = await queryOne(
+            `SELECT setting_value FROM settings WHERE hospital_id IS NULL AND setting_key = 'platform_smtp_pass'`,
+            []
+        );
+        passwordToTest = existing?.setting_value || null;
     }
     if (!passwordToTest) {
         return res.status(400).json({ error: "Le mot de passe d'application est requis pour tester" });
@@ -182,7 +199,7 @@ router.post('/hospitals/:hospitalId/send-config/test', protect, requireAdmin, as
     });
 
     if (result.success) {
-        res.json({ success: true, message: 'Connexion réussie — cette adresse peut envoyer des emails aux patients' });
+        res.json({ success: true, message: 'Connexion réussie — les emails système (approbation, refus, mot de passe oublié) peuvent être envoyés' });
     } else {
         res.status(400).json({ error: explainSmtpError(result.error) });
     }
@@ -190,7 +207,6 @@ router.post('/hospitals/:hospitalId/send-config/test', protect, requireAdmin, as
 
 // ===========================================================
 // Paramètres techniques globaux de la plateforme (section 3.1)
-// (les identifiants sensibles du fournisseur SMS/WhatsApp restent en .env, non exposés ici)
 // ===========================================================
 
 // GET /api/admin/settings — paramètres plateforme (hospital_id IS NULL)

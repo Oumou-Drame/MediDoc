@@ -1,0 +1,118 @@
+.responsables-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--c-border-strong);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 14px;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: var(--font-sans);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--c-accent);
+    box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+.info-note {
+    background: var(--c-bg);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    color: var(--c-text-muted);
+    margin-bottom: 18px;
+}
+
+.responsables-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.responsables-table th {
+    text-align: left;
+    font-size: 0.72rem;
+    color: var(--c-text-faint);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 10px;
+    border-bottom: 1.5px solid var(--c-border);
+}
+
+.responsables-table td {
+    padding: 15px 10px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+}
+
+.responsables-table tbody tr:hover {
+    background: var(--c-bg);
+}
+
+.statut-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    border: none;
+    border-radius: 100px;
+    background: #d8d6cd;
+    padding: 0;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background .15s;
+    flex-shrink: 0;
+}
+
+.statut-switch.actif {
+    background: var(--c-accent);
+}
+
+.statut-switch-curseur {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .15s;
+}
+
+.statut-switch.actif .statut-switch-curseur {
+    transform: translateX(16px);
+}
+
+.statut-switch-libelle {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--c-text-muted);
+    vertical-align: middle;
+}
+
+.statut-switch-libelle.actif {
+    color: var(--c-accent);
+}
+
+.empty {
+    text-align: center;
+    color: var(--c-text-faint);
+    padding: 30px 0;
+}
+
+.erreur-msg {
+    color: #b91c1c;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}

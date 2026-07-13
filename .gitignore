@@ -5,3 +5,5 @@ uploads/
 protected/
 data/
 *.db
+*.pem
+Archives/

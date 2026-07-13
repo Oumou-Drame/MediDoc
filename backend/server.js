@@ -19,8 +19,15 @@ import * as whatsapp from './utils/whatsapp.js';
 const app = express();
 
 // middleware
+// Origines autorisées : celle de dev (Angular local) + celle de prod définie dans .env
+// (FRONTEND_URL, ex: https://medidoc.myfad.org). En prod, comme le frontend est servi par
+// le même Nginx que l'API (voir déploiement), les requêtes sont en général same-origin —
+// ce réglage sert surtout de filet de sécurité / pour un accès direct à l'API.
+const allowedOrigins = ["http://localhost:4200"];
+if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL);
+
 app.use(cors({
-    origin: "http://localhost:4200",
+    origin: allowedOrigins,
     credentials: true,
 }));
 app.use(express.json());

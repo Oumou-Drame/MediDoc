@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import * as whatsapp from './whatsapp.js';
+import { queryAll } from '../config/db.js';
 
 // Coût forfaitaire utilisé pour la déduction du solde virtuel par hôpital (section 7.1 du cadrage),
 // en attendant le choix définitif du fournisseur SMS/WhatsApp (Twilio vs Africa's Talking, section 7) :
@@ -9,16 +10,41 @@ import * as whatsapp from './whatsapp.js';
 export const ESTIMATED_SMS_COST = parseFloat(process.env.ESTIMATED_SMS_COST || '15');
 export const ESTIMATED_WHATSAPP_COST = parseFloat(process.env.ESTIMATED_WHATSAPP_COST || '15');
 
-// Transporteur SMTP plateforme par défaut (utilisé si l'hôpital n'a pas sa propre config email)
-const platformTransporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: {
-        user: process.env.SMTP_USER || 'your-email@gmail.com',
-        pass: process.env.SMTP_PASS || 'your-app-password'
-    }
-});
+// Transporteur SMTP plateforme par défaut (utilisé pour tous les envois patients, puisqu'il n'y a
+// plus de configuration SMTP par hôpital — voir Paramètres plateforme > Configuration SMTP plateforme).
+// Lu dans `settings` (hospital_id IS NULL, clés platform_smtp_*), avec repli sur .env si rien n'a
+// encore été enregistré en base (mêmes clés que utils/platformMailer.js).
+async function getPlatformSmtpConfig() {
+    const rows = await queryAll(
+        `SELECT setting_key, setting_value FROM settings
+     WHERE hospital_id IS NULL AND setting_key IN
+       ('platform_smtp_host', 'platform_smtp_port', 'platform_smtp_user', 'platform_smtp_pass', 'platform_smtp_from_name')`,
+        []
+    );
+    const map = {};
+    rows.forEach(r => { map[r.setting_key] = r.setting_value; });
+
+    return {
+        host: map.platform_smtp_host || process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: parseInt(map.platform_smtp_port) || parseInt(process.env.SMTP_PORT) || 587,
+        user: map.platform_smtp_user || process.env.SMTP_USER || 'your-email@gmail.com',
+        pass: map.platform_smtp_pass || process.env.SMTP_PASS || 'your-app-password',
+        fromName: map.platform_smtp_from_name || 'MediDoc'
+    };
+}
+
+async function getPlatformTransporter() {
+    const cfg = await getPlatformSmtpConfig();
+    return {
+        transporter: nodemailer.createTransport({
+            host: cfg.host,
+            port: cfg.port,
+            secure: false,
+            auth: { user: cfg.user, pass: cfg.pass }
+        }),
+        cfg
+    };
+}
 
 // Cache léger des transporteurs par hôpital pour éviter de recréer une connexion à chaque envoi
 const hospitalTransporters = new Map();
@@ -274,9 +300,10 @@ export async function sendSMS(phone, message) {
  */
 export async function sendEmail(to, subject, text, attachmentPath = null, html = null, hospitalSendConfig = null) {
     try {
-        const transporter = getHospitalTransporter(hospitalSendConfig) || platformTransporter;
-        const fromAddress = hospitalSendConfig?.smtp_user || process.env.SMTP_USER || 'noreply@medidoc.sn';
-        const fromName = hospitalSendConfig?.smtp_from_name || 'MediDoc';
+        const hospitalTransporter = getHospitalTransporter(hospitalSendConfig);
+        const { transporter, cfg } = hospitalTransporter ? { transporter: hospitalTransporter, cfg: null } : await getPlatformTransporter();
+        const fromAddress = hospitalSendConfig?.smtp_user || cfg?.user || 'noreply@medidoc.sn';
+        const fromName = hospitalSendConfig?.smtp_from_name || cfg?.fromName || 'MediDoc';
 
         const mailOptions = {
             from: `${fromName} <${fromAddress}>`,

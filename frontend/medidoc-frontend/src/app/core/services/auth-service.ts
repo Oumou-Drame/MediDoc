@@ -4,13 +4,14 @@ import { LoginRequest } from '../../features/auth/models/LoginRequest';
 import { LoginResponse } from '../../features/auth/models/LoginResponse';
 import { Observable, map, catchError, of, tap } from 'rxjs';
 import { CurrentUser } from '../models/user';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private http: HttpClient = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   // Utilisateur courant mis en cache après /login ou /me, consommé par la sidebar et le profil.
   private currentUserValue: CurrentUser | null = null;

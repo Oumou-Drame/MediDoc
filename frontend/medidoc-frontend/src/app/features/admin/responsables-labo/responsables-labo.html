@@ -1,0 +1,55 @@
+<div class="page-header">
+    <div>
+        <div class="page-title">Responsables de labo</div>
+        <div class="page-subtitle">Tous hôpitaux confondus</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="responsables-header">
+        <div class="card-title">{{ responsablesFiltres.length }} responsable(s)</div>
+    </div>
+    <input type="text" class="search-input" placeholder="Rechercher par nom, email ou hôpital..."
+        [(ngModel)]="rechercheLocale">
+
+    <div class="info-note">
+        Un compte responsable de labo est créé automatiquement lorsqu'une demande d'inscription d'hôpital est
+        approuvée. Il n'y a pas encore de création manuelle depuis cette page.
+    </div>
+
+    <table class="responsables-table" *ngIf="!chargement && !erreur">
+        <thead>
+            <tr>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Hôpital</th>
+                <th>Téléphone</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let resp of responsablesFiltres">
+                <td>{{ resp.full_name }}</td>
+                <td>{{ resp.email }}</td>
+                <td>{{ resp.hospital_name }}</td>
+                <td>{{ resp.phone || '—' }}</td>
+                <td>
+                    <button type="button" class="statut-switch" [class.actif]="resp.is_active"
+                        (click)="toggleStatut(resp)"
+                        [attr.aria-label]="resp.is_active ? 'Suspendre ce compte' : 'Activer ce compte'"
+                        role="switch" [attr.aria-checked]="resp.is_active">
+                        <span class="statut-switch-curseur"></span>
+                    </button>
+                    <span class="statut-switch-libelle" [class.actif]="resp.is_active">
+                        {{ resp.is_active ? 'Actif' : 'Suspendu' }}
+                    </span>
+                </td>
+            </tr>
+            <tr *ngIf="responsablesFiltres.length === 0">
+                <td colspan="5" class="empty">Aucun responsable de labo trouvé</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="erreur-msg" *ngIf="erreur">{{ erreur }}</div>
+</div>

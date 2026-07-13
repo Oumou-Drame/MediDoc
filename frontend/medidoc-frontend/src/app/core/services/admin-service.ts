@@ -4,6 +4,7 @@ import { DashboardResponse } from '../../features/admin/models/dashbord-stats';
 import { Observable } from 'rxjs';
 import { ParametresApp } from '../../features/admin/models/settings';
 import { ActiviteResponse, Auteur } from '../../features/admin/models/activite';
+import { environment } from '../../../environments/environment';
 
 
 @Injectable({
@@ -12,9 +13,9 @@ import { ActiviteResponse, Auteur } from '../../features/admin/models/activite';
 export class AdminService {
   private http: HttpClient = inject(HttpClient);
   // Paramètres plateforme (rôle admin uniquement, aucune donnée patient)
-  private apiUrl = 'http://localhost:5000/api/admin';
+  private apiUrl = `${environment.apiUrl}/admin`;
   // Dashboard + comptes techniciens : niveau hôpital (rôle responsable de labo)
-  private labManagerUrl = 'http://localhost:5000/api/lab-manager';
+  private labManagerUrl = `${environment.apiUrl}/lab-manager`;
 
   getDashboard(): Observable<DashboardResponse> {
     return this.http.get<DashboardResponse>(`${this.labManagerUrl}/dashboard`, { withCredentials: true });
@@ -60,6 +61,20 @@ export class AdminService {
     return this.http.post<any>(`${this.apiUrl}/hospitals/${hospitalId}/send-config/test`, payload, { withCredentials: true });
   }
 
+  // Configuration SMTP plateforme (emails système : demande approuvée/refusée, mot de passe oublié)
+  // — distincte de la configuration d'envoi par hôpital ci-dessus.
+  getPlatformSmtpConfig(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/platform-smtp-config`, { withCredentials: true });
+  }
+
+  updatePlatformSmtpConfig(payload: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/platform-smtp-config`, payload, { withCredentials: true });
+  }
+
+  testPlatformSmtpConfig(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/platform-smtp-config/test`, payload, { withCredentials: true });
+  }
+
   // Solde de crédits SMS/WhatsApp de l'hôpital
   getCredits(): Observable<any> {
     return this.http.get<any>(`${this.labManagerUrl}/credits`, { withCredentials: true });
@@ -80,6 +95,15 @@ export class AdminService {
 
   getActiviteAuteurs(): Observable<{ success: boolean; data: Auteur[] }> {
     return this.http.get<any>(`${this.labManagerUrl}/activite/auteurs`, { withCredentials: true });
+  }
+
+  // Comptes responsables de labo, tous hôpitaux confondus (rôle admin plateforme uniquement)
+  getLabManagers(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/lab-managers`, { withCredentials: true });
+  }
+
+  toggleLabManager(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/lab-managers/${id}/toggle`, {}, { withCredentials: true });
   }
 
 }
